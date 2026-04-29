@@ -1,0 +1,96 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.pytest_cache/
+*.mypy_cache/
+
+# Local virtual environment
+.venv/
+venv/
+
+# Notebook / editor
+.ipynb_checkpoints/
+.DS_Store
+Thumbs.db
+
+# Logs and runtime artifacts
+*.log
+*.err
+*.tmp
+*.bak
+
+# LaTeX build artifacts
+*.aux
+*.bbl
+*.bcf
+*.blg
+*.fdb_latexmk
+*.fls
+*.lof
+*.lot
+*.nav
+*.out
+*.run.xml
+*.snm
+*.synctex.gz
+*.toc
+
+# Model checkpoints and large binary artifacts
+*.pth
+*.pth.tar
+*.pt
+*.ckpt
+*.onnx
+*.bin
+*.safetensors
+*.weights
+checkpoints/
+**/checkpoints/
+saved_models/
+**/saved_models/
+
+# Compressed archives and packaged templates
+*.zip
+*.7z
+*.tar
+*.gz
+
+# Medical/image dataset binaries
+*.nii
+*.nii.gz
+*.mha
+*.mhd
+*.nrrd
+*.h5
+*.hdf5
+*.npz
+*.npy
+*.pkl
+
+# Local dataset roots (do not version raw data)
+IXI_data/
+OASIS/data/
+
+# Generated results directories (keep reproducible scripts/configs in git)
+IXI/Eval_Results/
+IXI/Eval_Results_reverse/
+IXI/Results/comprehensive/interim/
+IXI/Results/comprehensive_bayes_eval/
+IXI/Results/uploaded_weights_light/
+IXI/TransMorph/Quantitative_Results/
+OASIS/Eval_Results/
+
+# Training logs
+TransMorph_PSC/logs/
+IXI/TransMorph/logs/
+OASIS/TransMorph/logs/
+IXI/Baseline_registration_methods/**/logs/
+IXI/Baseline_registration_methods/runner_logs/
+
+# Draft backup folders
+draft/submission_draft_backup_*/
+
+# Keep draft manuscript versions in git (tex/pdf), only ignore build byproducts above.
+!draft/

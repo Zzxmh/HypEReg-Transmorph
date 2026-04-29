@@ -1,0 +1,17 @@
+HypEReg-TransMorph Attribution and Notice
+
+This repository contains original code and manuscript assets by Mohan Xu and Shiyi Xu,
+and also includes derivative/adapted components built on top of the TransMorph project.
+
+Upstream project credited:
+- Repository: https://github.com/junyuchen245/TransMorph_Transformer_for_Medical_Image_Registration
+- Paper: Chen J, Frey EC, He Y, Segars WP, Li Y, Du Y.
+  "TransMorph: Transformer for unsupervised medical image registration."
+  Medical Image Analysis, 2022. doi:10.1016/j.media.2022.102615
+
+Attribution and redistribution guidance:
+1) Keep this NOTICE file and the LICENSE file in redistributed copies.
+2) Preserve credit to Junyu Chen et al. for TransMorph backbone/original implementation.
+3) When publishing derived research results, cite the upstream TransMorph paper and
+   also cite the HypEReg-TransMorph manuscript/preprint where applicable.
+4) Respect licenses/notices that may exist in specific subdirectories for third-party code.

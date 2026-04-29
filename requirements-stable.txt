@@ -1,0 +1,10 @@
+pystrum
+ml-collections
+torch==2.5.1
+torchvision==0.20.1
+natsort
+numpy
+scikit-image
+timm
+tensorboard
+thop

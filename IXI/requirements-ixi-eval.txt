@@ -1,0 +1,11 @@
+# Optional deps for IXI one-shot full evaluation
+PyYAML>=5.1
+scikit-image>=0.19
+pandas>=1.2
+scipy
+matplotlib
+antspyx
+SimpleITK
+batchgenerators
+nnunet
+einops

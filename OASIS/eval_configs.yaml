@@ -1,0 +1,48 @@
+spacing: [1.0, 1.0, 1.0]
+num_labels: 36
+ssim_win: 11
+nmi_bins: 64
+jacobian_hist_bins: 100
+compute_ice: false
+jac_impl: vxm_grad
+lncc_win: 9
+seed: 0
+
+oasis_root: OASIS/data
+pairs_csv: OASIS/data/pairs_val.csv
+test_pkl_dir: OASIS/data/Test
+results_dir: OASIS/Eval_Results
+
+models:
+  - id: transmorph_her_oasis
+    name: HER-TransMorph
+    adapter: transmorph_her_oasis
+    supervision: unsup.
+  - id: transmorph_unsup_oasis
+    name: TransMorph (no-DSC, retrained)
+    adapter: transmorph_unsup_oasis
+    supervision: unsup.
+  - id: transmorph_dsc857_oasis
+    name: TransMorph (dsc0.857, published)
+    adapter: transmorph_dsc857_oasis
+    supervision: semi-sup. (DSC)
+  - id: voxelmorph_1_oasis
+    name: VoxelMorph-1 (published)
+    adapter: voxelmorph_1_oasis
+    supervision: PH-tag
+  - id: midir_oasis
+    name: MIDIR
+    adapter: midir_oasis
+    supervision: PH-tag
+  - id: cyclemorph_oasis
+    name: CycleMorph
+    adapter: cyclemorph_oasis
+    supervision: PH-tag
+  - id: syn_oasis
+    name: SyN (ANTs)
+    adapter: syn_oasis
+    supervision: classical
+  - id: affine_oasis
+    name: Affine (MI)
+    adapter: affine_oasis
+    supervision: classical

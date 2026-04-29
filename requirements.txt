@@ -1,0 +1,14 @@
+pystrum
+ml-collections
+# PyTorch quick options:
+# - Stable verification path (recommended for submission reproducibility): see requirements-stable.txt
+# - Nightly path for Blackwell-specific experiments:
+#   pip install --pre --upgrade torch torchvision --index-url https://download.pytorch.org/whl/nightly/cu128
+torch
+torchvision
+natsort
+numpy
+scikit-image
+timm
+tensorboard
+thop

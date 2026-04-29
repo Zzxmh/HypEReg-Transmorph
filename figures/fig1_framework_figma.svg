@@ -1,0 +1,93 @@
+<svg width="1800" height="1000" viewBox="0 0 1800 1000" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <marker id="arrow-solid" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto">
+      <path d="M0 0L10 5L0 10Z" fill="#1E293B"/>
+    </marker>
+    <marker id="arrow-dashed" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto">
+      <path d="M0 0L10 5L0 10Z" fill="#6D28D9"/>
+    </marker>
+    <style>
+      .title { font: 700 30px Arial, sans-serif; fill: #0F172A; }
+      .subtitle { font: 500 18px Arial, sans-serif; fill: #334155; }
+      .h { font: 700 19px Arial, sans-serif; fill: #0F172A; }
+      .t { font: 500 16px Arial, sans-serif; fill: #1E293B; }
+      .small { font: 500 14px Arial, sans-serif; fill: #475569; }
+      .box { stroke: #334155; stroke-width: 1.6; rx: 14; ry: 14; }
+      .solid { stroke: #1E293B; stroke-width: 2; fill: none; marker-end: url(#arrow-solid); }
+      .dashed { stroke: #6D28D9; stroke-width: 2; stroke-dasharray: 7 7; fill: none; marker-end: url(#arrow-dashed); }
+      .contrib { stroke: #C2410C; stroke-width: 1.8; }
+    </style>
+  </defs>
+
+  <rect x="0" y="0" width="1800" height="1000" fill="#FFFFFF"/>
+  <text x="70" y="70" class="title">Overview of the Proposed HER-TransMorph Framework</text>
+  <text x="70" y="102" class="subtitle">Minimal academic system diagram with highlighted contribution module</text>
+
+  <!-- Top row: inference path -->
+  <rect x="90" y="190" width="220" height="100" class="box" fill="#EEF2F7"/>
+  <text x="200" y="232" text-anchor="middle" class="h">Moving Image</text>
+  <text x="200" y="258" text-anchor="middle" class="small">I_m</text>
+
+  <rect x="90" y="340" width="220" height="100" class="box" fill="#EEF2F7"/>
+  <text x="200" y="382" text-anchor="middle" class="h">Fixed Image</text>
+  <text x="200" y="408" text-anchor="middle" class="small">I_f</text>
+
+  <rect x="420" y="240" width="270" height="120" class="box" fill="#EAF2FF"/>
+  <text x="555" y="284" text-anchor="middle" class="h">TransMorph Backbone</text>
+  <text x="555" y="311" text-anchor="middle" class="small">Swin Encoder + CNN Decoder</text>
+  <text x="555" y="336" text-anchor="middle" class="small">Patch embedding, skip fusion</text>
+
+  <rect x="780" y="240" width="230" height="120" class="box" fill="#EAF2FF"/>
+  <text x="895" y="284" text-anchor="middle" class="h">Flow Head</text>
+  <text x="895" y="311" text-anchor="middle" class="small">Dense field phi</text>
+
+  <rect x="1090" y="240" width="260" height="120" class="box" fill="#ECFDF5"/>
+  <text x="1220" y="284" text-anchor="middle" class="h">Spatial Transformer</text>
+  <text x="1220" y="311" text-anchor="middle" class="small">Warp I_m with phi</text>
+
+  <rect x="1430" y="240" width="250" height="120" class="box" fill="#ECFDF5"/>
+  <text x="1555" y="284" text-anchor="middle" class="h">Warped Output</text>
+  <text x="1555" y="311" text-anchor="middle" class="small">I_w</text>
+
+  <path d="M310 240 C355 240,360 280,420 300" class="solid"/>
+  <path d="M310 390 C355 390,360 320,420 300" class="solid"/>
+  <path d="M690 300L780 300" class="solid"/>
+  <path d="M1010 300L1090 300" class="solid"/>
+  <path d="M1350 300L1430 300" class="solid"/>
+
+  <!-- Bottom row: training losses -->
+  <rect x="300" y="560" width="260" height="110" class="box" fill="#F8FAFC"/>
+  <text x="430" y="603" text-anchor="middle" class="h">Similarity Loss</text>
+  <text x="430" y="630" text-anchor="middle" class="small">L_sim(I_w, I_f)</text>
+
+  <rect x="610" y="560" width="260" height="110" class="box" fill="#F8FAFC"/>
+  <text x="740" y="603" text-anchor="middle" class="h">Smoothness Loss</text>
+  <text x="740" y="630" text-anchor="middle" class="small">L_smooth(phi)</text>
+
+  <rect x="920" y="535" width="460" height="160" class="box contrib" fill="#FFF7ED"/>
+  <text x="950" y="575" class="h" fill="#C2410C">Hyperelastic Regularization (highlight)</text>
+  <text x="950" y="606" class="t" fill="#9A3412">phi -> det(J_phi) -> beta L_volume + gamma L_fold</text>
+  <text x="950" y="636" class="small" fill="#9A3412">Length + volume + anti-folding constraints</text>
+  <text x="950" y="666" class="small" fill="#9A3412">Applied only during training (no extra inference cost)</text>
+
+  <rect x="1410" y="560" width="310" height="130" class="box" fill="#F5F3FF"/>
+  <text x="1565" y="602" text-anchor="middle" class="h">Total Objective</text>
+  <text x="1565" y="630" text-anchor="middle" class="t">L_total = L_NCC + lambda_grad L_grad + lambda_HER L_HER</text>
+
+  <path d="M1220 360L430 560" class="dashed"/>
+  <path d="M895 360L740 560" class="dashed"/>
+  <path d="M895 360L1080 535" class="dashed"/>
+  <path d="M560 615L1410 625" class="solid"/>
+  <path d="M870 615L1410 625" class="solid"/>
+  <path d="M1380 615L1410 625" class="solid"/>
+
+  <!-- Legend -->
+  <rect x="90" y="830" width="1620" height="110" class="box" fill="#FFFFFF"/>
+  <line x1="130" y1="875" x2="210" y2="875" class="solid"/>
+  <text x="225" y="880" class="small">Solid arrow: forward/inference path</text>
+  <line x1="620" y1="875" x2="700" y2="875" class="dashed"/>
+  <text x="715" y="880" class="small">Dashed arrow: training supervision path</text>
+  <rect x="1130" y="848" width="130" height="54" class="box contrib" fill="#FFF7ED"/>
+  <text x="1278" y="880" class="small">Highlighted: proposed contribution</text>
+</svg>
+

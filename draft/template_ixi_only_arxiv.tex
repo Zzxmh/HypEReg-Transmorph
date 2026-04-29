@@ -1,0 +1,405 @@
+% arXiv-oriented preprint (standard article class).
+% Body text is derived from template_ixi_only.tex (same scientific content; MDPI layout removed).
+\pdfoutput=1
+
+\documentclass[11pt,a4paper]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage{amsmath,amssymb,amsfonts}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{tabularx}
+\usepackage{float}
+\usepackage[hyphens]{url}
+\usepackage[margin=1in]{geometry}
+\usepackage{xcolor}
+\usepackage[round,authoryear]{natbib}
+\usepackage[colorlinks=true,linkcolor=blue,citecolor=blue,urlcolor=blue]{hyperref}
+\usepackage{enumitem}
+\usepackage[section]{placeins}
+\usepackage{flafter}
+
+\graphicspath{{../}{../figures/}}
+
+\title{HypEReg-TransMorph: A Hyperelastic-Regularized Transformer\\ Framework for Folding-Suppressed Deformable Brain MRI Registration}
+
+\author{%
+Shiyi Xu$^{1}$,
+Mohan Xu$^{2,*}$\\[0.75em]
+\small
+$^{1}$ Capital Medical University, Beijing 100069, China; xsy4831@mail.ccmu.edu.cn\\
+$^{2}$ School of Physics, Peking University, Beijing 100871, China; 2200011601@stu.pku.edu.cn\\[0.5em]
+\small\textit{Correspondence:} Mohan Xu; 2200011601@stu.pku.edu.cn
+}
+
+\date{April 2026}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+Background: Deformable brain MRI registration requires accurate alignment and geometrically plausible deformation fields. Methods: Hyperelastic-energy regularization (HypEReg) is integrated into a TransMorph-style dense registration backbone to penalize implausible local volume change and folding. Evaluation is performed on 115 held-out atlas-to-subject pairs from the Information eXtraction from Images (IXI) dataset using grouped anatomical labels. Results: HypEReg-TransMorph yields statistically indistinguishable grouped-VOI Dice relative to the strongest Transformer baselines (0.7537 $\pm$ 0.0275 vs.\ 0.7530 $\pm$ 0.0302 for TransMorphBayes) while reducing the non-positive Jacobian-determinant ratio by approximately three orders of magnitude (0.000015 $\pm$ 0.000007 vs.\ 0.0156 $\pm$ 0.0034) and lowering SDlogJ (0.3280 $\pm$ 0.0221 vs.\ 0.4920 $\pm$ 0.0330). Conclusions: Under the IXI atlas-to-subject protocol, HypEReg-TransMorph improves deformation regularity with near-equal overlap, supporting Jacobian-aware neuroimaging analysis. Wilcoxon paired tests with Benjamini--Hochberg FDR correction support these effects ($q<0.001$ for Jacobian-regularity metrics).
+\end{abstract}
+
+\noindent\textbf{Keywords:} medical image registration; deformable registration; transformer; hyperelastic-energy regularization; HypEReg-TransMorph; folding suppression; Jacobian regularization; Jacobian determinant; brain MRI
+
+\vspace{0.5em}
+\hrule
+\vspace{0.8em}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Introduction}
+
+Deformable registration is a central component of computational neuroimaging pipelines, including atlas propagation, longitudinal analysis, and voxel-wise morphometry. In recent years, learning-based methods have significantly reduced inference time compared with classical iterative optimization \citep{balakrishnan2019voxelmorph,kim2021cyclemorph}. However, high overlap metrics alone are not sufficient when deformation fields contain local foldings or implausible volume changes.
+
+Transformer-based registration improves long-range contextual modeling and has shown strong performance on 3D MRI tasks \citep{chen2022transmorph}. Nevertheless, unconstrained displacement prediction may still produce non-diffeomorphic deformations, which can invalidate downstream Jacobian-based analysis. To address this, we adapt a Jacobian-aware regularization scheme derived from hyperelastic principles \citep{burger2013hyperelastic} to a TransMorph backbone and explicitly optimize deformation plausibility. We refer to this regularizer as HypEReg, with the explicit caveat that we use a deep-learning--friendly two-term subset (volume distortion and anti-folding) rather than the full polyconvex hyperelastic energy.
+
+The contributions of this study are positioned, deliberately, as engineering-level rather than theoretical:
+\begin{itemize}
+\item An empirical instantiation of a Jacobian-aware regularizer derived from hyperelastic principles inside a Transformer-based dense-displacement registration framework (HypEReg-TransMorph), explicitly distinct from prior CNN/U-Net implementations of related volume-change and anti-folding penalties \citep{mok2020fast,hering2021lung} and from concurrent linear-elastic and hyperelastic regularizers in deep registration \citep{zou2023conformal,elasticmorph2025};
+\item A unified IXI atlas-to-subject benchmark that quantifies the trade-off between grouped-VOI overlap and deformation regularity across deep-learning baselines and a classical SyN reference, including paired Wilcoxon/BH-FDR inferential analysis;
+\item A reproducibility package (code, configurations, per-case metric exports, and figure scripts) released openly so that the regularization design and evaluation protocol can be reused as a drop-in component on TransMorph-style backbones.
+\end{itemize}
+
+\section{Related Work}
+
+\subsection{Classical and Diffeomorphic Registration}
+Classical registration frameworks such as SyN and related diffeomorphic formulations remain strong references for deformation plausibility, because they explicitly constrain transformation smoothness and invertibility during optimization \citep{avants2008ants,rueckert1999nonrigid,ashburner1999morphometry}. These methods often provide robust topology behavior but at substantially higher computational cost than feed-forward learned models.
+
+\subsection{Learning-Based Dense Registration}
+Learning-based methods, represented by VoxelMorph and descendants, provide fast inference with strong overlap accuracy \citep{balakrishnan2019voxelmorph}. Subsequent CNN and hybrid variants (e.g., CycleMorph and MIDIR) improve representational capacity \citep{kim2021cyclemorph,qiu2021midir}, while probabilistic diffeomorphic variants aim to improve deformation stability \citep{dalca2019probreg}. Even so, unconstrained dense displacement prediction can still produce locally implausible Jacobian behavior.
+
+\subsection{Transformer-Based Registration}
+Transformer backbones improve long-range context modeling in volumetric registration and have become competitive baselines \citep{chen2022transmorph,liu2021swin}. In this manuscript, CoTr, nnFormer, and PVT are treated as adapted Transformer-family backbones used in the same IXI evaluation workflow \citep{xie2021cotr,zhou2023nnformer,wang2021pvt}. For each backbone, the registration adapter concatenates moving/fixed images as a two-channel input and uses the repository flow-prediction decoder head to output \((I_w,\phi)\); all three adapters are evaluated under the same atlas-to-subject protocol. The objective here is not to propose a new Transformer architecture, but to evaluate training-time regularization on a TransMorph-style dense-flow network.
+
+\subsection{Hyperelastic and Jacobian-Based Regularization}
+Jacobian-aware and hyperelastic penalties provide direct control of local volume change and folding behavior \citep{burger2013hyperelastic}. These terms complement smoothness regularizers by explicitly penalizing singular or near-singular deformation regions, which is important for downstream morphometric interpretation. The original Burger--Modersitzki--Ruthotto formulation combines length, surface (cofactor) and volume terms inside a polyconvex energy and proves existence of minimizers in a discretize-then-optimize variational setting; in our deep-learning setting, we use only a Jacobian-aware subset of this family, and we discuss this divergence explicitly in Section~\ref{sec:loss}.
+
+\subsection{Volume-Preserving and Anti-Folding Regularization in Deep Registration}
+Several recent learning-based works place Jacobian-aware penalties directly into the training objective of deep registration networks. \citet{mok2020fast} introduce a selective Jacobian-determinant penalty that activates on $\det J\le 0$ regions inside a fast symmetric diffeomorphic CNN; this term is conceptually the immediate antecedent of our anti-folding hinge $\mathcal{L}_{\mathrm{fold}}$. \citet{hering2021lung} place a volume-change penalty together with a curvature regularizer inside a CNN-based lung-CT registration pipeline, demonstrating that BMR-style volume control can be incorporated into deep registration loss functions. \citet{zou2023conformal} adopt a non-linear conformal-invariant hyperelastic energy in a deep registration framework on lung CT, providing the closest precedent for hyperelastic-style regularization in learned registration. The recent \emph{ElasticMorph} framework~\citep{elasticmorph2025} plugs a second-order Navier--Cauchy linear-elastic regularizer into TransMorph and VoxelMorph backbones and reports overlap improvements with reduced folding artifacts on IXI/LPBA40 brain registration. Compared with these works, the contribution of HypEReg-TransMorph is restricted in scope: we do not propose a new architecture or a new theoretical regularizer; instead we report a practical configuration that combines a simplified rational volume-change term with an explicit anti-folding hinge inside a TransMorph backbone, and we evaluate the resulting trade-off under the IXI atlas-to-subject protocol with paired inferential statistics. We discuss the precise differences in formulation in Section~\ref{sec:loss} and the experimental positioning relative to ElasticMorph in Section~5.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Materials and Methods}
+
+\subsection{Dataset and Preprocessing}
+Experiments use the IXI brain MRI dataset \citep{ixidataset} under an atlas-to-subject registration protocol with a 403/58/115 train/validation/test split. All reported metrics are computed on the 115 held-out test subjects. This study uses the T1-weighted preprocessed IXI package commonly adopted by TransMorph-style studies \citep{chen2022transmorph,kim2021cyclemorph}, where preprocessing includes skull stripping, affine alignment, and subcortical segmentation generation in the published preprocessing workflow. Volumes are represented in a common template space and cropped/resampled to \(160 \times 192 \times 224\). A shared fixed atlas image-label pair is used for all methods. Intensity images are warped with trilinear interpolation and label maps with nearest-neighbor interpolation in evaluation/training utilities.
+
+
+\begin{table}[H]
+\caption{Dataset, preprocessing, and protocol summary.\label{tab1}}
+\begin{tabularx}{\textwidth}{lX}
+\toprule
+\textbf{Item} & \textbf{Configuration} \\
+\midrule
+Dataset source & IXI project dataset \citep{ixidataset} and preprocessed IXI package used in TransMorph-style workflows \\
+License & IXI public dataset terms (CC BY-SA 3.0 at IXI portal); preprocessed release follows its repository terms \\
+Volumes and split & 576 preprocessed subjects + atlas; 403 / 58 / 115 (train / validation / test) \\
+Modality and task & T1-weighted structural MRI; atlas-to-subject deformable registration \\
+Input shape & \(160 \times 192 \times 224\) after preprocessing/cropping \\
+Preprocessing summary & Public preprocessed IXI workflow (including skull stripping, affine alignment, and segmentation preprocessing) with template-space normalization; same pipeline used across all compared methods \\
+Labels and grouped VOIs & Segmentation labels are aggregated into 17 bilateral/related VOI groups for grouped Dice analysis \\
+Atlas definition & Fixed atlas image/label pair; same atlas used for all methods \\
+Interpolation & Intensity: trilinear warping; labels: nearest-neighbor warping \\
+Metric spacing & Surface metrics (HD95/ASSD/NSD) use spacing-aware distance transforms in the evaluation metrics implementation \\
+Compared families & TransMorph-family baselines, CNN/hybrid baselines, and classical SyN \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\subsection{Baseline Model}
+The base architecture is TransMorph, a Transformer-based dense deformable registration network with a Swin-style encoder and decoder-to-flow prediction head \citep{chen2022transmorph,liu2021swin}. We compare HypEReg-TransMorph against deep-learning and classical baselines under identical preprocessing and evaluation scripts:
+\begin{itemize}
+\item Transformer family: TransMorph, TransMorphBayes, CoTr, nnFormer;
+\item CNN / hybrid baselines: VoxelMorph-1, CycleMorph, MIDIR;
+\item Classical baseline: SyN (ANTs).
+\end{itemize}
+Checkpoint and version identifiers are documented in the repository evaluation configuration and the supplementary checkpoint manifest.
+Published baseline checkpoints were obtained from official repositories. For checkpoints where exact upstream training splits cannot be independently verified from model cards/releases, this is explicitly treated as a fairness limitation and documented in the reproducibility notes.
+
+\subsection{Proposed HypEReg-TransMorph Framework}
+HypEReg-TransMorph augments the TransMorph baseline with explicit hyperelastic regularization to constrain unrealistic local distortion. The operating-point regularizer targets two complementary aspects of deformation quality: volume-change moderation and anti-folding behavior near singular Jacobian regions. A length-change term is retained in the general mathematical formulation but its coefficient is set to zero in the final operating point because \(\mathcal{L}_{\mathrm{grad}}\) already constrains displacement smoothness and length-change behavior.
+
+Figure~\ref{fig1} summarizes the training architecture. The moving image \(I_m\) and fixed image \(I_f\) are concatenated and passed through a TransMorph-style backbone with a Transformer encoder and CNN decoder, producing a dense displacement field \(u\). The deformation is parameterized as \(\phi=\mathrm{Id}+u\), and a spatial transformer module warps \(I_m\) to obtain \(I_w\) \citep{jaderberg2015stn}. Three losses are then aggregated into a single objective: similarity \(\mathcal{L}_{\mathrm{sim}}(I_w,I_f)\), smoothness \(\mathcal{L}_{\mathrm{grad}}(u)\), and hyperelastic regularization \(\mathcal{L}_{\mathrm{HypEReg}}(u)\). The training-time HypEReg loss computation path evaluates \(J_\phi=I+\nabla u\) and \(\det J_\phi\), from which length, volume, and folding penalties are formed; in the final operating point, \(\alpha=0\), \(\beta=0.02\), and \(\gamma=20\), so the active HypEReg supervision is the volume + anti-folding subset. The network is trained with directional symmetry updates \((x\rightarrow y)\) and \((y\rightarrow x)\), and each direction performs its own forward/backward/optimizer step:
+
+\begin{figure}[H]
+\centering
+\IfFileExists{HER.png}{\includegraphics[width=0.96\textwidth]{HER.png}}{\IfFileExists{../HER.png}{\includegraphics[width=0.96\textwidth]{../HER.png}}{\IfFileExists{../figures/HER.png}{\includegraphics[width=0.96\textwidth]{../figures/HER.png}}{\includegraphics[width=0.96\textwidth]{figures/fig1_framework_figma.pdf}}}}
+\caption{Architecture and training objective of the proposed HypEReg-TransMorph framework. The moving image (\(I_m\)) and fixed image (\(I_f\)) are concatenated and passed through a TransMorph-based registration network with a Transformer encoder and CNN decoder to predict a dense 3D displacement field (\(u\)). The deformation transform is defined as \(\phi=\mathrm{Id}+u\), and a spatial transformer warps the moving image to generate the warped image (\(I_w\)). During training, three complementary terms are optimized: similarity loss \(\mathcal{L}_{\mathrm{sim}}(I_w,I_f)\), smoothness \(\lambda_{\mathrm{grad}}\mathcal{L}_{\mathrm{grad}}(u)\), and hyperelastic regularization \(\lambda_{\mathrm{HypEReg}}\mathcal{L}_{\mathrm{HypEReg}}(u)\), with \(\mathcal{L}_{\mathrm{sim}}=-\mathrm{LNCC}(I_w,I_f)\). The total objective is \(\mathcal{L}=\mathcal{L}_{\mathrm{sim}}+\lambda_{\mathrm{grad}}\mathcal{L}_{\mathrm{grad}}+\lambda_{\mathrm{HypEReg}}\mathcal{L}_{\mathrm{HypEReg}}\). The HypEReg zoom-in panel details computation of \(\mathcal{L}_{\mathrm{HypEReg}}\): \(u\rightarrow J_\phi=I+\nabla u\rightarrow \det J_\phi\rightarrow\) length/volume/folding sub-terms. In the final operating point, the length term is disabled (\(\alpha=0\)), while volume and folding terms remain active (\(\beta=0.02\), \(\gamma=20\)). Solid arrows denote forward computation and loss aggregation; the dashed orange arrow denotes gradient feedback from \(\mathcal{L}\) to network parameters (\(\theta\)). Training uses bidirectional passes (\(x\rightarrow y\), \(y\rightarrow x\)). In the schematic graphic, the regularization branch is labeled with subscript \(\mathrm{HER}\) as a compact shorthand for the HypEReg term \(\mathcal{L}_{\mathrm{HypEReg}}\) used throughout the manuscript.\label{fig1}}
+\end{figure}
+\begin{equation}
+\mathcal{L}_{\mathrm{total}}
+=
+\mathcal{L}_{\mathrm{sim}}(I_w,I_f)
++
+\lambda_{\mathrm{grad}}\mathcal{L}_{\mathrm{grad}}(u)
++
+\lambda_{\mathrm{HypEReg}}\mathcal{L}_{\mathrm{HypEReg}}(u).
+\end{equation}
+\subsection{Loss Function}
+\label{sec:loss}
+The deformation is defined as \(\phi(x)=x+u(x)\), where \(u:\Omega\rightarrow\mathbb{R}^3\) is the dense displacement field. The unified training objective is
+\begin{equation}
+\mathcal{L}
+=
+\mathcal{L}_{\mathrm{sim}}
++
+\lambda_{\mathrm{grad}}\mathcal{L}_{\mathrm{grad}}
++
+\lambda_{\mathrm{HypEReg}}\left(
+\alpha \mathcal{L}_{\mathrm{length}} + \beta \mathcal{L}_{\mathrm{volume}} + \gamma \mathcal{L}_{\mathrm{fold}}
+\right).
+\end{equation}
+Here, \(\mathcal{L}_{\mathrm{sim}}=-\mathrm{LNCC}(I_w,I_f)\), i.e., negative local normalized cross-correlation between warped and fixed images (window size \(9^3\)). The Jacobian is \(J_{\phi}(x)=I+\nabla u(x)\), computed with forward finite differences on interior voxels (\(D-1,H-1,W-1\) stencil). For the \(160\times192\times224\) field size, the interior mask covers 98.416\% of voxels and excludes 1.584\% boundary voxels; the same Jacobian implementation and interior mask are used for all learned models.
+\begin{equation}
+\mathcal{L}_{\mathrm{length}}(u)=\frac{1}{|\Omega|}\sum_{x\in\Omega}\|\nabla u(x)\|_F^2,
+\end{equation}
+\begin{equation}
+\mathcal{L}_{\mathrm{volume}}(\varphi)=\frac{1}{|\Omega|}\sum_{x\in\Omega}\frac{(\det J_{\varphi}(x)-1)^2}{\max(\det J_{\varphi}(x),\epsilon)},
+\end{equation}
+\begin{equation}
+\mathcal{L}_{\mathrm{fold}}(\varphi)=\frac{1}{|\Omega|}\sum_{x\in\Omega}\left[\max(0,\epsilon-\det J_{\varphi}(x))\right]^2.
+\end{equation}
+\noindent\textbf{Relation to the Burger--Modersitzki--Ruthotto (BMR) energy.}
+The rational volume form is \emph{inspired by} the polyconvex volume penalty family of \citet{burger2013hyperelastic}; we do not implement the original energy verbatim. Three differences are deliberate, motivated by the deep-learning context, and should be acknowledged transparently:
+\begin{itemize}\setlength\itemsep{2pt}
+\item \emph{Volume penalty form.} BMR use the symmetric quartic form $\phi^{\mathrm{BMR}}_v(v)=(v-1)^4/v^2$, which satisfies $\phi^{\mathrm{BMR}}_v(1/v)=\phi^{\mathrm{BMR}}_v(v)$ (``shrinkage and growth have the same price'') and diverges as $v\to 0^+$. We instead use $\phi^{\mathrm{ours}}_v(v)=(v-1)^2/\max(v,\epsilon)$ with explicit clamping by $\epsilon=10^{-3}$, which is bounded above when $\det J_\phi\to 0$ (capped at $1/\epsilon$), is asymmetric in $v\leftrightarrow 1/v$, and yields a stable, finite-gradient signal under stochastic gradient descent. Compared with $(\det J-1)^2$, it still penalizes compressive (small-$\det J$) deformations more strongly; compared with the BMR quartic, it sacrifices the symmetry property in exchange for differentiable optimization.
+\item \emph{Cofactor / surface term omitted.} The BMR energy further contains a surface-area term $\phi_w$ defined on $\operatorname{cof}\nabla y$, which is essential for existence proofs based on Ball's polyconvexity and for distance measures involving $\nabla y$ (e.g., the mass-preserving PET registration setting in \citet{burger2013hyperelastic}). Our similarity loss is local NCC and does not depend on $\det J_\phi$; the existence-theoretic motivation for the surface term therefore does not apply directly. We leave the empirical evaluation of an explicit cofactor term inside a deep registration objective to future work.
+\item \emph{Anti-folding hinge added.} BMR control folding implicitly via $\phi^{\mathrm{BMR}}_v(v)\to\infty$ as $\det J\to 0$. Because our $\phi^{\mathrm{ours}}_v$ is bounded under $\epsilon$-clamping, we add an explicit hinge term $\mathcal{L}_{\mathrm{fold}}=\frac{1}{|\Omega|}\sum_x[\max(0,\epsilon-\det J_\phi)]^2$. Conceptually, this hinge follows the selective Jacobian-determinant penalty introduced by \citet{mok2020fast} for diffeomorphic deep registration; its role here is to recover, in the deep-learning regime, the fold-suppression behavior that BMR obtain via the unbounded quartic.
+\end{itemize}
+Accordingly, when we refer to ``hyperelastic-energy regularization (HypEReg)'' in this paper we mean a Jacobian-aware deep-registration regularizer derived from hyperelastic principles---specifically a deep-learning--friendly volume term plus an explicit anti-folding hinge---rather than a faithful re-implementation of the full BMR energy.
+
+Final hyperparameters are:
+\[
+\lambda_{\mathrm{grad}} = 1.0, \quad
+\lambda_{\mathrm{HypEReg}} = 1.0, \quad
+\alpha = 0, \quad
+\beta = 0.02, \quad
+\gamma = 20, \quad
+\epsilon = 10^{-3}.
+\]
+When \(\det J_\phi \le 0\), the denominator in \(\mathcal{L}_{\mathrm{volume}}\) is clamped by \(\epsilon\), while \(\mathcal{L}_{\mathrm{fold}}\) remains active through \(\max(0,\epsilon-\det J_\phi)\), so folded regions receive strong penalties from both terms. With \(\epsilon=10^{-3}\), a folded voxel with \(\det J_\phi=0\) already contributes \(10^3\) from the volume term alone, while \(\mathcal{L}_{\mathrm{fold}}\) adds a hinge penalty emphasizing negative-\(\det J\) regions. In the final operating point, \(\alpha=0\) is intentional: \(\mathcal{L}_{\mathrm{grad}}\) controls displacement smoothness and length variation, and the active HypEReg contribution is explicitly the volume + anti-folding subset. Coefficients \((\beta,\gamma)\) were fixed from preliminary validation trials in this pipeline; coarse sensitivity results are reported in the Supplementary Materials.
+
+\noindent\textbf{Algorithm 1. HypEReg-TransMorph training step (per mini-batch).}
+\begin{enumerate}[leftmargin=1.4em]
+\item Predict displacement \(u\) from moving/fixed image pair.
+\item Warp moving image using \(\phi(x)=x+u(x)\) to obtain \(I_w\).
+\item Compute \(\mathcal{L}_{\mathrm{sim}}\), \(\mathcal{L}_{\mathrm{grad}}\), and HypEReg components from \(J_\phi\).
+\item Direction 1 update: evaluate \((x\rightarrow y)\), compute \(\mathcal{L}_{\mathrm{sim}}+\mathcal{L}_{\mathrm{grad}}+\mathcal{L}_{\mathrm{HypEReg}}\), backpropagate, and apply optimizer step.
+\item Direction 2 update: swap inputs \((y\rightarrow x)\), recompute the same loss components, backpropagate, and apply optimizer step.
+\item Record the mean of both directional losses for logging.
+\end{enumerate}
+
+\subsection{Training Details}
+Training settings for HypEReg-TransMorph are: Adam optimizer with AMSGrad \citep{kingma2014adam,reddi2018amsgrad}, learning rate \(1\times10^{-4}\), weight decay \(0\), batch size 2, and 500 epochs. The checkpoint-selection rule is best validation Dice. The current code path does not enforce a single fixed global random seed across all baselines, which is treated as a limitation. Hardware for the reported runs is NVIDIA RTX PRO 6000 Blackwell Workstation Edition (97,887 MiB VRAM), CUDA 12.8, and PyTorch 2.12.0.dev20260408+cu128 (nightly build used only for Blackwell-specific runtime; the same training and evaluation scripts are reproducible on the corresponding stable PyTorch release for that CUDA generation). Baselines are evaluated under the same test protocol; classical baselines use ANTs/ANTsPy and SimpleITK implementations \citep{avants2008ants,antspyx2024,simpleitk2013}.
+
+\subsection{Evaluation Metrics}
+Primary metrics are Dice and Jaccard (higher is better), HD95 (mm) and ASSD (mm) (lower is better), and NSD@1\,mm \citep{dice1945,heimann2009,nikolov2018}. Deformation regularity is assessed by the non-positive Jacobian determinant ratio \(\#\{x:\det J_\phi(x)\le 0\}/\#\{x\}\), SDlogJ \(\left(\mathrm{std}(\log(\max(\det J_\phi,\epsilon)))\right)\), Jacobian quantiles (\(J_{\min}, J_{p01}, J_{p50}, J_{p99}, J_{\max}\)), bending energy, and mean absolute divergence \citep{bookstein1989tps,mok2020lapirn}. Intensity metrics include NCC/LNCC (window \(9^3\)), MI/NMI (64 bins), SSIM (dynamic range \(1.0\), adaptive odd window up to 11), and PSNR \citep{studholme1999nmi,wang2004ssim}.
+
+\subsection{Grouped-VOI Label Protocol}
+Grouped Dice uses a 46-label FreeSurfer-compatible index set and aggregates labels into 17 bilateral/related groups by anatomical correspondence. The explicit group-to-label-ID mapping is listed in Supplementary Table~S3.
+
+\subsection{Statistical Analysis}
+Inferential analysis is performed with paired Wilcoxon signed-rank tests \citep{wilcoxon1945} and Benjamini--Hochberg FDR correction \citep{bh1995} on subject-level outputs from models with complete paired evaluation data. Supplementary Table~S1 summarizes mean\(\pm\)standard deviation contrasts for selected baselines alongside aligned median tests; Supplementary Table~S2 reports paired median differences, raw \(p\)-values, FDR-adjusted \(q\)-values, and signed effects. Signed effect is defined as matched-pairs rank-biserial correlation, \(r_{\mathrm{rb}}=(W_+-W_-)/(W_++W_-)\), computed on metric-aligned paired differences.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Results}
+
+\subsection{Accuracy Across Baselines}
+Table~\ref{tab2} reports the compact IXI model comparison, expanded to include overlap and regularity metrics in one place. HypEReg-TransMorph maintains competitive overlap while improving deformation regularity relative to unconstrained Transformer baselines.
+
+Compared with the strongest completed TransMorph-family baseline (TransMorphBayes), HypEReg-TransMorph changes Dice from 0.7530 to 0.7537 under the grouped-structure Dice protocol. Surface distance metrics are also improved (HD95: 3.1561 vs.\ 3.3745; ASSD: 0.5891 vs.\ 0.6215).
+
+\begin{table}[H]
+\caption{Main IXI model comparison (115-subject protocol).\label{tab2}}
+\centering
+\scriptsize
+\setlength{\tabcolsep}{3pt}
+\begin{tabularx}{\textwidth}{lccccc}
+\toprule
+\textbf{Model} & \textbf{Dice\(\uparrow\)} & \(\boldsymbol{\det(J_\phi)\le 0}\) \textbf{ratio \(\downarrow\)} & \textbf{SDlogJ\(\downarrow\)} & \textbf{HD95 (mm)\(\downarrow\)} & \textbf{ASSD (mm)\(\downarrow\)}\\
+\midrule
+HypEReg-TransMorph & \textbf{0.7537 \(\pm\) 0.0275} & 0.000015 \(\pm\) 0.000007 & 0.3280 \(\pm\) 0.0221 & \textbf{3.1561 \(\pm\) 0.5408} & \textbf{0.5891 \(\pm\) 0.1021}\\
+TransMorph & 0.7527 \(\pm\) 0.0305 & 0.015021 \(\pm\) 0.003416 & 0.5064 \(\pm\) 0.0250 & 5.8794 \(\pm\) 0.8048 & 1.5593 \(\pm\) 0.2416\\
+TransMorphBayes & \underline{0.7530 \(\pm\) 0.0302} & 0.015634 \(\pm\) 0.003363 & 0.4920 \(\pm\) 0.0330 & \underline{3.3745 \(\pm\) 0.6740} & \underline{0.6215 \(\pm\) 0.1305}\\
+VoxelMorph-1 & 0.7293 \(\pm\) 0.0290 & 0.015860 \(\pm\) 0.003388 & 0.4999 \(\pm\) 0.0327 & 5.7156 \(\pm\) 0.8168 & 1.4696 \(\pm\) 0.1962\\
+CycleMorph & 0.7366 \(\pm\) 0.0303 & 0.017192 \(\pm\) 0.003819 & 0.5176 \(\pm\) 0.0320 & 5.7789 \(\pm\) 0.8317 & 1.4638 \(\pm\) 0.2038\\
+MIDIR & 0.7423 \(\pm\) 0.0228 & \textbf{0.000000 \(\pm\) 0.000000} & \underline{0.3148 \(\pm\) 0.0242} & 5.3028 \(\pm\) 0.6139 & 1.4100 \(\pm\) 0.1585\\
+CoTr & 0.7347 \(\pm\) 0.0290 & 0.012975 \(\pm\) 0.003430 & 0.4874 \(\pm\) 0.0331 & 5.5691 \(\pm\) 0.7931 & 1.4278 \(\pm\) 0.1828\\
+nnFormer & 0.7472 \(\pm\) 0.0294 & 0.015946 \(\pm\) 0.003584 & 0.5167 \(\pm\) 0.0371 & 5.8274 \(\pm\) 0.8195 & 1.4322 \(\pm\) 0.1878\\
+PVT & 0.7273 \(\pm\) 0.0330 & 0.018578 \(\pm\) 0.003141 & 0.5431 \(\pm\) 0.0318 & 5.9286 \(\pm\) 0.8264 & 1.5253 \(\pm\) 0.2069\\
+SyN (ANTs) & 0.6445 \(\pm\) 0.0397 & \underline{0.000001 \(\pm\) 0.000005} & \textbf{0.2996 \(\pm\) 0.0725} & 6.4457 \(\pm\) 1.8104 & 1.5233 \(\pm\) 0.7748\\
+\bottomrule
+\end{tabularx}
+\parbox{\textwidth}{\footnotesize Values are reported as mean \(\pm\) standard deviation over 115 test subjects. Dice and \(\det(J_\phi)\le 0\) ratio are computed from per-case evaluation tables; SDlogJ/HD95/ASSD are taken from the same finalized IXI summary exports used for manuscript tabulation. Bold indicates best value per metric; underline indicates second-best.}
+\end{table}
+
+\subsection{Deformation Regularity and Folding Suppression}
+The central findings are in deformation regularity metrics. HypEReg-TransMorph yields a non-positive Jacobian determinant ratio of \(0.000015 \pm 0.000007\), compared with \(0.015634 \pm 0.003363\) for TransMorphBayes and \(0.015021 \pm 0.003416\) for TransMorph. SDlogJ decreases from \(0.4920 \pm 0.0330\) (TransMorphBayes) and \(0.5064 \pm 0.0250\) (TransMorph) to \(0.3280 \pm 0.0221\) (HypEReg-TransMorph), and bending energy decreases from 46.0976 to 18.6155.
+For models with subject-level per-case exports, inferential results support these trends: HypEReg-TransMorph significantly improves regularity relative to TransMorph on non-positive Jacobian ratio and SDlogJ after FDR correction (both \(q<0.001\)); compared with MIDIR, HypEReg-TransMorph shows a significant disadvantage on SDlogJ and non-positive Jacobian ratio (both \(q<0.001\)), while HD95 difference is not significant (\(q=0.592\)); compared with SyN, HypEReg-TransMorph shows significantly lower HD95 (\(q<0.001\)) but higher SDlogJ (\(q<0.001\)). Using the newly uploaded TransMorph and TransMorphBayes checkpoints, an additional paired analysis on Dice and non-positive Jacobian ratio confirms HypEReg-TransMorph advantages versus both uploaded baselines after FDR correction (Supplementary Table~S2).
+
+\subsection{Efficiency}
+To resolve the inference-cost discrepancy, we re-profiled pure forward inference under an isolated protocol that excludes metric computation and label warping. Under this protocol, HypEReg-TransMorph and TransMorph show nearly identical forward cost (0.4316 s vs.\ 0.4306 s on a representative IXI case) and peak memory (5.422 GB vs.\ 5.421 GB), consistent with identical inference architecture/parameter count (46.771 M). Larger end-to-end timing differences in previous tables are therefore attributable to evaluation-path operations rather than mandatory model-forward overhead.
+
+\begin{table}[H]
+\caption{End-to-end evaluation-path efficiency comparison (runtime, peak memory, and parameter count) for selected baselines.\label{tab3}}
+\begin{tabularx}{\textwidth}{lccc}
+\toprule
+\textbf{Model} & \textbf{Runtime (s/case)\(\downarrow\)} & \textbf{Peak Memory (GB)\(\downarrow\)} & \textbf{Parameters (M)}\\
+\midrule
+HypEReg-TransMorph & 0.2034 & 10.635 & 46.771 \\
+TransMorphBayes & 3.5372 & 16.088 & 46.771 \\
+TransMorph & 0.0953 & 5.601 & 46.771 \\
+VoxelMorph-1 & 0.0359 & 5.162 & 0.274 \\
+CycleMorph & 0.0501 & 5.085 & 0.361 \\
+MIDIR & 0.0203 & 5.085 & 0.266 \\
+CoTr & 0.1127 & 5.307 & 38.738 \\
+nnFormer & 0.0675 & 5.336 & 45.328 \\
+SyN (ANTs) & N/A & N/A & N/A \\
+\bottomrule
+\end{tabularx}
+\noindent{\footnotesize{These values are from the end-to-end evaluation path, which includes model forward, label warping, and metric computation. Isolated pure-forward profiling for HypEReg-TransMorph and TransMorph is discussed in Section~4.3; measured no-gradient forward runtime and peak memory are reported in the Supplementary Materials (\textit{Supplementary Experimental Details} / \textit{Model and Environment Configuration}). Peak memory for deep models is computed from per-case runtime records. Parameter counts are computed from loaded model weights/checkpoints. For classical methods (SyN), learned-parameter count is not applicable. SyN is a classical iterative optimizer; its runtime and peak memory are not directly comparable to feed-forward learned models and vary with subject anatomy and CPU configuration.}}
+\end{table}
+
+\subsection{Qualitative Visualization}
+Representative qualitative registration/deformation visualizations are shown in Figures~\ref{fig2}--\ref{fig4}. In this representative case, HypEReg-TransMorph qualitatively suggests improved boundary alignment near selected ventricular/cortical regions, while preserving smooth deformation grids and reducing visible fold-prone patterns. These visual observations complement the quantitative metrics in Table~\ref{tab2}.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.96\textwidth]{figures/fig2_qualitative.pdf}
+\caption{Qualitative registration comparison on a representative IXI test subject across three orthogonal views (axial/coronal/sagittal). Columns show moving atlas, fixed target, and warped outputs from HypEReg-TransMorph, TransMorph, and MIDIR. Figure~\ref{fig2} qualitatively highlights boundary-alignment behavior in ventricles, cortex, and deep gray structures, complementing quantitative trends in Table~\ref{tab2}. \label{fig2}}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.96\textwidth]{figures/fig3_gridwarp.pdf}
+\caption{Deformation-grid visualization derived from predicted displacement fields on the same IXI subject. Cyan lattice lines represent transformed coordinates after warping by each model. Smooth, non-self-intersecting grids indicate stable local geometry, whereas abrupt kinks or crossings indicate folding risk. In this representative case, HypEReg-TransMorph qualitatively suggests smoother global transitions and fewer folding-prone patterns.\label{fig3}}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.96\textwidth]{figures/fig4_jacobian.pdf}
+\caption{Jacobian-determinant analysis for deformation plausibility. Top-row heatmaps show spatial maps of \(\det(J_\phi)\) on a central slice for each model, where values near 1 indicate near-volume-preserving local transforms and extreme values indicate expansion/compression. The bottom histogram reports \(\log(\det(J_\phi))\) over voxels; narrower distributions centered near zero indicate more stable local volume behavior. Together with the non-positive Jacobian determinant ratio and SDlogJ in Table~\ref{tab2}, this figure supports the folding-suppression behavior of HypEReg-TransMorph.\label{fig4}}
+\end{figure}
+
+\noindent A descriptive multi-metric overview (Dice, non-positive Jacobian ratio, SDlogJ, and HD95) is provided as Figure~S1 in the Supplementary Materials.
+
+\FloatBarrier
+
+% Figure 5 moved to supplementary discussion to keep the main text focused on
+% metrics with direct inferential/statistical support in final submission.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Discussion}
+
+This work is positioned as a deformation-quality improvement study rather than a pure overlap-accuracy competition. The key result is that HypEReg-TransMorph improves Jacobian regularity and folding suppression (lower non-positive Jacobian determinant ratio and SDlogJ) while maintaining comparable Dice/HD95/ASSD to strong Transformer baselines. This trade-off is practically meaningful for downstream morphometric tasks that are sensitive to local folding artifacts.
+
+The observed performance pattern suggests that adding physically motivated regularization to Transformer-based registration can constrain unrealistic local volume changes without substantially degrading alignment fidelity. In clinical and research workflows, this is relevant for Jacobian-based analyses, longitudinal disease progression studies, and atlas-based quantification where deformation plausibility matters beyond overlap scores.
+
+The CNN/B-spline baseline MIDIR also achieves zero non-positive Jacobian ratio on IXI, with SDlogJ (0.3148) marginally lower than HypEReg-TransMorph (0.3280). The two methods reach comparable regularity through different routes: MIDIR enforces smoothness implicitly via B-spline parameterization, while HypEReg-TransMorph enforces regularity explicitly through differentiable Jacobian penalties on dense flow. HypEReg acts as a drop-in regularizer for dense-displacement backbones without changing inference parameterization, and preserves overlap expressivity (Dice 0.7537 vs.\ 0.7423 for MIDIR on IXI).
+
+Conceptually, HypEReg differs from inverse-consistency focused regularizers (e.g., ICON/GradICON) and hierarchical deformation constructions (e.g., LapIRN): HypEReg directly penalizes local Jacobian volume distortion and folding in the objective, whereas inverse-consistency methods target cycle/inverse agreement and Laplacian-pyramid formulations target multi-scale deformation composition. These constraints are complementary rather than mutually exclusive.
+
+\noindent\textbf{Positioning relative to elastic and hyperelastic regularization in deep registration.}
+Our work is best understood as one configuration in a broader research line that injects elastic or hyperelastic regularization into learned registration. The selective Jacobian-determinant penalty of \citet{mok2020fast} is the conceptual antecedent of $\mathcal{L}_{\mathrm{fold}}$ in CNN-based diffeomorphic registration; the BMR-style volume-change penalty plus curvature regularizer of \citet{hering2021lung} demonstrates that BMR-flavored Jacobian control can be embedded in CNN lung-CT registration loss; \citet{zou2023conformal} use a non-linear, conformal-invariant hyperelastic energy in a deep registration framework on lung CT; and the \emph{ElasticMorph} framework~\citep{elasticmorph2025} plugs a second-order Navier--Cauchy linear-elastic regularizer into TransMorph and VoxelMorph backbones and reports overlap improvements with reduced folding artifacts on IXI/LPBA40. Relative to these, our contribution is intentionally narrow in scope: (i) we use a non-linear volume-distortion penalty plus an explicit hinge rather than linear elasticity, which targets local volumetric implausibility directly through $\det J_\phi$ rather than through divergence/curl operators; (ii) we evaluate the Transformer-backbone instantiation on the IXI atlas-to-subject protocol with paired Wilcoxon/BH-FDR inferential statistics on subject-level metrics; and (iii) we do not claim originality for the hyperelastic principle or the anti-folding penalty themselves, which derive from BMR \citep{burger2013hyperelastic} and from \citet{mok2020fast}, respectively. A direct head-to-head comparison with ElasticMorph on a shared IXI evaluation is left to future work, as that framework reports its results under a different protocol and was not retrained in this manuscript.
+
+Future work will extend HypEReg-TransMorph to multi-modal registration, pathology-rich cohorts, and uncertainty-aware registration frameworks. Another direction is adaptive hyperelastic weighting to better balance local accuracy and topology constraints under heterogeneous anatomical deformations.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Conclusions}
+
+HypEReg-TransMorph introduces a hyperelastic-subset regularizer (volume + anti-folding at \(\alpha=0\)) into a TransMorph-style deformable registration framework and reduces local folding relative to unconstrained dense Transformer baselines while maintaining statistically indistinguishable grouped-VOI Dice. Under the IXI atlas-to-subject protocol, HypEReg improves the non-positive Jacobian determinant ratio and SDlogJ relative to TransMorph and TransMorphBayes, although MIDIR and SyN remain strong on selected regularity metrics. These results support HypEReg as a useful dense-flow regularization strategy and motivate further multi-seed, cross-dataset, and downstream morphometric validation.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\vspace{6pt} 
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% optional
+\section*{Supplementary Materials}
+
+Supplementary Materials (separate PDF) include: Table~S1 (inferential summary for selected baselines), Table~S2 (paired inferential statistics with Wilcoxon+BH-FDR), Table~S3 (grouped-VOI label mapping), Figure~S1 (descriptive IXI multi-metric overview), implementation and profiling details, and additional qualitative registration/Jacobian visualizations.
+
+
+
+%\begin{tabularx}{\textwidth}{lll}
+%\toprule
+%\textbf{Name} & \textbf{Type} & \textbf{Description} \\
+%\midrule
+%S1 & Python script (.py) & Script of python source code used in XX \\
+%S2 & Text (.txt) & Script of modelling code used to make Figure X \\
+%S3 & Text (.txt) & Raw data from experiment X \\
+%S4 & Video (.mp4) & Video demonstrating the hardware in use \\
+%... & ... & ... \\
+%\bottomrule
+%\end{tabularx}
+%}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section*{Author Contributions}
+
+Conceptualization, A.O.; methodology, A.O. and A.T.; software, A.O.; validation, A.O. and C.A.; formal analysis, A.O.; investigation, A.O.; data curation, A.O.; writing---original draft preparation, A.O.; writing---review and editing, A.O., A.T., and C.A.; visualization, A.O.; supervision, C.A.; project administration, C.A. All authors have read and agreed to the published version of the manuscript.
+
+\paragraph{Funding.}
+This research received no external funding.
+
+\paragraph{Institutional Review Board Statement.}
+Institutional Review Board Statement: Not applicable. This study performed secondary analysis of publicly available anonymized IXI data and did not recruit new human participants.
+
+\paragraph{Informed Consent Statement.}
+Informed Consent Statement: Not applicable to this secondary-analysis study using publicly available anonymized data.
+
+\paragraph{Data Availability Statement.}
+Source code, configuration files, per-case metric tables, and figure/statistics scripts are openly available at \url{https://github.com/Zzxmh/TransMorph_Transformer_for_Medical_Image_Registration}. An archival Zenodo DOI will be assigned upon acceptance. The IXI dataset used in this study is publicly available at \url{https://brain-development.org/ixi-dataset/} (CC BY-SA 3.0). The preprocessed split follows the public TransMorph-style IXI preprocessing release.
+
+%\durcstatement{Current research is limited to the [please insert a specific academic field, e.g., XXX], which is beneficial [share benefits and/or primary use] and does not pose a threat to public health or national security. Authors acknowledge the dual-use potential of the research involving xxx and confirm that all necessary precautions have been taken to prevent potential misuse. As an ethical responsibility, authors strictly adhere to relevant national and international laws about DURC. Authors advocate for responsible deployment, ethical considerations, regulatory compliance, and transparent reporting to mitigate misuse risks and foster beneficial outcomes.}
+
+% Only for journal Nursing Reports
+%\publicinvolvement{Please describe how the public (patients, consumers, carers) were involved in the research. Consider reporting against the GRIPP2 (Guidance for Reporting Involvement of Patients and the Public) checklist. If the public were not involved in any aspect of the research add: ``No public involvement in any aspect of this research''.}
+%
+%% Only for journal Nursing Reports
+%\guidelinesstandards{Please add a statement indicating which reporting guideline was used when drafting the report. For example, ``This manuscript was drafted against the XXX (the full name of reporting guidelines and citation) for XXX (type of research) research''. A complete list of reporting guidelines can be accessed via the equator network: \url{https://www.equator-network.org/}.}
+%
+%% Only for journal Nursing Reports
+%\useofartificialintelligence{Please describe in detail any and all uses of artificial intelligence (AI) or AI-assisted tools used in the preparation of the manuscript. This may include, but is not limited to, language translation, language editing and grammar, or generating text. Alternatively, please state that “AI or AI-assisted tools were not used in drafting any aspect of this manuscript”.}
+
+\section*{Acknowledgments}
+
+The authors thank the maintainers of open-source registration baselines and the IXI data contributors.
+
+\paragraph{Conflicts of Interest.}
+The authors declare no conflicts of interest.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% Optional
+
+%% Only for journal Encyclopedia
+%\entrylink{The Link to this entry published on the encyclopedia platform.}
+
+\section*{Abbreviations}
+
+
+The following abbreviations are used in this manuscript:
+\\
+\noindent
+\begin{tabular}{@{}ll}
+HypEReg & Hyperelastic-Energy Regularization\\
+MRI & Magnetic Resonance Imaging\\
+HD95 & 95th percentile Hausdorff Distance\\
+ASSD & Average Symmetric Surface Distance\\
+NCC & Normalized Cross-Correlation\\
+LNCC & Local Normalized Cross-Correlation\\
+SDlogJ & Standard Deviation of Log Jacobian Determinant\\
+IXI & Information eXtraction from Images dataset\\
+GPU & Graphics Processing Unit
+\end{tabular}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%\isPreprints{}{% This command is only used for ``preprints''.
+
+\bibliographystyle{plainnat}
+\bibliography{refs}
+
+\end{document}

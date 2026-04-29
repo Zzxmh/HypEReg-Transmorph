@@ -1,0 +1,136 @@
+\documentclass[11pt,a4paper]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage{amsmath,amssymb}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{tabularx}
+\usepackage{float}
+\usepackage[margin=1in]{geometry}
+
+\graphicspath{{../}{../figures/}}
+
+\renewcommand{\thetable}{S\arabic{table}}
+\renewcommand{\thefigure}{S\arabic{figure}}
+
+\title{Supplementary Materials\\HypEReg-TransMorph: A Hyperelastic-Regularized Transformer Framework for Folding-Suppressed Deformable Brain MRI Registration}
+\author{}
+\date{}
+
+\begin{document}
+\maketitle
+
+\noindent This document accompanies the manuscript \emph{HypEReg-TransMorph: A Hyperelastic-Regularized Transformer Framework for Folding-Suppressed Deformable Brain MRI Registration}. Extended quantitative results, inferential tables (S1--S2), grouped-VOI mapping (S3), Figure~S1, and implementation/profiling details are provided here as separate Supplementary Materials (they are not duplicated in the main journal PDF).
+
+\section{Supplementary Experimental Details}
+\subsection{Model and Environment Configuration}
+This supplementary document summarizes implementation details required for reproducibility:
+\begin{itemize}
+\item Framework and package versions: Python 3.12.10; PyTorch 2.12.0.dev20260408+cu128; antspyx 0.6.3; SimpleITK 2.5.3.
+\item Hardware configuration: NVIDIA RTX PRO 6000 Blackwell Workstation Edition (97,887 MiB VRAM), driver 591.86; peak-memory audits from per-case evaluation logs indicate a single-GPU run profile for deep models.
+\item Checkpoint management follows a unified manifest-and-version protocol aligned with the benchmark settings.
+\item Inference is conducted under a standardized evaluation configuration with harmonized metric definitions across models.
+\item Isolated forward profiling is executed in a clean no-gradient setting without label-warp or metric kernels. Measured pure-forward runtime/peak-memory for HypEReg-TransMorph and TransMorph are 0.4316 s / 5.422 GB and 0.4306 s / 5.421 GB, respectively.
+\end{itemize}
+
+\section{Figure S1: Descriptive IXI Overview}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.99\textwidth]{figures/fig5_metrics.pdf}
+\caption{Descriptive IXI quantitative overview (Dice, non-positive Jacobian determinant ratio, SDlogJ, and HD95). Bars include standard-error error bars for visual uncertainty context.}
+\end{figure}
+
+\section{Inferential Statistics (HypEReg-TransMorph vs.\ Baselines)}
+
+\begin{table}[H]
+\caption{Inferential summary for TransMorphBayes and MIDIR (mean\(\pm\)std, aligned median difference, Wilcoxon \(p\), Benjamini--Hochberg \(q\), and matched-pairs rank-biserial effect). HypEReg-TransMorph denotes the proposed model.}
+\scriptsize
+\setlength{\tabcolsep}{3pt}
+\renewcommand{\arraystretch}{1.1}
+\begin{tabularx}{\textwidth}{llXXXX}
+\toprule
+\textbf{Metric} & \textbf{Baseline} & \textbf{HypEReg mean\(\pm\)std} & \textbf{Baseline mean\(\pm\)std} & \textbf{Median diff (aligned)} & \textbf{\(p\)/\(q\)/effect}\\
+\midrule
+dice\_mean & TransMorphBayes & 0.5776\(\pm\)0.0303 & 0.5743\(\pm\)0.0315 & 0.00249 & \(6.57\times10^{-8}\) / \(7.58\times10^{-8}\) / 0.6522\\
+non\_jec & TransMorphBayes & \(1.39\times10^{-5}\)\(\pm\)\(7.55\times10^{-6}\) & 0.01484\(\pm\)0.00322 & 0.01449 & \(1.19\times10^{-16}\) / \(1.99\times10^{-16}\) / 1.0000\\
+SDlogJ & TransMorphBayes & 0.3268\(\pm\)0.0216 & 0.4908\(\pm\)0.0313 & 0.16264 & \(1.19\times10^{-16}\) / \(1.99\times10^{-16}\) / 1.0000\\
+HD95\_mean & TransMorphBayes & 5.3032\(\pm\)0.7228 & 5.6881\(\pm\)0.7697 & 0.33877 & \(1.34\times10^{-14}\) / \(1.88\times10^{-14}\) / 0.9298\\
+ASSD\_mean & TransMorphBayes & 1.3559\(\pm\)0.1809 & 1.4110\(\pm\)0.1839 & 0.05799 & \(4.12\times10^{-8}\) / \(4.88\times10^{-8}\) / 0.6622\\
+\midrule
+dice\_mean & MIDIR & 0.5765\(\pm\)0.0301 & 0.5643\(\pm\)0.0244 & 0.01166 & \(3.79\times10^{-18}\) / \(7.76\times10^{-18}\) / 0.9331\\
+non\_jec & MIDIR & \(1.46\times10^{-5}\)\(\pm\)\(7.37\times10^{-6}\) & 0.0000\(\pm\)0.0000 & \(-1.31\times10^{-5}\) & \(1.31\times10^{-20}\) / \(3.69\times10^{-20}\) / -1.0000\\
+SDlogJ & MIDIR & 0.3280\(\pm\)0.0221 & 0.3148\(\pm\)0.0242 & -0.01365 & \(4.84\times10^{-20}\) / \(1.28\times10^{-19}\) / -0.9850\\
+HD95\_mean & MIDIR & 5.3234\(\pm\)0.6936 & 5.3028\(\pm\)0.6139 & -0.00855 & 0.5767 / 0.5898 / -0.0600\\
+ASSD\_mean & MIDIR & 1.3570\(\pm\)0.1770 & 1.4100\(\pm\)0.1585 & 0.06514 & \(3.58\times10^{-9}\) / \(4.36\times10^{-9}\) / 0.6342\\
+\bottomrule
+\end{tabularx}
+\parbox{\textwidth}{\footnotesize Aligned median difference is oriented so positive values indicate HypEReg-TransMorph improvement for the given metric direction. The effect is matched-pairs rank-biserial correlation. Pair counts differ by baseline (TransMorphBayes: \(n=91\); MIDIR: \(n=115\)).}
+\end{table}
+
+\begin{table}[H]
+\caption{Selected paired comparisons (Wilcoxon signed-rank with Benjamini--Hochberg FDR). Positive signed effect indicates HypEReg-TransMorph improvement under metric-aligned directionality; signed effect is matched-pairs rank-biserial correlation.}
+\scriptsize
+\setlength{\tabcolsep}{3pt}
+\begin{tabularx}{\textwidth}{llcccc}
+\toprule
+\textbf{Metric} & \textbf{Baseline} & \textbf{Median paired diff (aligned)} & \textbf{p-value} & \textbf{q-value} & \textbf{Signed effect}\\
+\midrule
+non\_jec & TransMorph & 0.014747 & \(1.31\times 10^{-20}\) & \(3.69\times 10^{-20}\) & 1.0000 \\
+SDlogJ & TransMorph & 0.170655 & \(1.31\times 10^{-20}\) & \(3.69\times 10^{-20}\) & 1.0000 \\
+HD95\_mean & TransMorph & 0.319583 & \(3.77\times 10^{-17}\) & \(7.08\times 10^{-17}\) & 0.9046 \\
+ASSD\_mean & TransMorph & 0.051747 & \(6.09\times 10^{-11}\) & \(7.83\times 10^{-11}\) & 0.7028 \\
+\midrule
+non\_jec & MIDIR & -0.000013 & \(1.31\times 10^{-20}\) & \(3.69\times 10^{-20}\) & -1.0000 \\
+SDlogJ & MIDIR & -0.013652 & \(4.84\times 10^{-20}\) & \(1.28\times 10^{-19}\) & -0.9850 \\
+HD95\_mean & MIDIR & -0.008554 & 0.5767 & 0.5898 & -0.0600 \\
+ASSD\_mean & MIDIR & 0.065138 & \(3.58\times 10^{-9}\) & \(4.36\times 10^{-9}\) & 0.6342 \\
+\midrule
+non\_jec & TransMorph (uploaded ckpt) & 0.014747 & \(1.31\times 10^{-20}\) & \(2.63\times 10^{-20}\) & 1.0000 \\
+dice\_mean & TransMorph (uploaded ckpt) & 0.002326 & \(6.88\times 10^{-7}\) & \(6.88\times 10^{-7}\) & 0.5334 \\
+non\_jec & TransMorphBayes (uploaded ckpt) & 0.014714 & \(1.31\times 10^{-20}\) & \(2.63\times 10^{-20}\) & 1.0000 \\
+dice\_mean & TransMorphBayes (uploaded ckpt) & 0.002706 & \(1.74\times 10^{-10}\) & \(2.32\times 10^{-10}\) & 0.6858 \\
+\midrule
+non\_jec & SyN & -0.000012 & \(8.00\times 10^{-16}\) & \(1.24\times 10^{-15}\) & -0.8654 \\
+SDlogJ & SyN & -0.045599 & \(3.09\times 10^{-5}\) & \(3.31\times 10^{-5}\) & -0.4477 \\
+HD95\_mean & SyN & 0.705730 & \(1.31\times 10^{-7}\) & \(1.47\times 10^{-7}\) & 0.5670 \\
+ASSD\_mean & SyN & -0.111801 & 0.6572 & 0.6572 & 0.0477 \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\noindent\footnotesize Full inferential outputs across all exported metric-baseline pairs are provided in the supplementary release package. Additional uploaded-checkpoint paired results for TransMorph and TransMorphBayes (Dice and non-positive Jacobian ratio) are included with corresponding subject-level inputs. Repeated values such as \(p=1.31\times 10^{-20}\) occur when the two-sided Wilcoxon test reaches the practical floating-point floor under near-complete sign consistency for \(n=115\), and should be interpreted as extremely small \(p\)-values.
+
+\section{Table S3: Grouped-VOI Mapping}
+
+\begin{table}[H]
+\caption{Grouped-VOI mapping used for grouped Dice reporting.}
+\scriptsize
+\begin{tabularx}{\textwidth}{lX}
+\toprule
+\textbf{Grouped VOI} & \textbf{FreeSurfer-compatible label IDs} \\
+\midrule
+Brain-Stem & 16 \\
+Thalamus & 10, 49 \\
+Cerebellum-Cortex & 8, 47 \\
+Cerebral-White-Matter & 2, 41 \\
+Cerebellum-White-Matter & 7, 46 \\
+Putamen & 12, 51 \\
+VentralDC & 28, 60 \\
+Pallidum & 13, 52 \\
+Caudate & 11, 50 \\
+Lateral-Ventricle & 4, 43 \\
+Hippocampus & 17, 53 \\
+3rd-Ventricle & 14 \\
+4th-Ventricle & 15 \\
+Amygdala & 18, 54 \\
+Cerebral-Cortex & 3, 42 \\
+CSF & 24 \\
+choroid-plexus & 31, 63 \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\end{document}

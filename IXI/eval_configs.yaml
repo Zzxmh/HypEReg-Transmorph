@@ -1,0 +1,75 @@
+# One-shot full metric evaluation (IXI Test). Paths relative to repository root.
+spacing: [1.0, 1.0, 1.0]
+num_labels: 46
+ssim_win: 11
+nmi_bins: 64
+jacobian_hist_bins: 100
+compute_ice: false
+# Optional second forward for reverse flow (path per model if compute_ice: true; usually null)
+ice_bwd_ckpt: null
+jac_impl: vxm_grad
+lncc_win: 9
+seed: 0
+
+# Merged 16 "review" groups for summary (not used in per_case columns; for aggregate)
+outstruct:
+  - Brain-Stem
+  - Thalamus
+  - Cerebellum-Cortex
+  - Cerebral-White-Matter
+  - Cerebellum-White-Matter
+  - Putamen
+  - VentralDC
+  - Pallidum
+  - Caudate
+  - Lateral-Ventricle
+  - Hippocampus
+  - 3rd-Ventricle
+  - 4th-Ventricle
+  - Amygdala
+  - Cerebral-Cortex
+  - CSF
+  - choroid-plexus
+
+# Data (relative to repo root if not absolute)
+ixi_root: IXI_data
+test_subdir: Test
+# If null, resolve atlas.pkl / altas.pkl in ixi_root
+atlas: null
+results_dir: IXI/Eval_Results
+legacy_results_dir: IXI/Results
+
+models:
+  - id: transmorph_original
+    name: "TransMorph"
+    adapter: transmorph_original
+  - id: transmorphbayes
+    name: "TransMorphBayes"
+    adapter: transmorphbayes
+  - id: voxelmorph_1
+    name: "VoxelMorph-1"
+    adapter: voxelmorph_1
+  - id: cyclemorph
+    name: "CycleMorph"
+    adapter: cyclemorph
+  - id: midir
+    name: "MIDIR"
+    adapter: midir
+  - id: cotr
+    name: "CoTr"
+    adapter: cotr
+  - id: nnformer
+    name: "nnFormer"
+    adapter: nnformer
+  - id: pvt
+    name: "PVT"
+    adapter: pvt
+  - id: transmorph_her
+    name: "TransMorph+HER"
+    adapter: transmorph_her
+  - id: syn
+    name: "SyN"
+    adapter: syn
+  - id: affine
+    name: "Affine"
+    adapter: affine
