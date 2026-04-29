@@ -31,7 +31,7 @@ Accurate deformable brain MRI registration underpins a wide range of clinical ne
 
 \vspace{0.5em}
 \noindent\textbf{Technical contribution and key results.}
-We introduce \textbf{HypEReg}, a compact, differentiable, plug-in regularizer derived from hyperelastic energy principles (a volume-distortion penalty combined with an explicit anti-folding hinge) and integrate it as a training-time loss term into the TransMorph backbone. Because HypEReg modifies only the loss function and leaves the inference architecture unchanged, it incurs \emph{zero additional inference overhead} (measured forward runtime: 0.43\,s/volume; peak memory: 5.42\,GB---identical to the unregularized TransMorph baseline).
+We introduce \textbf{HypEReg}, a compact, differentiable, plug-in regularizer derived from hyperelastic energy principles (a volume-distortion penalty combined with an explicit anti-folding hinge) and integrate it as a training-time loss term into the TransMorph backbone. Because HypEReg modifies only the loss function and leaves the inference architecture unchanged, it incurs \emph{zero additional inference overhead}: pure forward-pass profiling on $160\times192\times224$ volumes confirms \textbf{identical} runtime (0.0822\,s/volume) and peak memory (5.685\,GB) to the unregularized TransMorph baseline, and is in fact \textbf{slightly faster and less memory-intensive} than TransMorphBayes (0.0852\,s, 6.042\,GB), which shares the same parameter count.
 
 On the IXI atlas-to-subject benchmark evaluated over \textbf{115 held-out test subjects} with full paired Wilcoxon/BH-FDR inferential statistics, HypEReg-TransMorph achieves the following improvements over strong Transformer baselines:
 

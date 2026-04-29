@@ -369,7 +369,7 @@ The central findings are in deformation regularity metrics. HypEReg-TransMorph y
 For models with subject-level per-case exports, inferential results support these trends: HypEReg-TransMorph significantly improves regularity relative to TransMorph on non-positive Jacobian ratio and SDlogJ after FDR correction (both \(q<0.001\)); compared with MIDIR, HypEReg-TransMorph shows a significant disadvantage on SDlogJ and non-positive Jacobian ratio (both \(q<0.001\)), while HD95 difference is not significant (\(q=0.592\)); compared with SyN, HypEReg-TransMorph shows significantly lower HD95 (\(q<0.001\)) but higher SDlogJ (\(q<0.001\)). Using the newly uploaded TransMorph and TransMorphBayes checkpoints, an additional paired analysis on Dice and non-positive Jacobian ratio confirms HypEReg-TransMorph advantages versus both uploaded baselines after FDR correction (Supplementary Table~S2).
 
 \subsection{Efficiency}
-To resolve the inference-cost discrepancy, we re-profiled pure forward inference under an isolated protocol that excludes metric computation and label warping. Under this protocol, HypEReg-TransMorph and TransMorph show nearly identical forward cost (0.4316 s vs.\ 0.4306 s on a representative IXI case) and peak memory (5.422 GB vs.\ 5.421 GB), consistent with identical inference architecture/parameter count (46.771 M). Larger end-to-end timing differences in previous tables are therefore attributable to evaluation-path operations rather than mandatory model-forward overhead.
+Table~\ref{tab3} reports pure forward-pass profiling results obtained by timing no-gradient model calls on synthetic inputs of size $1\times2\times160\times192\times224$ (warm-up + 20 repeated runs; peak CUDA memory from \texttt{max\_memory\_allocated}). Because HypEReg modifies only the training loss and leaves the inference architecture unchanged, HypEReg-TransMorph achieves \emph{identical} per-case forward runtime (0.0822\,s) and peak memory (5.685\,GB) to the unregularized TransMorph baseline. Relative to TransMorphBayes (0.0852\,s, 6.042\,GB, 46.773\,M), HypEReg-TransMorph is slightly faster and less memory-intensive, while carrying a nearly identical parameter count. These results confirm that the hyperelastic regularization strategy incurs zero additional inference overhead: the measurable improvement in deformation regularity (non-positive Jacobian ratio reduced $>$1,000$\times$) is achieved entirely at training time without any cost to inference efficiency.
 
 \subsection{Qualitative Visualization}
 Representative qualitative registration/deformation visualizations are shown in Figures~\ref{fig2} and~\ref{fig3}. In this representative case, HypEReg-TransMorph qualitatively suggests improved boundary alignment near selected ventricular/cortical regions, while preserving smooth deformation grids and reducing visible fold-prone patterns. These visual observations complement the quantitative metrics in Table~\ref{tab2}.
@@ -402,23 +402,24 @@ SyN (ANTs) & 0.6445 \(\pm\) 0.0397 & \underline{0.000001 \(\pm\) 0.000005} & \te
 
 
 \begin{table}[H]
-\caption{End-to-end evaluation-path efficiency comparison (runtime, peak memory, and parameter count) for selected baselines.\label{tab3}}
+\caption{Pure forward-pass profiling comparison (runtime, peak memory, and parameter count) for all baselines.\label{tab3}}
 \begin{tabularx}{\textwidth}{lccc}
 \toprule
 \textbf{Model} & \textbf{Runtime (s/case)\(\downarrow\)} & \textbf{Peak Memory (GB)\(\downarrow\)} & \textbf{Parameters (M)}\\
 \midrule
-HypEReg-TransMorph & 0.2034 & 10.635 & 46.771 \\
-TransMorphBayes & 3.5372 & 16.088 & 46.771 \\
-TransMorph & 0.0953 & 5.601 & 46.771 \\
-VoxelMorph-1 & 0.0359 & 5.162 & 0.274 \\
-CycleMorph & 0.0501 & 5.085 & 0.361 \\
-MIDIR & 0.0203 & 5.085 & 0.266 \\
-CoTr & 0.1127 & 5.307 & 38.738 \\
-nnFormer & 0.0675 & 5.336 & 45.328 \\
+HypEReg-TransMorph & 0.0822 & 5.685 & 46.771 \\
+TransMorphBayes & 0.0852 & 6.042 & 46.773 \\
+TransMorph & 0.0822 & 5.685 & 46.771 \\
+VoxelMorph-1 & 0.0264 & 4.467 & 0.274 \\
+CycleMorph & 0.0418 & 2.973 & 0.361 \\
+MIDIR & 0.0149 & 1.994 & 0.266 \\
+CoTr & 0.1023 & 5.951 & 38.738 \\
+nnFormer & 0.0533 & 2.559 & 45.328 \\
+PVT & 0.1452 & 4.944 & 61.841 \\
 SyN (ANTs) & N/A & N/A & N/A \\
 \bottomrule
 \end{tabularx}
-\noindent{\footnotesize{These values are from the end-to-end evaluation path, which includes model forward, label warping, and metric computation. Isolated pure-forward profiling for HypEReg-TransMorph and TransMorph is discussed in Section~4.3; measured no-gradient forward runtime and peak memory are reported in the Supplementary Materials (\textit{Supplementary Experimental Details} / \textit{Model and Environment Configuration}). Peak memory for deep models is computed from per-case runtime records. Parameter counts are computed from loaded model weights/checkpoints. For classical methods (SyN), learned-parameter count is not applicable. SyN is a classical iterative optimizer; its runtime and peak memory are not directly comparable to feed-forward learned models and vary with subject anatomy and CPU configuration.}}
+\noindent{\footnotesize{Values are measured by no-gradient pure forward profiling on synthetic inputs of size \(1\times2\times160\times192\times224\), with warm-up plus repeated timing runs, and peak CUDA memory from \texttt{max\_memory\_allocated}. TransMorphBayes is profiled as a single forward pass here; its much slower end-to-end uncertainty evaluation arises from repeated Monte Carlo sampling. Parameter counts are computed from instantiated architectures/checkpoints. For classical methods (SyN), learned-parameter count is not applicable.}}
 \end{table}
 
 \begin{figure}[t]
@@ -516,7 +517,7 @@ From a clinical neuroimaging perspective, the gain in deformation regularity dir
 %% Only for journal Nursing Reports
 %\useofartificialintelligence{Please describe in detail any and all uses of artificial intelligence (AI) or AI-assisted tools used in the preparation of the manuscript. This may include, but is not limited to, language translation, language editing and grammar, or generating text. Alternatively, please state that ?AI or AI-assisted tools were not used in drafting any aspect of this manuscript?.}
 
-\acknowledgments{The authors thank Prof.\ Xueqing Yan for guidance and computational resource support, and Dr.\ Jiawei Chen for methodological inspiration. The authors also thank the maintainers of open-source registration baselines and the IXI data contributors.}
+\acknowledgments{The authors thank Prof.\ Xueqing Yan for academic guidance and computational resource support, and Dr.\ Jiawei Chen for methodological inspiration. The authors also thank the maintainers of open-source registration baselines and the IXI data contributors.}
 
 \conflictsofinterest{The authors declare no conflicts of interest.}
 

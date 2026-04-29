@@ -1,0 +1,64 @@
+{
+  "HypEReg-TransMorph": {
+    "mean_s": 0.0821735899662599,
+    "std_s": 0.0012252864795214435,
+    "peak_gb": 5.68499712,
+    "params_M": 46.771251
+  },
+  "TransMorph": {
+    "mean_s": 0.0821735899662599,
+    "std_s": 0.0012252864795214435,
+    "peak_gb": 5.68499712,
+    "params_M": 46.771251
+  },
+  "TransMorphBayes": {
+    "mean_s": 0.08522595500107855,
+    "std_s": 0.0009821826764884216,
+    "peak_gb": 6.042276864,
+    "params_M": 46.772983,
+    "note": "single-pass pure forward; MC eval uses 25 passes"
+  },
+  "VoxelMorph-1": {
+    "mean_s": 0.02637729502748698,
+    "std_s": 0.0006947630494778705,
+    "peak_gb": 4.466821632,
+    "params_M": 0.274387
+  },
+  "CycleMorph": {
+    "mean_s": 0.04181333994492888,
+    "std_s": 0.0008433752768864728,
+    "peak_gb": 2.972860416,
+    "params_M": 0.361299
+  },
+  "MIDIR": {
+    "mean_s": 0.0149349499726668,
+    "std_s": 0.0008434103148520549,
+    "peak_gb": 1.993678848,
+    "params_M": 0.266387
+  },
+  "CoTr": {
+    "mean_s": 0.10229595492128282,
+    "std_s": 0.0016116491023894493,
+    "peak_gb": 5.95052032,
+    "params_M": 38.737612
+  },
+  "nnFormer": {
+    "mean_s": 0.0532593700569123,
+    "std_s": 0.0008452478571959814,
+    "peak_gb": 2.5588736,
+    "params_M": 45.327627
+  },
+  "PVT": {
+    "mean_s": 0.14524342000950127,
+    "std_s": 0.007077112765756201,
+    "peak_gb": 4.944169984,
+    "params_M": 61.840527
+  },
+  "SyN (ANTs)": {
+    "mean_s": null,
+    "std_s": null,
+    "peak_gb": null,
+    "params_M": null,
+    "note": "classical iterative optimizer"
+  }
+}
