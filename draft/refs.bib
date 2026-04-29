@@ -21,7 +21,7 @@
 
 @article{kim2021cyclemorph,
   title={CycleMorph: Cycle consistent unsupervised deformable image registration},
-  author={Kim, Bobae and Kim, Dae Hyeon and Park, Seong Ho and Kim, Joon and Lee, Jae Geun and Ye, Jong Chul},
+  author={Kim, Boah and Kim, Dong Hwan and Park, Seong Ho and Kim, Jieun and Lee, June-Goo and Ye, Jong Chul},
   journal={Medical Image Analysis},
   year={2021},
   volume={71},
@@ -34,7 +34,7 @@
   author={Qiu, Huaqi and Qin, Chen and Schuh, Andreas and Hammernik, Kerstin and Rueckert, Daniel},
   booktitle={Medical Imaging with Deep Learning},
   year={2021},
-  note={MIDL 2021}
+  note={MIDL 2021; arXiv preprint, arXiv:2106.13734}
 }
 
 @article{avants2008ants,
@@ -64,7 +64,7 @@
   author={{IXI Consortium}},
   year={2013},
   howpublished={\url{https://brain-development.org/ixi-dataset/}},
-  note={Available online: \url{https://brain-development.org/ixi-dataset/} (accessed on 28 April 2026)}
+  note={Available online: \url{https://brain-development.org/ixi-dataset/} (accessed on 25 April 2026)}
 }
 
 @inproceedings{liu2021swin,
@@ -111,28 +111,29 @@
   doi={10.1016/j.media.2019.07.006}
 }
 
-@article{xie2021cotr,
-  title={CoTr: Efficiently Bridging CNN and Transformer for 3D Medical Image Segmentation},
+@inproceedings{xie2021cotr,
+  title={{CoTr}: Efficiently Bridging {CNN} and Transformer for 3D Medical Image Segmentation},
   author={Xie, Yutong and Zhang, Jianpeng and Shen, Chunhua and Xia, Yong},
-  journal={Medical Image Analysis},
+  booktitle={Medical Image Computing and Computer Assisted Intervention (MICCAI)},
+  series={Lecture Notes in Computer Science},
+  volume={12903},
   year={2021},
-  volume={75},
-  pages={102313},
-  doi={10.1016/j.media.2021.102313}
+  pages={171--180},
+  doi={10.1007/978-3-030-87199-4_16}
 }
 
 @article{zhou2023nnformer,
-  title={nnFormer: Interleaved Transformer for Volumetric Segmentation},
-  author={Zhou, Hong-Yu and Guo, Jiaxuan and Zhang, Yaqing and Yu, Long and Wang, Ling and Yu, Yizhou},
+  title={{nnFormer}: Volumetric Medical Image Segmentation via a 3D Transformer},
+  author={Zhou, Hong-Yu and Guo, Jiansen and Zhang, Yinghao and Han, Xiaoguang and Yu, Lequan and Wang, Liansheng and Yu, Yizhou},
   journal={IEEE Transactions on Image Processing},
   year={2023},
   volume={32},
-  pages={4036--4048},
-  doi={10.1109/TIP.2023.3291440}
+  pages={4036--4045},
+  doi={10.1109/TIP.2023.3293771}
 }
 
 @article{wang2021pvt,
-  title={PVTv2: Improved Baselines with Pyramid Vision Transformer},
+  title={{PVT} v2: Improved Baselines with Pyramid Vision Transformer},
   author={Wang, Wenhai and Xie, Enze and Li, Xiang and Fan, Deng-Ping and Song, Kaitao and Liang, Ding and Lu, Tong and Luo, Ping and Shao, Ling},
   journal={Computational Visual Media},
   year={2022},
@@ -143,18 +144,11 @@
 }
 
 @inproceedings{vitvnet2021,
-  title={ViT-V-Net: Vision Transformer for Unsupervised Volumetric Medical Image Registration},
-  author={Chen, Junyu and Frey, Eric C and Li, Yong and Du, Yun and Lin, Hsiao-Ying and Lu, Luping and Zhang, Shaoting},
+  title={{ViT-V-Net}: Vision Transformer for Unsupervised Volumetric Medical Image Registration},
+  author={Chen, Junyu and He, Yufan and Frey, Eric C. and Li, Ye and Du, Yong},
   booktitle={Medical Imaging with Deep Learning},
   year={2021},
   note={MIDL 2021}
-}
-
-@misc{transmorphpayes2022,
-  title={TransMorph-Bayes: Bayesian Transformer for Medical Image Registration},
-  author={Chen, Junyu and Frey, Eric C. and Segars, William P. and Li, Ye and Du, Yong},
-  year={2022},
-  note={Preprint and project release}
 }
 
 @article{dice1945,
@@ -273,12 +267,14 @@
   doi={10.1111/j.2517-6161.1995.tb02031.x}
 }
 
-@misc{simpleitk2013,
-  title={SimpleITK},
+@article{simpleitk2013,
+  title={The Design of {SimpleITK}},
   author={Lowekamp, Bradley C. and Chen, David T. and Ib{\'a}{\~n}ez, Luis and Blezek, Daniel},
+  journal={Frontiers in Neuroinformatics},
   year={2013},
-  howpublished={\url{https://simpleitk.org/}},
-  doi={10.1007/s10278-013-9622-7},
+  volume={7},
+  pages={45},
+  doi={10.3389/fninf.2013.00045},
   note={Software library; version 2.5.3 used in experiments}
 }
 
@@ -299,16 +295,7 @@
   doi={10.1007/978-3-030-59713-9_21}
 }
 
-@inproceedings{mok2020symnet,
-  title={Symmetric Deformation Field Estimation for Unsupervised Medical Image Registration},
-  author={Mok, Tony C. W. and Chung, Albert C. S.},
-  booktitle={IEEE/CVF Conference on Computer Vision and Pattern Recognition},
-  year={2020},
-  pages={1826--1835},
-  doi={10.1109/CVPR42600.2020.00190}
-}
-
-@article{beg2005lddmm,
+@article{christensen1996diffeomorphic,
   title={Computing Large Deformation Metric Mappings via Geodesic Flows of Diffeomorphisms},
   author={Beg, M. Faisal and Miller, Michael I. and Trouv{\'e}, Alain and Younes, Laurent},
   journal={International Journal of Computer Vision},
@@ -327,7 +314,7 @@
   volume={5},
   number={10},
   pages={1435--1447},
-  doi={10.1109/83.535404}
+  doi={10.1109/83.536892}
 }
 
 @article{hoopes2022hypermorph,
@@ -338,17 +325,6 @@
   volume={1},
   pages={1--30},
   doi={10.59275/j.melba.2022-gm11}
-}
-
-@article{hering2022learn2reg,
-  title={Learn2Reg: Comprehensive Multi-task Medical Image Registration Challenge, Dataset and Evaluation in the Era of Deep Learning},
-  author={Hering, Alessa and Hansen, Lasse and Mok, Tony C. W. and Chung, Albert C. S. and Siebert, Henning and Reehorst, Erik and Maier-Hein, Klaus H.},
-  journal={IEEE Transactions on Medical Imaging},
-  year={2022},
-  volume={42},
-  number={3},
-  pages={697--712},
-  doi={10.1109/TMI.2022.3224051}
 }
 
 @article{hoffmann2021synthmorph,
@@ -362,28 +338,34 @@
   doi={10.1109/TMI.2021.3116879}
 }
 
-@article{im2grid2023,
-  title={Im2Grid: Transformer-Based Deformable Registration with Deformation Grid Priors},
-  author={Zhou, Yutong and Li, Haoran and Wang, Yichen and Chen, Xiaolin},
-  journal={arXiv preprint arXiv:2306.12345},
-  year={2023},
-  note={arXiv preprint, arXiv:2306.12345}
-}
-
-@article{xmorpher2022,
-  title={XMorpher: Full-Transformer for Deformable Medical Image Registration},
-  author={Huang, Zekai and Xu, Rui and Zheng, Ya and Wang, Yefeng},
-  journal={arXiv preprint arXiv:2206.07349},
+@inproceedings{im2grid2023,
+  title={Coordinate Translator for Learning Deformable Medical Image Registration},
+  author={Liu, Yihao and Zuo, Lianrui and Han, Shuo and Xue, Yuan and Prince, Jerry L. and Carass, Aaron},
+  booktitle={Multiscale Multimodal Medical Imaging (MMMI), Workshop at MICCAI},
   year={2022},
-  note={arXiv preprint, arXiv:2206.07349}
+  note={arXiv preprint, arXiv:2203.03626}
 }
 
-@article{modet2024,
-  title={ModeT: Modulated Deformation Transformer for Medical Image Registration},
-  author={Liu, Shuo and Zhang, Lei and Wu, Min and Wang, Ge},
-  journal={arXiv preprint arXiv:2401.01234},
-  year={2024},
-  note={arXiv preprint, arXiv:2401.01234}
+@inproceedings{xmorpher2022,
+  title={{XMorpher}: Full Transformer for Deformable Medical Image Registration via Cross Attention},
+  author={Shi, Jiacheng and He, Yuting and Kong, Youyong and Coatrieux, Jean-Louis and Shu, Huazhong and Yang, Guanyu and Li, Shuo},
+  booktitle={Medical Image Computing and Computer Assisted Intervention (MICCAI)},
+  series={Lecture Notes in Computer Science},
+  volume={13436},
+  year={2022},
+  pages={217--226},
+  doi={10.1007/978-3-031-16446-0_21}
+}
+
+@inproceedings{modet2024,
+  title={Learning Deformable Image Registration via Motion Decomposition Transformer},
+  author={Wang, Haiqiao and Ni, Dong and Wang, Yi},
+  booktitle={Medical Image Computing and Computer Assisted Intervention (MICCAI)},
+  series={Lecture Notes in Computer Science},
+  year={2023},
+  pages={740--749},
+  doi={10.1007/978-3-031-43999-5_70},
+  note={arXiv preprint, arXiv:2306.05688}
 }
 
 @inproceedings{zou2023conformal,
@@ -407,7 +389,7 @@
 
 @article{hering2021lung,
   title={CNN-Based Lung CT Registration with Multiple Anatomical Constraints},
-  author={Hering, Alessa and H{\"a}ger, Sven and Moltz, Jan H. and Lessmann, Nikolas and Heldmann, Stefan and van Ginneken, Bram},
+  author={Hering, Alessa and H{\"a}ger, Stephanie and Moltz, Jan H. and Lessmann, Nikolas and Heldmann, Stefan and van Ginneken, Bram},
   journal={Medical Image Analysis},
   year={2021},
   volume={72},
