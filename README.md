@@ -1,4 +1,5 @@
 # HypEReg-TransMorph &mdash; IXI evaluation and manuscript assets
+[![DOI](https://zenodo.org/badge/1224333340.svg)](https://doi.org/10.5281/zenodo.19888526)
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
@@ -198,16 +199,16 @@ The TransMorph architecture and original codebase are due to Junyu Chen et al. I
 - arXiv: [2111.10480](https://arxiv.org/abs/2111.10480)
 
 ```bibtex
-@article{chen2022transmorph,
-  title = {TransMorph: Transformer for unsupervised medical image registration},
-  journal = {Medical Image Analysis},
-  pages = {102615},
-  year = {2022},
-  issn = {1361-8415},
+    @article{chen2022transmorph,
+    title = {TransMorph: Transformer for unsupervised medical image registration},
+    journal = {Medical Image Analysis},
+    pages = {102615},
+    year = {2022},
+    issn = {1361-8415},
   doi = {10.1016/j.media.2022.102615},
-  url = {https://www.sciencedirect.com/science/article/pii/S1361841522002432},
-  author = {Junyu Chen and Eric C. Frey and Yufan He and William P. Segars and Ye Li and Yong Du}
-}
+    url = {https://www.sciencedirect.com/science/article/pii/S1361841522002432},
+    author = {Junyu Chen and Eric C. Frey and Yufan He and William P. Segars and Ye Li and Yong Du}
+    }
 ```
 
 When HypEReg-TransMorph or this repository&rsquo;s evaluation protocols are relevant, also cite your **Journal of Imaging** article (or preprint) once available, and retain the TransMorph citation above where the backbone applies.
