@@ -6,7 +6,7 @@
 
 This repository is the **project codebase** for *HypEReg-TransMorph*: hyperelastic-regularized, folding-suppressed deformable registration built on the TransMorph backbone, with a reproducible **IXI atlas-to-subject** evaluation stack, inferential statistics, figure pipelines, and the Journal of Imaging manuscript sources under [`draft/`](draft/).
 
-It is maintained independently of the original TransMorph release. The upstream implementation and paper are by Junyu Chen et al.; see **Citation** below. A copy of the original remote is kept as Git remote `upstream` for reference.
+It is maintained independently of the original TransMorph release. The upstream implementation and paper are by Junyu Chen et al.; see **Citation** below. To diff or cherry-pick against the original codebase, add a Git remote (commonly named `upstream`) using the upstream repository URL in **Upstream Credit and License Compliance** and in [`NOTICE`](NOTICE).
 
 **Public URL:** [https://github.com/Zzxmh/TransMorph_Transformer_for_Medical_Image_Registration](https://github.com/Zzxmh/TransMorph_Transformer_for_Medical_Image_Registration)
 
