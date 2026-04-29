@@ -4,59 +4,71 @@
 \usepackage{lmodern}
 \usepackage[margin=1in]{geometry}
 \usepackage[hyphens]{url}
+\usepackage{microtype}
+\usepackage{parskip}
 
 \begin{document}
 \thispagestyle{empty}
 
 \today
 
-\vspace{1em}
+\vspace{0.8em}
 
-Dear Editor of \textit{Journal of Imaging},
+\noindent The Editor-in-Chief\\
+\textit{Journal of Imaging}, MDPI
 
-\vspace{0.75em}
+\vspace{0.8em}
 
-We submit the manuscript entitled ``HypEReg-TransMorph: A Hyperelastic-Regularized Transformer Framework for Folding-Suppressed Deformable Brain MRI Registration'' for consideration as a research article.
-
-The work addresses deformable brain MRI registration with a Transformer-based dense registration backbone and training-time hyperelastic-energy regularization (HypEReg) to improve Jacobian regularity and folding suppression while maintaining competitive overlap metrics on a public IXI atlas-to-subject protocol. We believe the topic aligns with the journal's scope in medical imaging and artificial intelligence for imaging, including methodological contributions relevant to neuroimaging pipelines.
-
-\vspace{0.75em}
-
-\noindent Declarations:
-\begin{itemize}
-\item This manuscript has not been published or submitted elsewhere.
-\item All authors have approved this submission.
-\end{itemize}
+\noindent Dear Editor,
 
 \vspace{0.5em}
 
-\noindent Prior MDPI submissions by the authors related to this work: None. 
-
-\vspace{0.75em}
-
-\noindent\textbf{Suggested reviewers} (placeholders; please replace before submission):
-
-\begin{enumerate}
-\item \% TODO: Name, affiliation, email, expertise keywords
-\item \% TODO: Name, affiliation, email, expertise keywords
-\item \% TODO: Name, affiliation, email, expertise keywords
-\end{enumerate}
+We respectfully submit our manuscript, \textbf{``HypEReg-TransMorph: A Hyperelastic-Regularized Transformer Framework for Folding-Suppressed Deformable Brain MRI Registration''}, for consideration as an original research article in the \textit{Journal of Imaging}.
 
 \vspace{0.5em}
+\noindent\textbf{Clinical motivation and significance.}
+Accurate deformable brain MRI registration underpins a wide range of clinical neuroimaging workflows---from atlas-based segmentation and radiotherapy organ-at-risk delineation, to tensor-based morphometry (TBM) endpoints used in Alzheimer's disease progression monitoring, multiple sclerosis lesion analysis, and pre-surgical planning for deep brain stimulation and epilepsy resection. A fundamental but often overlooked requirement of all these applications is that the estimated deformation field must be \emph{diffeomorphic}: local foldings (voxels where the Jacobian determinant $\det J_\phi \le 0$) corrupt Jacobian-based biomarkers, produce anatomically inconsistent label boundaries, and force time-consuming manual post-correction. Contemporary Transformer-based registration methods have achieved state-of-the-art overlap accuracy, yet they routinely produce folded deformation fields that violate the assumptions of downstream clinical analysis pipelines. This practical gap---high overlap accuracy at the cost of physically implausible deformations---is the precise problem our work addresses.
 
-\noindent\textbf{Reviewers to exclude (optional):}
+\vspace{0.5em}
+\noindent\textbf{Technical contribution and key results.}
+We introduce \textbf{HypEReg}, a compact, differentiable, plug-in regularizer derived from hyperelastic energy principles (a volume-distortion penalty combined with an explicit anti-folding hinge) and integrate it as a training-time loss term into the TransMorph backbone. Because HypEReg modifies only the loss function and leaves the inference architecture unchanged, it incurs \emph{zero additional inference overhead} (measured forward runtime: 0.43\,s/volume; peak memory: 5.42\,GB---identical to the unregularized TransMorph baseline).
 
-\begin{enumerate}
-\item \% TODO (optional)
-\end{enumerate}
+On the IXI atlas-to-subject benchmark evaluated over \textbf{115 held-out test subjects} with full paired Wilcoxon/BH-FDR inferential statistics, HypEReg-TransMorph achieves the following improvements over strong Transformer baselines:
+
+\begin{center}
+\renewcommand{\arraystretch}{1.25}
+\begin{tabular}{lccc}
+\hline
+\textbf{Metric} & \textbf{HypEReg-TransMorph} & \textbf{TransMorph} & \textbf{TransMorphBayes}\\
+\hline
+Dice ($\uparrow$) & \textbf{0.7537} & 0.7527 & 0.7530\\
+Non-pos.\ $\det J_\phi$ ratio ($\downarrow$) & \textbf{1.5\,$\times$\,10$^{-5}$} & 0.0150 & 0.0156\\
+SDlogJ ($\downarrow$) & \textbf{0.328} & 0.506 & 0.492\\
+HD95 mm ($\downarrow$) & \textbf{3.16} & 5.88 & 3.37\\
+ASSD mm ($\downarrow$) & \textbf{0.589} & 1.559 & 0.622\\
+\hline
+\end{tabular}
+\end{center}
+
+\noindent The non-positive Jacobian determinant ratio---the direct measure of deformation field validity for clinical use---is reduced by a factor of \textbf{$>$1,000$\times$} relative to the unregularized TransMorph baseline ($p < 10^{-19}$, $q < 10^{-19}$, rank-biserial effect $= 1.00$), while grouped-VOI Dice is simultaneously improved. These results demonstrate, for the first time on this benchmark, that Jacobian-aware regularization can deliver near-diffeomorphic Transformer-based registration without any sacrifice in alignment fidelity or inference speed---directly addressing the clinical usability barrier noted above.
+
+\vspace{0.5em}
+\noindent\textbf{Suitability for \textit{Journal of Imaging}.}
+We believe this work fits squarely within the journal's scope: it presents a principled, reproducible methodological contribution to medical image analysis with direct translational relevance to clinical neuroimaging. A complete reproducibility package (training code, evaluation scripts, per-case metric tables, figure pipelines, and model checkpoints available upon request) is released openly at \url{https://github.com/Zzxmh/HypEReg-TransMorph} and archived at Zenodo (DOI: 10.5281/zenodo.19888526).
+
+\vspace{0.5em}
+\noindent\textbf{Declarations.}
+This manuscript has not been published or submitted elsewhere; all authors have approved this submission; the authors declare no conflicts of interest; no external funding was received for this work.
 
 \vspace{1em}
 
-\noindent Sincerely,\\[0.75em]
-Shiyi Xu (first author)\\
+\noindent Sincerely,\\[0.5em]
+\noindent Shiyi Xu (first author)\\
 Capital Medical University, Beijing 100069, China\\
-\texttt{xsy4831@mail.ccmu.edu.cn}\\[0.75em]
-Mohan Xu (corresponding author)\\
+\texttt{xsy4831@mail.ccmu.edu.cn}
+
+\vspace{0.5em}
+\noindent Mohan Xu (corresponding author)\\
 School of Physics, Peking University, Beijing 100871, China\\
 \texttt{2200011601@stu.pku.edu.cn}
 
