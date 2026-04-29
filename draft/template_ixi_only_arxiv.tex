@@ -40,7 +40,7 @@ $^{2}$ School of Physics, Peking University, Beijing 100871, China; 2200011601@s
 \maketitle
 
 \begin{abstract}
-Background: Deformable brain MRI registration requires accurate alignment and geometrically plausible deformation fields. Methods: Hyperelastic-energy regularization (HypEReg) is integrated into a TransMorph-style dense registration backbone to penalize implausible local volume change and folding. Evaluation is performed on 115 held-out atlas-to-subject pairs from the Information eXtraction from Images (IXI) dataset using grouped anatomical labels. Results: HypEReg-TransMorph yields statistically indistinguishable grouped-VOI Dice relative to the strongest Transformer baselines (0.7537 $\pm$ 0.0275 vs.\ 0.7530 $\pm$ 0.0302 for TransMorphBayes) while reducing the non-positive Jacobian-determinant ratio by approximately three orders of magnitude (0.000015 $\pm$ 0.000007 vs.\ 0.0156 $\pm$ 0.0034) and lowering SDlogJ (0.3280 $\pm$ 0.0221 vs.\ 0.4920 $\pm$ 0.0330). Conclusions: Under the IXI atlas-to-subject protocol, HypEReg-TransMorph improves deformation regularity with near-equal overlap, supporting Jacobian-aware neuroimaging analysis. Wilcoxon paired tests with Benjamini--Hochberg FDR correction support these effects ($q<0.001$ for Jacobian-regularity metrics).
+Background: Deformable brain MRI registration requires accurate alignment and geometrically plausible deformation fields. Methods: Hyperelastic-energy regularization (HypEReg) is integrated into a TransMorph-style dense registration backbone to penalize implausible local volume change and folding. Evaluation is performed on a held-out IXI atlas-to-subject test protocol using grouped anatomical labels and paired inferential analysis. Results: HypEReg-TransMorph maintains overlap performance comparable to strong Transformer baselines while substantially improving deformation regularity and folding suppression. Conclusions: These findings support Jacobian-aware regularization as a practical strategy for improving deformation plausibility in Transformer-based neuroimaging registration workflows.
 \end{abstract}
 
 \noindent\textbf{Keywords:} medical image registration; deformable registration; transformer; hyperelastic-energy regularization; HypEReg-TransMorph; folding suppression; Jacobian regularization; Jacobian determinant; brain MRI
@@ -208,33 +208,9 @@ Inferential analysis is performed with paired Wilcoxon signed-rank tests \citep{
 \section{Results}
 
 \subsection{Accuracy Across Baselines}
-Table~\ref{tab2} reports the compact IXI model comparison, expanded to include overlap and regularity metrics in one place. HypEReg-TransMorph maintains competitive overlap while improving deformation regularity relative to unconstrained Transformer baselines.
+HypEReg-TransMorph maintains competitive overlap while improving deformation regularity relative to unconstrained Transformer baselines.
 
 Compared with the strongest completed TransMorph-family baseline (TransMorphBayes), HypEReg-TransMorph changes Dice from 0.7530 to 0.7537 under the grouped-structure Dice protocol. Surface distance metrics are also improved (HD95: 3.1561 vs.\ 3.3745; ASSD: 0.5891 vs.\ 0.6215).
-
-\begin{table}[H]
-\caption{Main IXI model comparison (115-subject protocol).\label{tab2}}
-\centering
-\scriptsize
-\setlength{\tabcolsep}{3pt}
-\begin{tabularx}{\textwidth}{lccccc}
-\toprule
-\textbf{Model} & \textbf{Dice\(\uparrow\)} & \(\boldsymbol{\det(J_\phi)\le 0}\) \textbf{ratio \(\downarrow\)} & \textbf{SDlogJ\(\downarrow\)} & \textbf{HD95 (mm)\(\downarrow\)} & \textbf{ASSD (mm)\(\downarrow\)}\\
-\midrule
-HypEReg-TransMorph & \textbf{0.7537 \(\pm\) 0.0275} & 0.000015 \(\pm\) 0.000007 & 0.3280 \(\pm\) 0.0221 & \textbf{3.1561 \(\pm\) 0.5408} & \textbf{0.5891 \(\pm\) 0.1021}\\
-TransMorph & 0.7527 \(\pm\) 0.0305 & 0.015021 \(\pm\) 0.003416 & 0.5064 \(\pm\) 0.0250 & 5.8794 \(\pm\) 0.8048 & 1.5593 \(\pm\) 0.2416\\
-TransMorphBayes & \underline{0.7530 \(\pm\) 0.0302} & 0.015634 \(\pm\) 0.003363 & 0.4920 \(\pm\) 0.0330 & \underline{3.3745 \(\pm\) 0.6740} & \underline{0.6215 \(\pm\) 0.1305}\\
-VoxelMorph-1 & 0.7293 \(\pm\) 0.0290 & 0.015860 \(\pm\) 0.003388 & 0.4999 \(\pm\) 0.0327 & 5.7156 \(\pm\) 0.8168 & 1.4696 \(\pm\) 0.1962\\
-CycleMorph & 0.7366 \(\pm\) 0.0303 & 0.017192 \(\pm\) 0.003819 & 0.5176 \(\pm\) 0.0320 & 5.7789 \(\pm\) 0.8317 & 1.4638 \(\pm\) 0.2038\\
-MIDIR & 0.7423 \(\pm\) 0.0228 & \textbf{0.000000 \(\pm\) 0.000000} & \underline{0.3148 \(\pm\) 0.0242} & 5.3028 \(\pm\) 0.6139 & 1.4100 \(\pm\) 0.1585\\
-CoTr & 0.7347 \(\pm\) 0.0290 & 0.012975 \(\pm\) 0.003430 & 0.4874 \(\pm\) 0.0331 & 5.5691 \(\pm\) 0.7931 & 1.4278 \(\pm\) 0.1828\\
-nnFormer & 0.7472 \(\pm\) 0.0294 & 0.015946 \(\pm\) 0.003584 & 0.5167 \(\pm\) 0.0371 & 5.8274 \(\pm\) 0.8195 & 1.4322 \(\pm\) 0.1878\\
-PVT & 0.7273 \(\pm\) 0.0330 & 0.018578 \(\pm\) 0.003141 & 0.5431 \(\pm\) 0.0318 & 5.9286 \(\pm\) 0.8264 & 1.5253 \(\pm\) 0.2069\\
-SyN (ANTs) & 0.6445 \(\pm\) 0.0397 & \underline{0.000001 \(\pm\) 0.000005} & \textbf{0.2996 \(\pm\) 0.0725} & 6.4457 \(\pm\) 1.8104 & 1.5233 \(\pm\) 0.7748\\
-\bottomrule
-\end{tabularx}
-\parbox{\textwidth}{\footnotesize Values are reported as mean \(\pm\) standard deviation over 115 test subjects. Dice and \(\det(J_\phi)\le 0\) ratio are computed from per-case evaluation tables; SDlogJ/HD95/ASSD are taken from the same finalized IXI summary exports used for manuscript tabulation. Bold indicates best value per metric; underline indicates second-best.}
-\end{table}
 
 \subsection{Deformation Regularity and Folding Suppression}
 The central findings are in deformation regularity metrics. HypEReg-TransMorph yields a non-positive Jacobian determinant ratio of \(0.000015 \pm 0.000007\), compared with \(0.015634 \pm 0.003363\) for TransMorphBayes and \(0.015021 \pm 0.003416\) for TransMorph. SDlogJ decreases from \(0.4920 \pm 0.0330\) (TransMorphBayes) and \(0.5064 \pm 0.0250\) (TransMorph) to \(0.3280 \pm 0.0221\) (HypEReg-TransMorph), and bending energy decreases from 46.0976 to 18.6155.
@@ -243,7 +219,7 @@ For models with subject-level per-case exports, inferential results support thes
 \subsection{Efficiency}
 To resolve the inference-cost discrepancy, we re-profiled pure forward inference under an isolated protocol that excludes metric computation and label warping. Under this protocol, HypEReg-TransMorph and TransMorph show nearly identical forward cost (0.4316 s vs.\ 0.4306 s on a representative IXI case) and peak memory (5.422 GB vs.\ 5.421 GB), consistent with identical inference architecture/parameter count (46.771 M). Larger end-to-end timing differences in previous tables are therefore attributable to evaluation-path operations rather than mandatory model-forward overhead.
 
-\begin{table}[H]
+\begin{table}[t]
 \caption{End-to-end evaluation-path efficiency comparison (runtime, peak memory, and parameter count) for selected baselines.\label{tab3}}
 \begin{tabularx}{\textwidth}{lccc}
 \toprule
@@ -264,24 +240,24 @@ SyN (ANTs) & N/A & N/A & N/A \\
 \end{table}
 
 \subsection{Qualitative Visualization}
-Representative qualitative registration/deformation visualizations are shown in Figures~\ref{fig2}--\ref{fig4}. In this representative case, HypEReg-TransMorph qualitatively suggests improved boundary alignment near selected ventricular/cortical regions, while preserving smooth deformation grids and reducing visible fold-prone patterns. These visual observations complement the quantitative metrics in Table~\ref{tab2}.
+Representative qualitative registration/deformation visualizations are shown in Figures~\ref{fig2}--\ref{fig4}. In this representative case, HypEReg-TransMorph qualitatively suggests improved boundary alignment near selected ventricular/cortical regions, while preserving smooth deformation grids and reducing visible fold-prone patterns. These visual observations complement the quantitative evaluation trends reported in this section.
 
-\begin{figure}[H]
+\begin{figure}[t]
 \centering
 \includegraphics[width=0.96\textwidth]{figures/fig2_qualitative.pdf}
-\caption{Qualitative registration comparison on a representative IXI test subject across three orthogonal views (axial/coronal/sagittal). Columns show moving atlas, fixed target, and warped outputs from HypEReg-TransMorph, TransMorph, and MIDIR. Figure~\ref{fig2} qualitatively highlights boundary-alignment behavior in ventricles, cortex, and deep gray structures, complementing quantitative trends in Table~\ref{tab2}. \label{fig2}}
+\caption{Qualitative registration comparison on a representative IXI test subject across three orthogonal views (axial/coronal/sagittal). Columns show moving atlas, fixed target, and warped outputs from HypEReg-TransMorph, TransMorph, and MIDIR. Figure~\ref{fig2} qualitatively highlights boundary-alignment behavior in ventricles, cortex, and deep gray structures, complementing the quantitative trends reported in the Results section. \label{fig2}}
 \end{figure}
 
-\begin{figure}[H]
+\begin{figure}[t]
 \centering
 \includegraphics[width=0.96\textwidth]{figures/fig3_gridwarp.pdf}
 \caption{Deformation-grid visualization derived from predicted displacement fields on the same IXI subject. Cyan lattice lines represent transformed coordinates after warping by each model. Smooth, non-self-intersecting grids indicate stable local geometry, whereas abrupt kinks or crossings indicate folding risk. In this representative case, HypEReg-TransMorph qualitatively suggests smoother global transitions and fewer folding-prone patterns.\label{fig3}}
 \end{figure}
 
-\begin{figure}[H]
+\begin{figure}[t]
 \centering
 \includegraphics[width=0.96\textwidth]{figures/fig4_jacobian.pdf}
-\caption{Jacobian-determinant analysis for deformation plausibility. Top-row heatmaps show spatial maps of \(\det(J_\phi)\) on a central slice for each model, where values near 1 indicate near-volume-preserving local transforms and extreme values indicate expansion/compression. The bottom histogram reports \(\log(\det(J_\phi))\) over voxels; narrower distributions centered near zero indicate more stable local volume behavior. Together with the non-positive Jacobian determinant ratio and SDlogJ in Table~\ref{tab2}, this figure supports the folding-suppression behavior of HypEReg-TransMorph.\label{fig4}}
+\caption{Jacobian-determinant analysis for deformation plausibility. Top-row heatmaps show spatial maps of \(\det(J_\phi)\) on a central slice for each model, where values near 1 indicate near-volume-preserving local transforms and extreme values indicate expansion/compression. The bottom histogram reports \(\log(\det(J_\phi))\) over voxels; narrower distributions centered near zero indicate more stable local volume behavior. This figure supports the folding-suppression behavior of HypEReg-TransMorph.\label{fig4}}
 \end{figure}
 
 \noindent A descriptive multi-metric overview (Dice, non-positive Jacobian ratio, SDlogJ, and HD95) is provided as Figure~S1 in the Supplementary Materials.

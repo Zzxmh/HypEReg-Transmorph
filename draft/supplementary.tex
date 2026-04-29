@@ -26,13 +26,95 @@
 
 \section{Supplementary Experimental Details}
 \subsection{Model and Environment Configuration}
-This supplementary document summarizes implementation details required for reproducibility:
+To address reproducibility at full detail, we report \emph{all} explicit training-time and implementation hyperparameters used by the IXI HypEReg-TransMorph run (\texttt{IXI/TransMorph/train\_TransMorph\_her.py} with \texttt{CONFIGS\_TM['TransMorph']}).
+
+\paragraph{Software and hardware environment.}
 \begin{itemize}
-\item Framework and package versions: Python 3.12.10; PyTorch 2.12.0.dev20260408+cu128; antspyx 0.6.3; SimpleITK 2.5.3.
-\item Hardware configuration: NVIDIA RTX PRO 6000 Blackwell Workstation Edition (97,887 MiB VRAM), driver 591.86; peak-memory audits from per-case evaluation logs indicate a single-GPU run profile for deep models.
-\item Checkpoint management follows a unified manifest-and-version protocol aligned with the benchmark settings.
-\item Inference is conducted under a standardized evaluation configuration with harmonized metric definitions across models.
-\item Isolated forward profiling is executed in a clean no-gradient setting without label-warp or metric kernels. Measured pure-forward runtime/peak-memory for HypEReg-TransMorph and TransMorph are 0.4316 s / 5.422 GB and 0.4306 s / 5.421 GB, respectively.
+\item Python 3.12.10.
+\item PyTorch 2.12.0.dev20260408+cu128.
+\item antspyx 0.6.3; SimpleITK 2.5.3.
+\item Single GPU: NVIDIA RTX PRO 6000 Blackwell Workstation Edition (97,887 MiB VRAM), driver 591.86.
+\end{itemize}
+
+\paragraph{Data source, atlas resolution, and loaders.}
+\begin{itemize}
+\item IXI root directory resolved as \texttt{repo\_root/IXI\_data}; atlas resolved from \texttt{atlas.pkl} (fallback \texttt{altas.pkl}).
+\item Training samples loaded from \texttt{IXI\_data/Train/*.pkl}; validation samples from \texttt{IXI\_data/Val/*.pkl}.
+\item Batch size: 2 (training), 1 (validation).
+\item DataLoader (train): \texttt{shuffle=True}, \texttt{num\_workers=4}, \texttt{pin\_memory=True}, \texttt{drop\_last=False} (default).
+\item DataLoader (val): \texttt{shuffle=False}, \texttt{num\_workers=4}, \texttt{pin\_memory=True}, \texttt{drop\_last=True}.
+\item Training transform pipeline: \texttt{RandomFlip(0)} then \texttt{NumpyType((np.float32, np.float32))}.
+\item Validation transform pipeline: \texttt{Seg\_norm()} then \texttt{NumpyType((np.float32, np.int16))}.
+\item \texttt{RandomFlip} implementation detail: independent Bernoulli flips for axes \((1,2,3)\) with \(\Pr(\text{flip along each axis})=0.5\).
+\item \texttt{Seg\_norm} relabel table (in-order): \([0,2,3,4,5,7,8,10,11,12,13,14,15,16,17,18,24,26,28,30,31,41,42,43,44,46,47,49,50,51,52,53,54,58,60,62,63,72,77,80,85,251,252,253,254,255]\).
+\end{itemize}
+
+\paragraph{Optimization, schedule, and training loop controls.}
+\begin{itemize}
+\item Optimizer: Adam with AMSGrad (\texttt{optim.Adam(..., amsgrad=True)}).
+\item Adam hyperparameters explicitly set: learning rate \(=1\times10^{-4}\), weight decay \(=0\).
+\item Adam hyperparameters inherited from PyTorch defaults (not overridden): \(\beta_1=0.9\), \(\beta_2=0.999\), \(\epsilon=10^{-8}\).
+\item Epoch controls: \texttt{epoch\_start=0}, \texttt{max\_epoch=500}, \texttt{cont\_training=False}.
+\item LR schedule (applied every training iteration): polynomial decay
+\[
+\mathrm{lr}(e)=\mathrm{INIT\_LR}\cdot\left(1-\frac{e}{\mathrm{MAX\_EPOCHES}}\right)^{0.9},
+\]
+with \texttt{round(..., 8)} applied in code.
+\item Bidirectional optimization per mini-batch: one step for \(x\rightarrow y\), one step for \(y\rightarrow x\), each with independent \texttt{zero\_grad()}, \texttt{backward()}, \texttt{step()}.
+\item Random global seed: not fixed in this training script.
+\end{itemize}
+
+\paragraph{Loss composition (all coefficients and internal settings).}
+Total objective per direction:
+\[
+\mathcal{L}_{\mathrm{total}}
+=
+1.0\cdot\mathcal{L}_{\mathrm{sim}}
++1.0\cdot\mathcal{L}_{\mathrm{grad}}
++1.0\cdot\mathcal{L}_{\mathrm{HypEReg}}.
+\]
+\begin{itemize}
+\item Similarity term: \texttt{losses.NCC\_vxm(win=None)}.
+\item NCC window: \([9,9,9]\) (auto-selected from \texttt{win=None} for 3D).
+\item NCC return form: negative mean squared local cross-correlation (\(-\overline{\mathrm{LCC}^2}\)); denominator stabilizer \(=10^{-5}\).
+\item Smoothness term: \texttt{losses.Grad3d(penalty='l2', loss\_mult=None)}.
+\item Grad3d form: mean squared first-order finite differences along x/y/z, then divided by 3.
+\item Hyperelastic term class: \texttt{HyperelasticLoss(alpha\_length=0.0, beta\_volume=0.02, gamma\_fold=20.0)}.
+\item Hyperelastic internal defaults (not overridden): \texttt{eps=1e-3}, \texttt{fold\_power=2}, \texttt{penalty\_type='rational'}, \texttt{ablation='full'}.
+\item Active HypEReg weights in this operating point: \(\alpha=0\), \(\beta=0.02\), \(\gamma=20\).
+\item Jacobian computation in HER: forward finite differences on interior lattice \((D-1,H-1,W-1)\), with \(J=\det(I+\nabla u)\).
+\item Volume penalty: \((J-1)^2/\max(J,\epsilon)\) with \(\epsilon=10^{-3}\).
+\item Folding penalty: \(\mathrm{ReLU}(\epsilon-J)^2\) with \(\epsilon=10^{-3}\).
+\end{itemize}
+
+\paragraph{Model architecture hyperparameters (TransMorph backbone).}
+The run uses \texttt{config = CONFIGS\_TM['TransMorph']} from \texttt{configs\_TransMorph.py}, i.e.:
+\begin{itemize}
+\item \texttt{if\_transskip=True}, \texttt{if\_convskip=True}.
+\item \texttt{patch\_size=4}, \texttt{in\_chans=2}, \texttt{img\_size=(160,192,224)}.
+\item \texttt{embed\_dim=96}, \texttt{depths=(2,2,4,2)}, \texttt{num\_heads=(4,4,8,8)}.
+\item \texttt{window\_size=(5,6,7,7)} (as defined in the released config).
+\item \texttt{mlp\_ratio=4}, \texttt{pat\_merg\_rf=4}, \texttt{reg\_head\_chan=16}.
+\item \texttt{qkv\_bias=False}, \texttt{drop\_rate=0}, \texttt{drop\_path\_rate=0.3}.
+\item Positional/normalization/checkpoint flags: \texttt{ape=False}, \texttt{spe=False}, \texttt{rpe=True}, \texttt{patch\_norm=True}, \texttt{use\_checkpoint=False}.
+\item Feature output stages: \texttt{out\_indices=(0,1,2,3)}.
+\item Trainable parameter count noted in the config comment: 15,201,579.
+\end{itemize}
+
+\paragraph{Warping kernels, logging, and checkpoint policy.}
+\begin{itemize}
+\item Two registration utility kernels instantiated during training: nearest-neighbor warp (labels) and bilinear warp (grid/intensity visualization).
+\item TensorBoard logging path: \texttt{logs/TransMorph\_IXI\_HER\_ncc\_1.0\_grad\_1.0\_her\_1.0\_a0\_b0.02\_g20/}.
+\item Checkpoint path: \texttt{experiments/TransMorph\_IXI\_HER\_ncc\_1.0\_grad\_1.0\_her\_1.0\_a0\_b0.02\_g20/}.
+\item Model-selection metric: best validation Dice (\texttt{best\_dsc}).
+\item Checkpoint filename template: \texttt{dsc\{:.3f\}.pth.tar}; retention cap \texttt{max\_model\_num=8} with oldest-file deletion.
+\end{itemize}
+
+\paragraph{Inference/profiling controls (for reported runtime numbers).}
+\begin{itemize}
+\item Inference benchmarks use standardized evaluation scripts with harmonized metric definitions across models.
+\item Isolated forward profiling is performed with gradients disabled and without label-warp/metric kernels.
+\item Measured pure-forward runtime/peak-memory: HypEReg-TransMorph \(0.4316\) s / \(5.422\) GB; TransMorph \(0.4306\) s / \(5.421\) GB.
 \end{itemize}
 
 \section{Figure S1: Descriptive IXI Overview}
