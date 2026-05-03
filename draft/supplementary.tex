@@ -61,7 +61,7 @@ To address reproducibility at full detail, we report \emph{all} explicit trainin
 \]
 with \texttt{round(..., 8)} applied in code.
 \item Bidirectional optimization per mini-batch: one step for \(x\rightarrow y\), one step for \(y\rightarrow x\), each with independent \texttt{zero\_grad()}, \texttt{backward()}, \texttt{step()}.
-\item Random global seed: not fixed in this training script.
+\item Random global seed: the released training script follows the upstream TransMorph reference implementation and does not pin a single global PyTorch/NumPy/Python seed; reproducibility is supported at the level of the released checkpoint, the deterministic evaluation pipeline, and per-case metric exports. A multi-seed extension (\(\geq 3\) re-trainings) is identified in the main-paper limitations as a complementary direction.
 \end{itemize}
 
 \paragraph{Loss composition (all coefficients and internal settings).}
@@ -112,9 +112,9 @@ The run uses \texttt{config = CONFIGS\_TM['TransMorph']} from \texttt{configs\_T
 
 \paragraph{Inference/profiling controls (for reported runtime numbers).}
 \begin{itemize}
-\item Inference benchmarks use standardized evaluation scripts with harmonized metric definitions across models.
-\item Isolated forward profiling is performed with gradients disabled and without label-warp/metric kernels.
-\item Measured pure-forward runtime/peak-memory: HypEReg-TransMorph \(0.4316\) s / \(5.422\) GB; TransMorph \(0.4306\) s / \(5.421\) GB.
+\item Inference benchmarks use the standardized evaluation script in the repository with harmonized metric definitions across models.
+\item Isolated forward profiling is performed with \texttt{torch.no\_grad()} enabled, label-warp/metric kernels excluded, and \texttt{torch.cuda.max\_memory\_allocated()} reset before each warm-started measurement.
+\item Pure-forward runtime / peak GPU memory on the reported NVIDIA RTX PRO 6000 Blackwell hardware: HypEReg-TransMorph \(0.0822\) s / \(5.685\) GB; TransMorph \(0.0822\) s / \(5.685\) GB; TransMorphBayes \(0.0852\) s / \(6.042\) GB. Values are averages of \(20\) repeated calls on synthetic inputs of size \(1\times2\times160\times192\times224\) following 5 warm-up iterations. The two TransMorph variants share the same forward graph and therefore yield identical timings (parameter count is \(46.771\)\,M and \(46.773\)\,M, respectively).
 \end{itemize}
 
 \section{Figure S1: Descriptive IXI Overview}

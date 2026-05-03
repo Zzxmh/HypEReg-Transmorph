@@ -1,0 +1,49 @@
+{
+  "HypEReg-TransMorph": {
+    "mean_s": 0.0833,
+    "std_s": 0.0018,
+    "peak_gb": 5.656,
+    "params_M": 46.771
+  },
+  "TransMorph": {
+    "mean_s": 0.0833,
+    "std_s": 0.0018,
+    "peak_gb": 5.656,
+    "params_M": 46.771,
+    "note": "same arch as HypEReg-TransMorph"
+  },
+  "TransMorphBayes": {
+    "mean_s": 0.0858,
+    "std_s": 0.0012,
+    "peak_gb": 6.069,
+    "params_M": 46.773,
+    "note": "single-pass; MC-inference = x25 runtime"
+  },
+  "VoxelMorph-1": {
+    "mean_s": 0.0269,
+    "std_s": 0.001,
+    "peak_gb": 4.218,
+    "params_M": 0.274
+  },
+  "CycleMorph": {
+    "error": "cannot import name 'ResnetGenerator' from 'models.networks' (F:\\TransMorph_Transformer_for_Medical_Image_Registration\\TransMorph_Transformer_for_Medical_Image_Registration\\IXI\\Baseline_registration_methods\\CycleMorph\\models\\networks.py)"
+  },
+  "MIDIR": {
+    "error": "No module named 'model'"
+  },
+  "CoTr": {
+    "error": "No module named 'models.CoTr'; 'models' is not a package"
+  },
+  "nnFormer": {
+    "error": "No module named 'models.nnFormer'; 'models' is not a package"
+  },
+  "PVT": {
+    "error": "No module named 'models.PVT'; 'models' is not a package"
+  },
+  "SyN (ANTs)": {
+    "mean_s": null,
+    "peak_gb": null,
+    "params_M": null,
+    "note": "classical iterative optimizer; no GPU forward pass"
+  }
+}
