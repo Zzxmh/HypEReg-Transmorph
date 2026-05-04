@@ -4,8 +4,13 @@ import argparse
 import csv
 import json
 import os
+import sys
 import time
 from typing import Dict, List
+
+_REPO_ROOT = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
+if _REPO_ROOT not in sys.path:
+    sys.path.insert(0, _REPO_ROOT)
 
 import nibabel as nib
 import numpy as np
@@ -80,6 +85,7 @@ def run(cfg_path: str, model_ids: List[str] | None = None) -> None:
     os.makedirs(results_root, exist_ok=True)
 
     pairs = pd.read_csv(pairs_csv)
+    pairs.columns = pairs.columns.str.strip()
     num_labels = int(cfg.get("num_labels", 36))
     spacing = cfg.get("spacing", [1.0, 1.0, 1.0])
     ssim_win = int(cfg.get("ssim_win", 11))

@@ -46,3 +46,29 @@ models:
     name: Affine (MI)
     adapter: affine_oasis
     supervision: classical
+
+  # ── IXI-trained zero-shot transfer to OASIS ──────────────────────────────
+  - id: transmorph_zs_oasis
+    name: TransMorph (IXI→OASIS zero-shot)
+    adapter: transmorph_zs_oasis
+    supervision: unsup. (ZS)
+  - id: transmorphbayes_zs_oasis
+    name: TransMorphBayes (IXI→OASIS zero-shot)
+    adapter: transmorphbayes_zs_oasis
+    supervision: unsup. (ZS)
+  - id: transmorph_her_zs_oasis
+    name: HypEReg-TransMorph (IXI→OASIS zero-shot)
+    adapter: transmorph_her_zs_oasis
+    supervision: unsup. (ZS)
+  - id: cotr_zs_oasis
+    name: CoTr (IXI→OASIS zero-shot)
+    adapter: cotr_zs_oasis
+    supervision: unsup. (ZS)
+  - id: nnformer_zs_oasis
+    name: nnFormer (IXI→OASIS zero-shot)
+    adapter: nnformer_zs_oasis
+    supervision: unsup. (ZS)
+  - id: pvt_zs_oasis
+    name: PVT (IXI→OASIS zero-shot)
+    adapter: pvt_zs_oasis
+    supervision: unsup. (ZS)

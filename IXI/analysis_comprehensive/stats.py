@@ -69,6 +69,8 @@ def _discover(eval_root: str) -> Dict[str, pd.DataFrame]:
     if not os.path.isdir(eval_root):
         return out
     for name in sorted(os.listdir(eval_root)):
+        if name.startswith("_"):
+            continue
         p = os.path.join(eval_root, name, "per_case.csv")
         if os.path.isfile(p):
             try:
@@ -143,6 +145,8 @@ def run(
     ref_model: str = "transmorph_her",
     metrics: List[str] | None = None,
     min_subjects: int = 115,
+    summary_csv: str = "model_summary.csv",
+    pairwise_csv: str = "sig_matrix.csv",
 ) -> None:
     metrics = metrics or list(DEFAULT_METRICS)
     os.makedirs(out_dir, exist_ok=True)
@@ -151,7 +155,7 @@ def run(
         raise FileNotFoundError(f"No per_case.csv found under {eval_root}")
 
     summary = _summary_rows(data, metrics)
-    summary.to_csv(os.path.join(out_dir, "model_summary.csv"), index=False)
+    summary.to_csv(os.path.join(out_dir, summary_csv), index=False)
 
     # Keep only models with enough subjects for stable paired testing.
     data = {k: v for k, v in data.items() if len(v) >= min_subjects}
@@ -170,7 +174,7 @@ def run(
                     "note": f"Reference model `{ref_model}` has < {min_subjects} subjects in Eval_Results.",
                 }
             ]
-        ).to_csv(os.path.join(out_dir, "sig_matrix.csv"), index=False)
+        ).to_csv(os.path.join(out_dir, pairwise_csv), index=False)
         return
 
     p_rows = _paired_pvals(data, ref_model=ref_model, metrics=metrics)
@@ -196,7 +200,7 @@ def run(
                 "note": "",
             }
         )
-    pd.DataFrame(out_rows).to_csv(os.path.join(out_dir, "sig_matrix.csv"), index=False)
+    pd.DataFrame(out_rows).to_csv(os.path.join(out_dir, pairwise_csv), index=False)
 
 
 def main() -> int:
@@ -205,6 +209,8 @@ def main() -> int:
     ap.add_argument("--out_dir", type=str, default=os.path.join("IXI", "Results", "comprehensive"))
     ap.add_argument("--ref_model", type=str, default="transmorph_her")
     ap.add_argument("--min_subjects", type=int, default=115)
+    ap.add_argument("--summary_csv", type=str, default="model_summary.csv")
+    ap.add_argument("--pairwise_csv", type=str, default="sig_matrix.csv")
     args = ap.parse_args()
 
     repo_root = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
@@ -215,6 +221,8 @@ def main() -> int:
         out_dir=out_dir,
         ref_model=args.ref_model,
         min_subjects=args.min_subjects,
+        summary_csv=args.summary_csv,
+        pairwise_csv=args.pairwise_csv,
     )
     print(f"Wrote summary + significance tables to: {out_dir}")
     return 0

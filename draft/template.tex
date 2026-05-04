@@ -2,10 +2,7 @@
 %  For support, please attach all files needed for compiling as well as the log file, and specify your operating system, LaTeX version, and LaTeX editor.
 
 %=================================================================
-\documentclass[jimaging,article,submit,pdftex,moreauthors]{Definitions/mdpi} 
-
-% Figures live at repository root; this manuscript is compiled from draft/.
-\graphicspath{{../}}
+\documentclass[journal,article,submit,pdftex,moreauthors]{Definitions/mdpi} 
 %\documentclass[preprints,article,submit,pdftex,moreauthors]{Definitions/mdpi} 
 % For posting an early version of this manuscript as a preprint, you may use "preprints" as the journal. Changing "submit" to "accept" before posting will remove line numbers.
 
@@ -80,31 +77,29 @@
 
 %=================================================================
 % Full title of the paper (Capitalized)
-\Title{HER-TransMorph: Topology-Preserving Transformer-Based Deformable Brain MRI Registration with Hyperelastic Regularization}
-% PH = pending Stage B value (greppable placeholder token)
-\providecommand{\PH}[1]{\textcolor{red}{\textbf{[#1]}}}
+\Title{Title}
 
 % Author Orchid ID: enter ID or remove command
 \newcommand{\orcidauthorA}{0000-0000-0000-000X} % Add \orcidA{} behind the author's name
 %\newcommand{\orcidauthorB}{0000-0000-0000-000X} % Add \orcidB{} behind the author's name
 
 % Authors, for the paper (add full first names)
-\Author{Author One $^{1}$\orcidA{}, Author Two $^{2}$ and Corresponding Author $^{2,}$*}
+\Author{Firstname Lastname $^{1}$\orcidA{}, Firstname Lastname $^{2}$ and Firstname Lastname $^{2,}$*}
 
 %\longauthorlist{yes}
 
 % MDPI internal command: Authors, for metadata in PDF
-\AuthorNames{Author One, Author Two and Corresponding Author}
+\AuthorNames{Firstname Lastname, Firstname Lastname and Firstname Lastname}
 
 %\longauthorlist{yes}
 
 % Affiliations / Addresses (Add [1] after \address if there is only one affiliation.)
 \address{%
-$^{1}$ \quad Department of Biomedical Engineering, Institution One, City, Country; author1@example.edu\\
-$^{2}$ \quad Department of Medical Imaging, Institution Two, City, Country; author2@example.edu}
+$^{1}$ \quad Affiliation 1; e-mail@e-mail.com\\
+$^{2}$ \quad Affiliation 2; e-mail@e-mail.com}
 
 % Contact information of the corresponding author
-\corres{Correspondence: corresponding.author@example.edu; Tel.: +00-000000000}
+\corres{Correspondence: e-mail@e-mail.com; Tel.: (optional; include country code; if there are multiple corresponding authors, add author initials) +xx-xxxx-xxx-xxxx (F.L.)}
 
 % Current address and/or shared authorship
 %\firstnote{Current address: Affiliation.}  
@@ -118,10 +113,10 @@ $^{2}$ \quad Department of Medical Imaging, Institution Two, City, Country; auth
 %\conference{} % An extended version of a conference paper
 
 % Abstract (Do not insert blank lines, i.e. \\) 
-\abstract{Background: Deformable brain MRI registration requires preserving deformation topology in addition to overlap accuracy. Methods: HER-TransMorph augments a TransMorph backbone with hyperelastic regularization terms targeting volume-change moderation and anti-folding control, while keeping the same unsupervised objective family across datasets. We evaluate the method on two complementary protocols---IXI atlas-to-subject and OASIS inter-subject---against learning-based and classical baselines, and report paired Wilcoxon signed-rank tests with Benjamini--Hochberg FDR correction where available. Results: HER-TransMorph maintains competitive overlap (IXI Dice: 0.7537 \(\pm\) 0.0275; OASIS Dice: \PH{OASIS Dice mean±std}) while reducing topology violations (IXI non-positive Jacobian ratio: 0.0000 vs.\ 0.0153 for TransMorph; OASIS: \PH{HER non\_jac OASIS} vs.\ \PH{TM non\_jac OASIS}, q < \PH{q OASIS non\_jac}) and improving Jacobian regularity (IXI SDlogJ: 0.3280 vs.\ 0.4920; OASIS SDlogJ: \PH{HER SDlogJ OASIS} vs.\ \PH{TM SDlogJ OASIS}). Conclusions: HER-TransMorph yields topology-preserving deformations across complementary registration regimes, supporting downstream Jacobian-based morphometric analysis.}
+\abstract{A single paragraph of about 200 words maximum. For research articles, abstracts should give a pertinent overview of the work. We strongly encourage authors to use the following style of structured abstracts, but without headings: (1) Background: place the question addressed in a broad context and highlight the purpose of the study; (2) Methods: describe briefly the main methods or treatments applied; (3) Results: summarize the article's main findings; (4) Conclusions: indicate the main conclusions or interpretations. The abstract should be an objective representation of the article, it must not contain results which are not presented and substantiated in the main text and should not exaggerate the main conclusions.}
 
 % Keywords
-\keyword{medical image registration; deformable registration; transformer; hyperelastic regularization; topology preservation; diffeomorphism; Jacobian determinant; brain MRI}
+\keyword{keyword 1; keyword 2; keyword 3 (List three to ten pertinent keywords specific to the article; yet reasonably common within the subject discipline.)} 
 
 % The fields PACS, MSC, and JEL may be left empty or commented out if not applicable
 %\PACS{J0101}
@@ -172,265 +167,219 @@ $^{2}$ \quad Department of Medical Imaging, Institution Two, City, Country; auth
 \begin{document}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\setcounter{section}{-1} %% Remove this when starting to work on the template.
+\section{How to Use this Template}
+
+The template details the sections that can be used in a manuscript. Note that the order and names of article sections may differ from the requirements of the journal (e.g., the positioning of the Materials and Methods section). Please check the instructions on the authors' page of the journal to verify the correct order and names. For any questions, please contact the editorial office of the journal or support@mdpi.com. For LaTeX-related questions please contact latex@mdpi.com.%\endnote{This is an endnote.} % To use endnotes, please un-comment \printendnotes below (before References). Only journal Laws uses \footnote.
+
+% The order of the section titles is different for some journals. Please refer to the "Instructions for Authors” on the journal homepage.
+
 \section{Introduction}
 
-Deformable registration is a central component of computational neuroimaging pipelines, including atlas propagation, longitudinal analysis, and voxel-wise morphometry. In recent years, learning-based methods have significantly reduced inference time compared with classical iterative optimization \citep{balakrishnan2019voxelmorph,kim2021cyclemorph}. However, high overlap metrics alone are not sufficient when deformation fields contain local foldings or implausible volume changes.
-
-Transformer-based registration improves long-range contextual modeling and has shown strong performance on 3D MRI tasks \citep{chen2022transmorph}. Nevertheless, unconstrained displacement prediction may still produce non-diffeomorphic regions, which can invalidate downstream Jacobian-based analysis. To address this, we integrate a Hyperelastic Regularization (HER)\footnote{Throughout this manuscript, HER denotes Hyperelastic Regularization and is unrelated to the Human Epidermal Growth Factor Receptor (HER2) acronym in oncology.} formulation into a TransMorph backbone and explicitly optimize deformation plausibility.
-
-This manuscript targets Journal of Imaging with an imaging-methodology contribution focused on topology preservation and regular deformation behavior. We emphasize physically plausible transformations while maintaining competitive registration accuracy.
-
-The contributions of this study are:
-\begin{itemize}
-\item A hyperelastic-regularized Transformer registration framework (HER-TransMorph) that combines similarity, smoothness, and a two-term hyperelastic regularizer (volume-change and anti-folding) in a unified objective;
-\item A full baseline comparison under a unified IXI protocol including deep-learning models and classical affine/SyN methods;
-\item Subject-level paired statistical validation (Wilcoxon + BH-FDR), with dual-protocol evaluation across IXI and OASIS (\PH{OASIS stats pending Stage B}), to test robustness of topology-preserving behavior.
-\end{itemize}
-
-\section{Related Work}
-
-\subsection{DL-Based Registration}
-Learning-based registration, represented by VoxelMorph and its descendants, enables fast inference with strong overlap quality \citep{balakrishnan2019voxelmorph}. Subsequent CNN and hybrid variants (e.g., CycleMorph and MIDIR) improve architectural capacity \citep{kim2021cyclemorph,qiu2021midir}, but deformation plausibility can degrade when the objective is dominated by image similarity terms.
-
-\subsection{Topology Preservation and Regularization}
-Topology-aware constraints are central for anatomically meaningful deformation fields. Jacobian-aware regularization and hyperelastic formulations explicitly penalize implausible local volume changes, discontinuities, and folding patterns \citep{burger2013hyperelastic,ashburner1999morphometry,rueckert1999nonrigid}. These constraints are especially relevant when registration outputs are used for morphometric analysis.
-
-\subsection{Transformer-Based Efficient Registration}
-Transformer backbones improve long-range context aggregation in volumetric registration and have become competitive baselines \citep{chen2022transmorph,liu2021swin}. Recent Transformer-family methods (including CoTr, nnFormer, PVT, and ViTVNet) broaden architectural design space \citep{xie2021cotr,zhou2021nnformer,wang2021pvt,vitvnet2021}, but explicit regularization is still required to stabilize topology while preserving alignment accuracy.
+The introduction should briefly place the study in a broad context and highlight why it is important. It should define the purpose of the work and its significance. The current state of the research field should be reviewed carefully and key publications cited. Please highlight controversial and diverging hypotheses when necessary. Finally, briefly mention the main aim of the work and highlight the principal conclusions. As far as possible, please keep the introduction comprehensible to scientists outside your particular field of research. Citing a journal paper \citep{ref-journal}.  Now citing a book reference \citep{ref-book1,ref-book2} or other reference types \citep{ref-unpublish,ref-url}. Please use the command \citep{ref-proceeding,ref-thesis} for the following MDPI journals, which use author--date citation: Administrative Sciences, Arts, Behavioral Sciences, Businesses, Econometrics, Economies, Education Sciences, European Journal of Investigation in Health, Psychology and Education, Games, Genealogy, Histories, Humanities, Humans, IJFS, Journal of Intelligence, Journalism and Media, JRFM, Languages, Laws, Literature, Psychology International, Publications, Religions, Risks, Social Sciences, Tourism and Hospitality, Youth. 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Materials and Methods}
 
-\subsection{Dataset and Preprocessing}
-Experiments are conducted on the IXI dataset \citep{ixidataset} with an atlas-to-subject registration protocol. The dataset split is 403/58/115 (train/validation/test), and all test results reported in this manuscript are based on 115 held-out subjects. Preprocessing includes skull/field handling as implemented in the repository pipeline, spatial normalization to a common template space, and cropping/resampling to \(160 \times 192 \times 224\). The fixed atlas for the IXI atlas-to-subject protocol is \texttt{IXI\_data/atlas.pkl}, consistent with the atlas distributed in the TransMorph codebase \citep{chen2022transmorph,kim2021cyclemorph}.
+Materials and Methods should be described with sufficient details to allow others to replicate and build on published results. Please note that publication of your manuscript implicates that you must make all materials, data, computer code, and protocols associated with the publication available to readers. Please disclose at the submission stage any restrictions on the availability of materials or information. New methods and protocols should be described in detail while well-established methods can be briefly described and appropriately cited.
 
-To assess generalization beyond IXI atlas-to-subject, we additionally evaluate on OASIS using the inter-subject registration protocol established by MICCAI Learn2Reg Task 03 \citep{hering2022learn2reg}. We use the neurite-OASIS preprocessed release \citep{hoopes2022hypermorph}: 414 T1w volumes affinely aligned to FreeSurfer Talairach space at \(160\times192\times224\), with 35-label FreeSurfer segmentations. Test pairs follow the official Learn2Reg validation pairing released as \texttt{pairs\_val.csv} (\PH{N\_OASIS pairs}). Following common practice \citep{chen2022transmorph,hoopes2022hypermorph}, OASIS is evaluated inter-subject (no canonical fixed atlas), while IXI retains atlas-to-subject evaluation.
+Research manuscripts reporting large datasets that are deposited in a publicly avail-able database should specify where the data have been deposited and provide the relevant accession numbers. If the accession numbers have not yet been obtained at the time of submission, please state that they will be provided during review. They must be provided prior to publication.
 
-\begin{table}[H]
-\caption{Dataset and experimental setup summary.\label{tab1}}
-\begin{tabularx}{\textwidth}{lX}
-\toprule
-\textbf{Item} & \textbf{Configuration} \\
-\midrule
-Dataset & IXI T1 MRI, atlas-to-subject registration protocol \\
-Split & 403 / 58 / 115 (train / validation / test) \\
-Input shape & \(160 \times 192 \times 224\) (cropped/resampled template space) \\
-Label protocol & Grouped Dice over 17 bilateral/related VOI groups (\texttt{analysis\_trans.py} / \texttt{IXI/analysis.py}) \\
-Compared families & TransMorph family, CNN/hybrid baselines, and classical Affine/SyN \\
-Checkpoint source & Repository checkpoints configured in \texttt{IXI/eval\_configs.yaml} and per-model manifests \\
-\bottomrule
-\end{tabularx}
-\end{table}
+Interventionary studies involving animals or humans, and other studies require ethical approval must list the authority that provided approval and the corresponding ethical approval code.
 
-\subsection{Baseline Model}
-The base architecture is TransMorph, a Transformer-based dense deformable registration network with a Swin-style encoder and decoder-to-flow prediction head \citep{chen2022transmorph,liu2021swin}. We compare HER-TransMorph against deep-learning and classical baselines under identical preprocessing and evaluation scripts:
-\begin{itemize}
-\item Transformer family: TransMorph, TransMorphBayes, CoTr, nnFormer;
-\item CNN / hybrid baselines: VoxelMorph-1, CycleMorph, MIDIR;
-\item Classical baselines: affine (MI-based) and SyN (ANTs).
-\end{itemize}
-Checkpoint and version identifiers are documented in the repository evaluation configuration and the supplementary checkpoint manifest.
-Published baseline checkpoints were obtained from official TransMorph-related repositories and are assumed not to have seen the 115-subject IXI test split during their original training, following the protocol reporting style of \citet{chen2022transmorph}. Where this cannot be verified from upstream model cards, this assumption is stated explicitly.
+In this section, where applicable, authors are required to disclose details of how gen-erative artificial intelligence (GenAI) has been used in this paper (e.g., to generate text, data, or graphics, or to assist in study design, data collection, analysis, or interpretation). The use of GenAI for superficial text editing (e.g., grammar, spelling, punctuation, and formatting) does not need to be declared.
 
-\subsection{Proposed HER Method}
-HER-TransMorph augments the TransMorph baseline with explicit hyperelastic regularization to constrain unrealistic local distortion. The operating-point regularizer targets two complementary aspects of deformation quality: volume-change moderation and anti-folding behavior near singular Jacobian regions. A length-change term is retained in the general mathematical formulation but its coefficient is set to zero in the final operating point because \(\mathcal{L}_{\mathrm{grad}}\) already constrains displacement smoothness and length-change behavior.
-
-\subsection{Loss Function}
-The training objective is
-\begin{linenomath}
-\begin{equation}
-\mathcal{L} = \mathcal{L}_{\mathrm{NCC}} + \lambda_{\mathrm{grad}}\mathcal{L}_{\mathrm{grad}} + \lambda_{\mathrm{HER}}\mathcal{L}_{\mathrm{HER}}.
-\end{equation}
-\end{linenomath}
-Let \(u:\Omega\to\mathbb{R}^3\) denote the displacement field over image domain \(\Omega\), \(\varphi=\mathrm{Id}+u\) the transformation, and \(J_{\varphi}(x)=\mathrm{I}+\nabla u(x)\) the Jacobian matrix. The hyperelastic term is
-\begin{linenomath}
-\begin{equation}
-\mathcal{L}_{\mathrm{HER}} = \alpha \, \mathcal{L}_{\mathrm{length}} + \beta \, \mathcal{L}_{\mathrm{volume}} + \gamma \, \mathcal{L}_{\mathrm{fold}}.
-\end{equation}
-\end{linenomath}
-\begin{linenomath}
-\begin{equation}
-\mathcal{L}_{\mathrm{length}}(u)=\frac{1}{|\Omega|}\sum_{x\in\Omega}\|\nabla u(x)\|_F^2,
-\end{equation}
-\end{linenomath}
-\begin{linenomath}
-\begin{equation}
-\mathcal{L}_{\mathrm{volume}}(\varphi)=\frac{1}{|\Omega|}\sum_{x\in\Omega}\frac{(\det J_{\varphi}(x)-1)^2}{\max(\det J_{\varphi}(x),\epsilon)},
-\end{equation}
-\end{linenomath}
-\begin{linenomath}
-\begin{equation}
-\mathcal{L}_{\mathrm{fold}}(\varphi)=\frac{1}{|\Omega|}\sum_{x\in\Omega}\left[\max(0,\epsilon-\det J_{\varphi}(x))\right]^2.
-\end{equation}
-\end{linenomath}
-The rational volume form follows the hyperelastic formulation in \citet{burger2013hyperelastic}; compared with a plain quadratic \((\det J-1)^2\), it penalizes compressive (small-\(\det J\)) deformations more strongly. Final hyperparameters are:
-\[
-\lambda_{\mathrm{grad}} = 1.0, \quad
-\lambda_{\mathrm{HER}} = 1.0, \quad
-\alpha = 0, \quad
-\beta = 0.02, \quad
-\gamma = 20, \quad
-\epsilon = 10^{-3}.
-\]
-In the final operating point, \(\alpha=0\) is intentional: \(\mathcal{L}_{\mathrm{grad}}\) already controls length-change behavior, while \(\beta\) and \(\gamma\) dominate topology-oriented regularization.
-
-\subsection{Training Details}
-Training settings for HER-TransMorph are: optimizer Adam \citep{kingma2014adam}, learning rate \(1\times10^{-4}\), batch size 2, and 500 epochs. Hardware for the current runs is NVIDIA RTX PRO 6000 Blackwell Workstation Edition (97,887 MiB VRAM), CUDA 12.8, and PyTorch 2.12.0.dev20260408+cu128. Baseline models are evaluated using published/repository checkpoints under the same test protocol (see \texttt{IXI/eval\_configs.yaml}); classical baselines use ANTs/ANTsPy and SimpleITK implementations \citep{avants2008ants,antspyx2024,simpleitk2013}. A stable-release reproducibility check on PyTorch 2.5.x is planned for the final submission package (\PH{stable-version verification pending Stage B}).
-
-\subsection{Evaluation Metrics}
-Primary evaluation metrics include Dice, Jaccard, HD95, ASSD, and NSD@1 mm \citep{dice1945,heimann2009,nikolov2018}. Deformation regularity is assessed by non-positive Jacobian ratio, SDlogJ, Jacobian quantiles (\(J_{\min}, J_{p01}, J_{p50}, J_{p99}, J_{\max}\)), bending energy, and mean absolute divergence \citep{rueckert1999nonrigid,ashburner1999morphometry}. Intensity-based metrics (NCC, LNCC, MI, NMI, SSIM, PSNR) and runtime/memory observations are reported in the Supplementary Materials.
-
-\subsection{Statistical Analysis}
-For each metric, HER-TransMorph is compared with each baseline using paired Wilcoxon signed-rank tests over the test subjects \citep{wilcoxon1945}. Multiple comparisons are corrected using Benjamini--Hochberg FDR \citep{bh1995}. Statistical significance is defined as q < 0.05. For metrics where higher is better (e.g., Dice), directionality is interpreted accordingly.
+\begin{quote}
+This is an example of a quote.
+\end{quote}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Results}
 
-\subsection{Accuracy Across Baselines}
-Table~\ref{tab2} reports the compact IXI model comparison, now expanded to include overlap and regularity metrics in one place. HER-TransMorph maintains competitive overlap while improving deformation regularity relative to unconstrained Transformer baselines. Table~\ref{tab_oasis} mirrors the same panel for OASIS and is currently presented with explicit placeholders pending Stage-B OASIS training/inference completion.
+This section may be divided by subheadings. It should provide a concise and precise description of the experimental results, their interpretation as well as the experimental conclusions that can be drawn.
+\subsection{Subsection}
+\subsubsection{Subsubsection}
 
-Compared with the strongest completed TransMorph-family baseline (TransMorphBayes), HER-TransMorph changes Dice from 0.7530 to 0.7537 under the grouped-structure Dice protocol used in \texttt{analysis\_trans.py} and \texttt{IXI/analysis.py}. Surface distance metrics are also improved (HD95: 3.1561 vs.\ 3.3745; ASSD: 0.5891 vs.\ 0.6215). Statistical significance for IXI follows the existing complete analysis exports (\PH{IXI legacy significance table reference}).
+Bulleted lists look like this:
+\begin{itemize}
+\item	First bullet;
+\item	Second bullet;
+\item	Third bullet.
+\end{itemize}
 
-\subsection{Deformation Regularity and Topology Preservation}
-The central findings are in deformation regularity metrics. HER-TransMorph yields a non-positive Jacobian ratio of 0.0000, compared with 0.0147 for TransMorphBayes. SDlogJ decreases from 0.4920 to 0.3280, and bending energy decreases from 46.0976 to 18.6155.
+Numbered lists can be added as follows:
+\begin{enumerate}
+\item	First item; 
+\item	Second item;
+\item	Third item.
+\end{enumerate}
 
-Paired Wilcoxon signed-rank tests with BH-FDR correction (q < 0.05) are configured in the evaluation pipeline, and the full significance matrix is provided in Supplementary Table S2.
+The text continues here.
 
-\subsection{Efficiency}
-On the reported hardware, HER-TransMorph runs at 0.2034 s/case, slower than the plain TransMorph backbone (0.0953 s/case) due to Jacobian-determinant-related training loss computation. This overhead is training-time only: at inference, HER terms are not evaluated, and the network architecture/parameter count remain identical to TransMorph (46.771 M). Compared with the dropout-sampling Bayesian variant TransMorphBayes (3.5372 s/case), HER-TransMorph is approximately 17\(\times\) faster while maintaining comparable Dice and better topology metrics. Efficiency values are implementation-level observations under the reported hardware, not hardware-independent guarantees.
+\subsection{Figures, Tables and Schemes}
 
-\subsection{Qualitative Visualization}
-Representative qualitative cases are shown in Figures~\ref{fig1}--\ref{fig5}. HER-TransMorph demonstrates reduced anatomical mismatch near cortical boundaries and ventricles, while preserving smooth deformation grids and avoiding local fold patterns present in competing models.
+All figures and tables should be cited in the main text as Figure~\ref{fig1}, Table~\ref{tab1}, etc.
 
-\begin{table}[H]
-\caption{Main IXI model comparison (115-subject protocol).\label{tab2}}
-\centering
-\scriptsize
-\setlength{\tabcolsep}{3pt}
-\begin{tabularx}{\textwidth}{lccccc}
+\begin{figure}[H]
+%\isPreprints{\centering}{} % Only used for preprints
+\includegraphics[width=4.0 cm]{Definitions/logo-mdpi}
+\caption{This is a figure. Schemes follow the same formatting.\label{fig1}}
+\end{figure}   
+\unskip
+
+\begin{table}[H] 
+%\small % Change table font size
+\caption{This is a table caption. Tables should be placed in the main text near to the first time they are~cited.\label{tab1}}
+%\isPreprints{\centering}{} % Only used for preprints
+\begin{tabularx}{\textwidth}{CCC}
 \toprule
-\textbf{Model} & \textbf{Dice\(\uparrow\)} & \(\boldsymbol{|J|<0}\) \textbf{ratio \(\downarrow\)} & \textbf{SDlogJ\(\downarrow\)} & \textbf{HD95\(\downarrow\)} & \textbf{ASSD\(\downarrow\)}\\
+\textbf{Title 1}	& \textbf{Title 2}	& \textbf{Title 3}\\
 \midrule
-HER-TransMorph & 0.7537 \(\pm\) 0.0275 & 0.000015 \(\pm\) 0.000007 & 0.3280 \(\pm\) 0.0221 & 3.1561 \(\pm\) 0.5408 & 0.5891 \(\pm\) 0.1021\\
-TransMorph & 0.7527 \(\pm\) 0.0305 & 0.015021 \(\pm\) 0.003416 & 0.5064 \(\pm\) 0.0250 & 5.8794 \(\pm\) 0.8048 & 1.5593 \(\pm\) 0.2416\\
-TransMorphBayes & 0.7530 \(\pm\) 0.0302 & 0.015634 \(\pm\) 0.003363 & 0.4920 \(\pm\) 0.0330 & 3.3745 \(\pm\) 0.6740 & 0.6215 \(\pm\) 0.1305\\
-VoxelMorph-1 & 0.7293 \(\pm\) 0.0290 & 0.015860 \(\pm\) 0.003388 & 0.4999 \(\pm\) 0.0327 & 5.7156 \(\pm\) 0.8168 & 1.4696 \(\pm\) 0.1962\\
-CycleMorph & 0.7366 \(\pm\) 0.0303 & 0.017192 \(\pm\) 0.003819 & 0.5176 \(\pm\) 0.0320 & 5.7789 \(\pm\) 0.8317 & 1.4638 \(\pm\) 0.2038\\
-MIDIR & 0.7423 \(\pm\) 0.0228 & 0.000000 \(\pm\) 0.000000 & 0.3148 \(\pm\) 0.0242 & 5.3028 \(\pm\) 0.6139 & 1.4100 \(\pm\) 0.1585\\
-CoTr & 0.7347 \(\pm\) 0.0290 & 0.012975 \(\pm\) 0.003430 & 0.4874 \(\pm\) 0.0331 & 5.5691 \(\pm\) 0.7931 & 1.4278 \(\pm\) 0.1828\\
-nnFormer & 0.7472 \(\pm\) 0.0294 & 0.015946 \(\pm\) 0.003584 & 0.5167 \(\pm\) 0.0371 & 5.8274 \(\pm\) 0.8195 & 1.4322 \(\pm\) 0.1878\\
-PVT & 0.7273 \(\pm\) 0.0330 & 0.018578 \(\pm\) 0.003141 & 0.5431 \(\pm\) 0.0318 & 5.9286 \(\pm\) 0.8264 & 1.5253 \(\pm\) 0.2069\\
-SyN (ANTs) & 0.6445 \(\pm\) 0.0397 & 0.000001 \(\pm\) 0.000005 & 0.2996 \(\pm\) 0.0725 & 6.4457 \(\pm\) 1.8104 & 1.5233 \(\pm\) 0.7748\\
-Affine (MI) & 0.3858 \(\pm\) 0.0354 & 0.000000 \(\pm\) 0.000000 & 0.0000 \(\pm\) 0.0000 & 6.3196 \(\pm\) 0.0000 & 1.7604 \(\pm\) 0.0000\\
+Entry 1		& Data			& Data\\
+Entry 2		& Data			& Data \textsuperscript{1}\\
 \bottomrule
 \end{tabularx}
-\parbox{\textwidth}{\footnotesize Dice and \(|J|<0\) are computed from model CSVs under \texttt{IXI/Results/}. SDlogJ/HD95/ASSD values are taken from aggregated IXI result tables under \texttt{IXI/Results/comprehensive/}.}
+
+\noindent{\footnotesize{\textsuperscript{1} Tables may have a footer.}}
 \end{table}
 
-\begin{table}[H]
-\caption{OASIS inter-subject results under Learn2Reg Task 03 validation pairing.\label{tab_oasis}}
+The text continues here (Figure~\ref{fig2} and Table~\ref{tab2}).
+
+% Example of a figure that spans the whole page width and with subfigures. The same concept works for tables, too.
+\begin{figure}[H]
+%\isPreprints{}{% This command is only used for ``preprints''.
 \begin{adjustwidth}{-\extralength}{0cm}
-\begin{tabularx}{\fulllength}{lccccccc}
-\toprule
-\textbf{Model} & \textbf{Supervision} & \textbf{Dice\(\uparrow\)} & \textbf{HD95\(\downarrow\)} & \textbf{ASSD\(\downarrow\)} & \textbf{non\_jac\(\downarrow\)} & \textbf{SDlogJ\(\downarrow\)} & \textbf{Bending\(\downarrow\)}\\
-\midrule
-HER-TransMorph (ours) & unsup. & \PH{OASIS HER Dice} & \PH{OASIS HER HD95} & \PH{OASIS HER ASSD} & \PH{OASIS HER non\_jac}\(\,\PH{*}\) & \PH{OASIS HER SDlogJ} & \PH{OASIS HER bending}\\
-TransMorph (no-DSC, retrained) & unsup. & \PH{OASIS TM-unsup Dice} & \PH{OASIS TM-unsup HD95} & \PH{OASIS TM-unsup ASSD} & \PH{OASIS TM-unsup non\_jac} & \PH{OASIS TM-unsup SDlogJ} & \PH{OASIS TM-unsup bending}\\
-TransMorph (\texttt{dsc0.857}, published) & semi-sup. (DSC) & \PH{OASIS TM-dsc Dice} & \PH{OASIS TM-dsc HD95} & \PH{OASIS TM-dsc ASSD} & \PH{OASIS TM-dsc non\_jac} & \PH{OASIS TM-dsc SDlogJ} & \PH{OASIS TM-dsc bending}\\
-VoxelMorph-1 (published) & \PH{tag} & \PH{OASIS VxM Dice} & \PH{OASIS VxM HD95} & \PH{OASIS VxM ASSD} & \PH{OASIS VxM non\_jac} & \PH{OASIS VxM SDlogJ} & \PH{OASIS VxM bending}\\
-MIDIR & \PH{tag} & \PH{OASIS MIDIR Dice} & \PH{OASIS MIDIR HD95} & \PH{OASIS MIDIR ASSD} & \PH{OASIS MIDIR non\_jac} & \PH{OASIS MIDIR SDlogJ} & \PH{OASIS MIDIR bending}\\
-CycleMorph & \PH{tag} & \PH{OASIS Cycle Dice} & \PH{OASIS Cycle HD95} & \PH{OASIS Cycle ASSD} & \PH{OASIS Cycle non\_jac} & \PH{OASIS Cycle SDlogJ} & \PH{OASIS Cycle bending}\\
-SyN (ANTs) & classical & \PH{OASIS SyN Dice} & \PH{OASIS SyN HD95} & \PH{OASIS SyN ASSD} & \PH{OASIS SyN non\_jac} & \PH{OASIS SyN SDlogJ} & \PH{OASIS SyN bending}\\
-Affine (MI) & classical & \PH{OASIS Affine Dice} & \PH{OASIS Affine HD95} & \PH{OASIS Affine ASSD} & \PH{OASIS Affine non\_jac} & \PH{OASIS Affine SDlogJ} & \PH{OASIS Affine bending}\\
-\bottomrule
-\end{tabularx}
+\centering
+%} % If the paper is ``preprints'', please uncomment this parenthesis.
+\subfloat[\centering]{\includegraphics[width=7.0cm]{Definitions/logo-mdpi}}
+%\hfill
+\subfloat[\centering]{\includegraphics[width=7.0cm]{Definitions/logo-mdpi}}\\
+\subfloat[\centering]{\includegraphics[width=7.0cm]{Definitions/logo-mdpi}}
+%\hfill
+\subfloat[\centering]{\includegraphics[width=7.0cm]{Definitions/logo-mdpi}}
+%\isPreprints{}{% This command is only used for ``preprints''.
 \end{adjustwidth}
-\noindent{\footnotesize{All OASIS cells are explicit Stage-B placeholders. Final means\(\pm\)SD and significance markers are filled from \texttt{OASIS/Eval\_Results/\_stats/sig\_matrix.csv}.}}
-\end{table}
+%} % If the paper is ``preprints'', please uncomment this parenthesis.
+\caption{This is a wide figure. Schemes follow the same formatting. If there are multiple panels, they should be listed as: (\textbf{a}) Description of what is contained in the first panel. (\textbf{b}) Description of what is contained in the second panel. (\textbf{c}) Description of what is contained in the third panel. (\textbf{d}) Description of what is contained in the fourth panel. Figures should be placed in the main text near to the first time they are cited. A caption on a single line should be centered.\label{fig2}}
+\end{figure} 
 
 \begin{table}[H]
-\caption{Efficiency comparison (runtime, peak memory, and parameter count) for selected baselines.\label{tab3}}
-\begin{tabularx}{\textwidth}{lccc}
-\toprule
-\textbf{Model} & \textbf{Runtime (s/case)\(\downarrow\)} & \textbf{Peak Memory (GB)\(\downarrow\)} & \textbf{Parameters (M)}\\
-\midrule
-HER-TransMorph & 0.2034 & 10.635 & 46.771 \\
-TransMorphBayes & 3.5372 & 16.088 & 46.771 \\
-TransMorph & 0.0953 & 5.601 & 46.771 \\
-VoxelMorph-1 & 0.0359 & 5.162 & 0.274 \\
-CycleMorph & 0.0501 & 5.085 & 0.361 \\
-MIDIR & 0.0203 & 5.085 & 0.266 \\
-CoTr & 0.1127 & 5.307 & 38.738 \\
-nnFormer & 0.0675 & 5.336 & 45.328 \\
-SyN (ANTs) & N/A & N/A & 0 \\
-Affine (MI) & N/A & 5.007* & 0 \\
-\bottomrule
-\end{tabularx}
-\noindent{\footnotesize{Peak memory for deep models is computed from \texttt{peak\_mem\_gb} in \texttt{IXI/Eval\_Results/*/per\_case.csv}. Parameter counts are computed from loaded model weights/checkpoints; classical methods are non-parametric in the learning sense (reported as 0).}}
+\caption{This is a wide table.\label{tab2}}
+%\isPreprints{\centering}{% This command is only used for ``preprints''.
+	\begin{adjustwidth}{-\extralength}{0cm}
+%} % If the paper is ``preprints'', please uncomment this parenthesis.
+%\isPreprints{\begin{tabularx}{\textwidth}{CCCC}}{% This command is only used for ``preprints''.
+		\begin{tabularx}{\fulllength}{CCCC}
+%} % If the paper is ``preprints'', please uncomment this parenthesis.
+			\toprule
+			\textbf{Title 1}	& \textbf{Title 2}	& \textbf{Title 3}     & \textbf{Title 4}\\
+			\midrule
+\multirow[m]{3}{*}{Entry 1 *}	& Data			& Data			& Data\\
+			  	                   & Data			& Data			& Data\\
+			             	      & Data			& Data			& Data\\
+                   \midrule
+\multirow[m]{3}{*}{Entry 2}    & Data			& Data			& Data\\
+			  	                  & Data			& Data			& Data\\
+			             	     & Data			& Data			& Data\\
+			\bottomrule
+		\end{tabularx}
+%		\isPreprints{}{% This command is only used for ``preprints''.
+	\end{adjustwidth}
+%} % If the paper is ``preprints'', please uncomment this parenthesis.
+	\noindent{\footnotesize{* Tables may have a footer.}}
 \end{table}
 
-\begin{figure}[H]
-\centering
-\includegraphics[width=0.96\textwidth]{figures/fig1_framework_figma.pdf}
-\caption{Overview of the proposed HER-TransMorph framework. The main inference path follows the original registration pipeline, while the highlighted hyperelastic term \(L_{\mathrm{HER}}=\beta L_{\mathrm{volume}}+\gamma L_{\mathrm{fold}}\) is injected only during training. This design improves deformation plausibility without additional inference cost.\label{fig1}}
-\end{figure}
+%\begin{listing}[H]
+%\caption{Title of the listing}
+%\rule{\columnwidth}{1pt}
+%\raggedright Text of the listing. In font size footnotesize, small, or normalsize. Preferred format: left aligned and single spaced. Preferred border format: top border line and bottom border line.
+%\rule{\columnwidth}{1pt}
+%\end{listing}
 
-% TODO Stage B: regenerate from real saved fields and subject IDs.
-\begin{figure}[H]
-\centering
-\includegraphics[width=0.96\textwidth]{figures/fig2_qualitative.pdf}
-\caption{Qualitative registration comparisons on representative IXI and OASIS subjects. \PH{figure regenerated in Stage B from saved deformation fields}.\label{fig2}}
-\end{figure}
+Text.
 
-% TODO Stage B: regenerate from real deformation grids.
-\begin{figure}[H]
-\centering
-\includegraphics[width=0.96\textwidth]{figures/fig3_gridwarp.pdf}
-\caption{Deformation grid visualization for competing methods, highlighting fold-free behavior in HER-TransMorph. \PH{figure regenerated in Stage B from saved deformation fields}.\label{fig3}}
-\end{figure}
+Text.
 
-% TODO Stage B: regenerate from real Jacobian maps and histograms.
-\begin{figure}[H]
-\centering
-\includegraphics[width=0.96\textwidth]{figures/fig4_jacobian.pdf}
-\caption{Jacobian determinant heatmaps and log\(|J|\) histograms for HER-TransMorph and baseline models. \PH{figure regenerated in Stage B from saved deformation fields}.\label{fig4}}
-\end{figure}
+\subsection{Formatting of Mathematical Components}
 
-% TODO Stage B: regenerate with IXI+OASIS dual panel metrics.
-\begin{figure}[H]
-\centering
-\includegraphics[width=0.99\textwidth]{figures/fig5_metrics.pdf}
-\caption{Consolidated metric overview across selected methods (Dice, non\_jac, SDlogJ, bending energy, and runtime). \PH{figure regenerated in Stage B from IXI+OASIS panel data}.\label{fig5}}
-\end{figure}
+This is the example 1 of equation:
+\begin{linenomath}
+\begin{equation}
+a = 1,
+\end{equation}
+\end{linenomath}
+the text following an equation need not be a new paragraph. Please punctuate equations as regular text.
+%% If the documentclass option "submit" is chosen, please insert a blank line before and after any math environment (equation and eqnarray environments). This ensures correct linenumbering. The blank line should be removed when the documentclass option is changed to "accept" because the text following an equation should not be a new paragraph.
+
+This is the example 2 of equation:
+%\isPreprints{}{% This command is only used for ``preprints''.
+\begin{adjustwidth}{-\extralength}{0cm}
+%} % If the paper is ``preprints'', please uncomment this parenthesis.
+\begin{equation}
+a = b + c + d + e + f + g + h + i + j + k + l + m + n + o + p + q + r + s + t + u + v + w + x + y + z
+\end{equation}
+%\isPreprints{}{% This command is only used for ``preprints''.
+\end{adjustwidth}
+%} % If the paper is ``preprints'', please uncomment this parenthesis.
+
+%% Example of a page in landscape format (with table and table footnote).
+%\startlandscape
+%\begin{table}[H] %% Table in wide page
+%%\isPreprints{\centering}{} % This command is only used for ``preprints''.
+%\caption{This is a very wide table.\label{tab3}}
+%	\begin{tabularx}{\textwidth}{CCCC}
+%		\toprule
+%		\textbf{Title 1}	& \textbf{Title 2}	& \textbf{Title 3}	& \textbf{Title 4}\\
+%		\midrule
+%		Entry 1		& Data			& Data			& This cell has some longer content that runs over two lines.\\
+%		Entry 2		& Data			& Data			& Data\textsuperscript{1}\\
+%		\bottomrule
+%	\end{tabularx}
+%%\isPreprints{}{% This command is only used for ``preprints''.
+%	\begin{adjustwidth}{+\extralength}{0cm}
+%%} % If the paper is ``preprints'', please uncomment this parenthesis.
+%		\noindent\footnotesize{\textsuperscript{1} This is a table footnote.}
+%%\isPreprints{}{% This command is only used for ``preprints''.
+%	\end{adjustwidth}
+%%} % If the paper is ``preprints'', please uncomment this parenthesis.
+%\end{table}
+%\finishlandscape
+
+Please punctuate equations as regular text. Theorem-type environments (including propositions, lemmas, corollaries etc.) can be formatted as follows:
+%% Example of a theorem:
+\begin{Theorem}
+Example text of a theorem.
+\end{Theorem}
+
+The text continues here. Proofs must be formatted as follows:
+
+%% Example of a proof:
+\begin{proof}[Proof of Theorem 1]
+Text of the proof. Note that the phrase ``of Theorem 1'' is optional if it is clear which theorem is being referred to.
+\end{proof}
+The text continues here.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Discussion}
 
-This work is positioned as a deformation-quality improvement study rather than a pure overlap-accuracy competition. The key result is that HER-TransMorph improves topology-preserving behavior (lower non\_jac and SDlogJ) while maintaining comparable Dice/HD95/ASSD to strong Transformer baselines. This trade-off is practically meaningful for downstream morphometric tasks that are sensitive to local folding artifacts.
-
-The observed performance pattern suggests that adding physically motivated regularization to Transformer-based registration can constrain unrealistic local volume changes without substantially degrading alignment fidelity. In clinical and research workflows, this is relevant for Jacobian-based analyses, longitudinal disease progression studies, and atlas-based quantification where deformation plausibility matters beyond overlap scores.
-
-The CNN/B-spline baseline MIDIR also achieves zero non-positive Jacobian ratio on IXI, with SDlogJ (0.3148) marginally lower than HER-TransMorph (0.3280). The two methods reach comparable regularity through different routes: MIDIR enforces smoothness implicitly via B-spline parameterization, while HER-TransMorph enforces regularity explicitly through differentiable hyperelastic penalties on dense flow. HER is plug-in to dense-flow backbones without changing parameterization, and preserves overlap expressivity (Dice 0.7537 vs.\ 0.7423 for MIDIR on IXI). Cross-dataset evidence on OASIS is summarized as \PH{OASIS MIDIR-vs-HER discussion pending Stage B}.
-
-The OASIS inter-subject regime produces larger anatomical displacements than IXI atlas-to-subject. HER-TransMorph maintains a non-positive Jacobian ratio of \PH{HER non\_jac OASIS} under this harder regime versus \PH{TM-unsup non\_jac OASIS} for the unsupervised TransMorph comparator, with paired Wilcoxon + BH-FDR significance at \(q<\PH{OASIS q-value}\). The consistency of topology gains across two cohorts and protocols supports the generality of the hyperelastic-regularization mechanism.
-
-Several limitations should be acknowledged. First, this manuscript retains a single training seed; multi-seed confidence intervals are future work. Second, a per-term ablation isolating \(\mathcal{L}_{\mathrm{length}}\), \(\mathcal{L}_{\mathrm{volume}}\), and \(\mathcal{L}_{\mathrm{fold}}\) was not rerun under the final operating-point pipeline; instead, cross-dataset OASIS validation is used as the main generalization check. Third, although IXI and OASIS cover two protocols, the study is still limited to structural brain MRI and does not yet include pathology-rich or multi-modal settings. Fourth, sensitivity sweeps for \(\beta\) and \(\gamma\) were not performed, and \(\alpha=0\) is a deliberate operating-point choice. Fifth, software-stack reproducibility against a stable PyTorch release is tracked as \PH{stable-PyTorch verification pending Stage B}.
-
-Future work will extend HER to multi-modal registration, pathology-rich cohorts, and uncertainty-aware registration frameworks. Another direction is adaptive hyperelastic weighting to better balance local accuracy and topology constraints under heterogeneous anatomical deformations.
+Authors should discuss the results and how they can be interpreted from the perspective of previous studies and of the working hypotheses. The findings and their implications should be discussed in the broadest context possible. Future research directions may also be highlighted.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Conclusions}
 
-HER-TransMorph introduces hyperelastic constraints into Transformer-based deformable registration and delivers topology-preserving deformations with competitive registration accuracy. Across the unified IXI evaluation protocol, HER-TransMorph demonstrates marked gains in deformation regularity metrics while maintaining strong overlap performance. These results support HER as a practical registration design for anatomically reliable brain MRI alignment.
+This section is not mandatory, but can be added to the manuscript if the discussion is unusually long or complex.
 
-This draft is Stage-A complete and will be finalized for submission after Stage-B replacement of all \(\PH{...}\) entries with computed results.
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Patents}
+
+This section is not mandatory, but may be added if there are patents resulting from the work reported in this manuscript.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \vspace{6pt} 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% optional
-\supplementary{Supplementary materials include: Table S1 (full metric panel including intensity and efficiency metrics), Table S2 (paired Wilcoxon + BH-FDR significance matrix), additional qualitative registration and Jacobian visualizations, and implementation details. Files will be uploaded as \texttt{supplementary.pdf} and companion data archives.}
+%\supplementary{The following supporting information can be downloaded at:  \linksupplementary{s1}, Figure S1: title; Table S1: title; Video S1: title.}
 
 % Only for journal Methods and Protocols:
 % If you wish to submit a video article, please do so with any other supplementary material.
@@ -456,15 +405,17 @@ This draft is Stage-A complete and will be finalized for submission after Stage-
 %}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\authorcontributions{Conceptualization, A.O.; methodology, A.O. and A.T.; software, A.O.; validation, A.O. and C.A.; formal analysis, A.O.; investigation, A.O.; data curation, A.O.; writing---original draft preparation, A.O.; writing---review and editing, A.O., A.T., and C.A.; visualization, A.O.; supervision, C.A.; project administration, C.A. All authors have read and agreed to the published version of the manuscript.}
+\authorcontributions{For research articles with several authors, a short paragraph specifying their individual contributions must be provided. The following statements should be used ``Conceptualization, X.X. and Y.Y.; methodology, X.X.; software, X.X.; validation, X.X., Y.Y. and Z.Z.; formal analysis, X.X.; investigation, X.X.; resources, X.X.; data curation, X.X.; writing---original draft preparation, X.X.; writing---review and editing, X.X.; visualization, X.X.; supervision, X.X.; project administration, X.X.; funding acquisition, Y.Y. All authors have read and agreed to the published version of the manuscript.'', please turn to the  \href{http://img.mdpi.org/data/contributor-role-instruction.pdf}{CRediT taxonomy} for the term explanation. Authorship must be limited to those who have contributed substantially to the work~reported.}
 
-\funding{This research received no external funding.}
+\funding{Please add: ``This research received no external funding'' or ``This research was funded by NAME OF FUNDER grant number XXX.'' and  and ``The APC was funded by XXX''. Check carefully that the details given are accurate and use the standard spelling of funding agency names at \url{https://search.crossref.org/funding}, any errors may affect your future funding.}
 
-\institutionalreview{Ethical review and approval were waived for this study because only publicly available, anonymized IXI data were used.}
+\institutionalreview{In this section, you should add the Institutional Review Board Statement and approval number, if relevant to your study. You might choose to exclude this statement if the study did not require ethical approval. Please note that the Editorial Office might ask you for further information. Please add “The study was conducted in accordance with the Declaration of Helsinki, and approved by the Institutional Review Board (or Ethics Committee) of NAME OF INSTITUTE (protocol code XXX and date of approval).” for studies involving humans. OR “The animal study protocol was approved by the Institutional Review Board (or Ethics Committee) of NAME OF INSTITUTE (protocol code XXX and date of approval).” for studies involving animals. OR “Ethical review and approval were waived for this study due to REASON (please provide a detailed justification).” OR “Not applicable” for studies not involving humans or animals.}
 
-\informedconsent{Patient consent was waived because this study used anonymized publicly available data.}
+\informedconsent{Any research article describing a study involving humans should contain this statement. Please add ``Informed consent was obtained from all subjects involved in the study.'' OR ``Patient consent was waived due to REASON (please provide a detailed justification).'' OR ``Not applicable'' for studies not involving humans. You might also choose to exclude this statement if the study did not involve humans.
 
-\dataavailability{The IXI dataset used in this study is publicly available at \url{https://brain-development.org/ixi-dataset/}. Code and evaluation scripts are available at \url{https://github.com/TBD/HER-TransMorph}. Derived evaluation tables and figures are provided in the supplementary materials.} 
+Written informed consent for publication must be obtained from participating patients who can be identified (including by the patients themselves). Please state ``Written informed consent has been obtained from the patient(s) to publish this paper'' if applicable.}
+
+\dataavailability{We encourage all authors of articles published in MDPI journals to share their research data. In this section, please provide details regarding where data supporting reported results can be found, including links to publicly archived datasets analyzed or generated during the study. Where no new data were created, or where data is unavailable due to privacy or ethical restrictions, a statement is still required. Suggested Data Availability Statements are available in section ``MDPI Research Data Policies'' at \url{https://www.mdpi.com/ethics}.} 
 
 %\durcstatement{Current research is limited to the [please insert a specific academic field, e.g., XXX], which is beneficial [share benefits and/or primary use] and does not pose a threat to public health or national security. Authors acknowledge the dual-use potential of the research involving xxx and confirm that all necessary precautions have been taken to prevent potential misuse. As an ethical responsibility, authors strictly adhere to relevant national and international laws about DURC. Authors advocate for responsible deployment, ethical considerations, regulatory compliance, and transparent reporting to mitigate misuse risks and foster beneficial outcomes.}
 
@@ -477,9 +428,9 @@ This draft is Stage-A complete and will be finalized for submission after Stage-
 %% Only for journal Nursing Reports
 %\useofartificialintelligence{Please describe in detail any and all uses of artificial intelligence (AI) or AI-assisted tools used in the preparation of the manuscript. This may include, but is not limited to, language translation, language editing and grammar, or generating text. Alternatively, please state that “AI or AI-assisted tools were not used in drafting any aspect of this manuscript”.}
 
-\acknowledgments{The authors thank the maintainers of open-source registration baselines and the IXI data contributors.}
+\acknowledgments{In this section you can acknowledge any support given which is not covered by the author contribution or funding sections. This may include administrative and technical support, or donations in kind (e.g., materials used for experiments). Where GenAI has been used for purposes such as generating text, data, or graphics, or for study design, data collection, analysis, or interpretation of data, please add “During the preparation of this manuscript/study, the author(s) used [tool name, version information] for the purposes of [description of use]. The authors have reviewed and edited the output and take full responsibility for the content of this publication.”}
 
-\conflictsofinterest{The authors declare no conflicts of interest.}
+\conflictsofinterest{Declare conflicts of interest or state ``The authors declare no conflicts of interest.'' Authors must identify and declare any personal circumstances or interest that may be perceived as inappropriately influencing the representation or interpretation of reported research results. Any role of the funders in the design of the study; in the collection, analyses or interpretation of data; in the writing of the manuscript; or in the decision to publish the results must be declared in this section. If there is no role, please state ``The funders had no role in the design of the study; in the collection, analyses, or interpretation of data; in the writing of the manuscript; or in the decision to publish the results''.} 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% Optional
@@ -490,17 +441,13 @@ This draft is Stage-A complete and will be finalized for submission after Stage-
 \abbreviations{Abbreviations}{
 The following abbreviations are used in this manuscript:
 \\
-\noindent
+
+\noindent 
 \begin{tabular}{@{}ll}
-HER & Hyperelastic Regularization\\
-MRI & Magnetic Resonance Imaging\\
-HD95 & 95th percentile Hausdorff Distance\\
-ASSD & Average Symmetric Surface Distance\\
-NCC & Normalized Cross-Correlation\\
-LNCC & Local Normalized Cross-Correlation\\
-SDlogJ & Standard Deviation of Log Jacobian Determinant\\
-IXI & Information eXtraction from Images dataset\\
-GPU & Graphics Processing Unit
+MDPI & Multidisciplinary Digital Publishing Institute\\
+DOAJ & Directory of open access journals\\
+TLA & Three letter acronym\\
+LD & Linear dichroism
 \end{tabular}
 }
 
@@ -509,29 +456,25 @@ GPU & Graphics Processing Unit
 \appendixtitles{no} % Leave argument "no" if all appendix headings stay EMPTY (then no dot is printed after "Appendix A"). If the appendix sections contain a heading then change the argument to "yes".
 \appendixstart
 \appendix
-\section[\appendixname~\thesection]{Supplementary Experimental Details}
-\subsection[\appendixname~\thesubsection]{Model and Environment Configuration}
-This appendix summarizes implementation details required for reproducibility:
-\begin{itemize}
-\item Framework and package versions: Python 3.12.10; PyTorch 2.12.0.dev20260408+cu128 (current runs); planned stable verification on PyTorch 2.5.x + CUDA 12.4 (\PH{status pending Stage B}); antspyx 0.6.3; SimpleITK 2.5.3.
-\item Hardware configuration: NVIDIA RTX PRO 6000 Blackwell Workstation Edition (97,887 MiB VRAM), driver 591.86; CPU/RAM configuration should be reported from the submission host inventory. Peak-memory audits from available \texttt{IXI/Eval\_Results/*/per\_case.csv} files indicate a single-GPU run profile for deep models, while classical baselines remain \PH{pending full rerun verification}.
-\item Checkpoint list and paths: see \texttt{IXI/eval\_configs.yaml} model adapters and associated checkpoint manifests in \texttt{IXI/Eval\_Results/*/meta.json}.
-\item Inference command templates and evaluation flags: \texttt{python IXI/run\_full\_eval.py --config IXI/eval\_configs.yaml --no-aggregate}; metrics/label settings are defined in \texttt{IXI/eval\_configs.yaml}.
-\end{itemize}
+\section[\appendixname~\thesection]{}
+\subsection[\appendixname~\thesubsection]{}
+The appendix is an optional section that can contain details and data supplemental to the main text---for example, explanations of experimental details that would disrupt the flow of the main text but nonetheless remain crucial to understanding and reproducing the research shown; figures of replicates for experiments of which representative data are shown in the main text can be added here if brief, or as Supplementary Data. Mathematical proofs of results not central to the paper can be added as an appendix.
 
-\section[\appendixname~\thesection]{Extended Quantitative Tables}
-\begin{table}[H]
-\caption{Supplementary full metric panel (updated after Stage-B export completion).\label{tab5}}
-\begin{tabularx}{\textwidth}{lccc}
+\begin{table}[H] 
+\caption{This is a table caption.\label{tab5}}
+%\newcolumntype{C}{>{\centering\arraybackslash}X}
+\begin{tabularx}{\textwidth}{CCC}
 \toprule
-\textbf{Metric Group} & \textbf{HER-TransMorph} & \textbf{Best Baseline} & \textbf{q-value}\\
+\textbf{Title 1}	& \textbf{Title 2}	& \textbf{Title 3}\\
 \midrule
-Intensity metrics (NCC/LNCC/MI/NMI/SSIM/PSNR) & 0.9539/0.2738/0.7317/1.2812/0.9106/26.4485 & 0.9639/0.3069/0.7856/1.3040/0.9295/27.2355 & N/A (pending full paired FDR export)\\
-Jacobian quantiles (\(J_{p01},J_{p50},J_{p99}\)) & 0.2754 / 0.9775 / 2.1284 & -0.0871 / 0.9334 / 2.5926 & N/A (pending full paired FDR export)\\
-Efficiency (runtime/peak memory) & 0.2034 s / 10.635 GB & 3.5372 s / 16.088 GB & N/A (observation metric)\\
+Entry 1		& Data			& Data\\
+Entry 2		& Data			& Data\\
 \bottomrule
 \end{tabularx}
 \end{table}
+
+\section[\appendixname~\thesection]{}
+All appendix sections must be cited in the main text. In the appendices, Figures, Tables, etc. should be labeled, starting with ``A''---e.g., Figure A1, Figure A2, etc.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %\isPreprints{}{% This command is only used for ``preprints''.
@@ -547,12 +490,11 @@ Efficiency (runtime/peak memory) & 0.2034 s / 10.635 GB & 3.5372 s / 16.088 GB &
 %=====================================
 % References, variant A: external bibliography
 %=====================================
-\bibliography{refs}
+% \bibliography{your_external_BibTeX_file}
 
 %=====================================
 % References, variant B: internal bibliography
 %=====================================
-\iffalse
 
 % ACS format
 \isAPAandChicago{}{%
@@ -636,7 +578,6 @@ Lippincott, T., \& Poindexter, E. K. (2019). \textit{Title of the unpublished ma
 Harwood, J. (2008). \textit{Title of the cited article}. Available online: URL (accessed on Day Month Year).
 \end{thebibliography}
 }{}
-\fi
 
 % If authors have biography, please use the format below
 %\section*{Short Biography of Authors}
