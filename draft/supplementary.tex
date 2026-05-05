@@ -80,9 +80,9 @@ Total objective per direction:
 \item NCC return form: negative mean squared local cross-correlation (\(-\overline{\mathrm{LCC}^2}\)); denominator stabilizer \(=10^{-5}\).
 \item Smoothness term: \texttt{losses.Grad3d(penalty='l2', loss\_mult=None)}.
 \item Grad3d form: mean squared first-order finite differences along x/y/z, then divided by 3.
-\item Hyperelastic term class: \texttt{HyperelasticLoss(alpha\_length=0.0, beta\_volume=0.02, gamma\_fold=20.0)}.
-\item Hyperelastic internal defaults (not overridden): \texttt{eps=1e-3}, \texttt{fold\_power=2}, \texttt{penalty\_type='rational'}, \texttt{ablation='full'}.
-\item Active HypEReg weights in this operating point: \(\alpha=0\), \(\beta=0.02\), \(\gamma=20\).
+\item Hyperelastic term class: \texttt{HyperelasticLoss(alpha\_length=0.0, beta\_volume=0.02, gamma\_fold=20.0)} (the \texttt{alpha\_length} argument is the code-level knob for the BMR length surrogate; it is fixed to 0.0, equivalent to excluding the length term from the HypEReg construction as described in \S2.4 of the main text).
+\item Hyperelastic internal defaults (not overridden): \texttt{eps=1e-3}, \texttt{fold\_power=2}, \texttt{penalty\_type='rational'}.
+\item Active HypEReg weights in this operating point: \(\beta=0.02\), \(\gamma=20\), \(\epsilon=10^{-3}\).
 \item Jacobian computation in HER: forward finite differences on interior lattice \((D-1,H-1,W-1)\), with \(J=\det(I+\nabla u)\).
 \item Volume penalty: \((J-1)^2/\max(J,\epsilon)\) with \(\epsilon=10^{-3}\).
 \item Folding penalty: \(\mathrm{ReLU}(\epsilon-J)^2\) with \(\epsilon=10^{-3}\).
@@ -217,7 +217,7 @@ choroid-plexus & 31, 63 \\
 \end{table}
 
 \section{OASIS Cross-Cohort Training and Environment}
-The OASIS HypEReg-TransMorph run mirrors the IXI configuration in \texttt{OASIS/TransMorph/train\_TransMorph\_her.py} with \texttt{CONFIGS\_TM['TransMorph']}, the same Adam/AMSGrad settings, polynomial LR decay, bidirectional updates, and HypEReg weights $(\alpha,\beta,\gamma,\epsilon)=(0,0.02,20,10^{-3})$. Software versions should match the IXI block where possible (Python~3.12.x, PyTorch with a CUDA build appropriate to the host GPU, antspyx for SyN, SimpleITK for affine). Checkpoints are written under \texttt{OASIS/TransMorph/experiments/}; evaluation is driven by \texttt{OASIS/export\_displacements.py}, \texttt{OASIS/eval\_oasis.py}, \texttt{OASIS/run\_full\_eval.ps1}, and \texttt{OASIS/oasis\_run\_stats.py}.
+The OASIS HypEReg-TransMorph run mirrors the IXI configuration in \texttt{OASIS/TransMorph/train\_TransMorph\_her.py} with \texttt{CONFIGS\_TM['TransMorph']}, the same Adam/AMSGrad settings, polynomial LR decay, bidirectional updates, and HypEReg weights $(\beta,\gamma,\epsilon)=(0.02,20,10^{-3})$. Software versions should match the IXI block where possible (Python~3.12.x, PyTorch with a CUDA build appropriate to the host GPU, antspyx for SyN, SimpleITK for affine). Checkpoints are written under \texttt{OASIS/TransMorph/experiments/}; evaluation is driven by \texttt{OASIS/export\_displacements.py}, \texttt{OASIS/eval\_oasis.py}, \texttt{OASIS/run\_full\_eval.ps1}, and \texttt{OASIS/oasis\_run\_stats.py}.
 
 \section{Table S5: OASIS Paired Wilcoxon / BH-FDR}
 
