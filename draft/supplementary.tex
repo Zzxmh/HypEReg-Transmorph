@@ -23,7 +23,7 @@
 \begin{document}
 \maketitle
 
-\noindent This document accompanies the manuscript \emph{HypEReg-TransMorph: A Hyperelastic-Regularized Transformer Framework for Folding-Suppressed Deformable Brain MRI Registration}. Extended quantitative results, inferential tables (S1--S2), grouped-VOI mapping (S3), Figure~S1, OASIS protocol notes with Tables~S4--S5, and implementation/profiling details are provided here as separate Supplementary Materials (they are not duplicated in the main journal PDF).
+\noindent This document accompanies the manuscript \emph{HypEReg-TransMorph: A Hyperelastic-Regularized Transformer Framework for Folding-Suppressed Deformable Brain MRI Registration}. Extended quantitative results, inferential tables (S1--S2), grouped-VOI mapping (S3), Figure~S1, OASIS protocol notes with Table~S5, bootstrap confidence intervals (Table~S6), Jacobian-ROI analysis placeholders (Table~S7), LPBA40 zero-shot placeholders (Table~S8), and implementation/profiling details are provided here as separate Supplementary Materials (they are not duplicated in the main journal PDF).
 
 \section{Supplementary Experimental Details}
 \subsection{Model and Environment Configuration}
@@ -219,35 +219,18 @@ choroid-plexus & 31, 63 \\
 \section{OASIS Cross-Cohort Training and Environment}
 The OASIS HypEReg-TransMorph run mirrors the IXI configuration in \texttt{OASIS/TransMorph/train\_TransMorph\_her.py} with \texttt{CONFIGS\_TM['TransMorph']}, the same Adam/AMSGrad settings, polynomial LR decay, bidirectional updates, and HypEReg weights $(\alpha,\beta,\gamma,\epsilon)=(0,0.02,20,10^{-3})$. Software versions should match the IXI block where possible (Python~3.12.x, PyTorch with a CUDA build appropriate to the host GPU, antspyx for SyN, SimpleITK for affine). Checkpoints are written under \texttt{OASIS/TransMorph/experiments/}; evaluation is driven by \texttt{OASIS/export\_displacements.py}, \texttt{OASIS/eval\_oasis.py}, \texttt{OASIS/run\_full\_eval.ps1}, and \texttt{OASIS/oasis\_run\_stats.py}.
 
-\section{Table S4: Term-by-Term Ablation (Per-Case Hooks)}
-\begin{table}[H]
-\caption{Ablation variants (placeholder; same columns as main IXI/OASIS per-case exports once server numbers land).\label{tab:s4_ablation}}
-\centering
-\scriptsize
-\begin{tabularx}{\textwidth}{lXXXXX}
-\toprule
-\textbf{Variant / metric} & \textbf{Dice mean} & \textbf{non\_jec} & \textbf{SDlogJ} & \textbf{HD95} & \textbf{ASSD} \\
-\midrule
-Full & --- & --- & --- & --- & --- \\
-Volume-only & --- & --- & --- & --- & --- \\
-Fold-only & --- & --- & --- & --- & --- \\
-Length variant & --- & --- & --- & --- & --- \\
-\bottomrule
-\end{tabularx}
-\end{table}
-
 \section{Table S5: OASIS Paired Wilcoxon / BH-FDR}
 
-\noindent Reference model: \texttt{transmorph\_her\_oasis} (HER-TransMorph, OASIS-retrained). All pairs $n{=}19$. Only significant contrasts ($q_{\mathrm{BH}}<0.05$) shown; sign of direction: $+$ = HER-TransMorph better.
+\noindent Reference model: \texttt{transmorph\_her\_oasis} (HypEReg-TransMorph, OASIS-retrained). All pairs $n{=}19$. Only significant contrasts ($q_{\mathrm{BH}}<0.05$) shown; sign of direction: $+$ = HypEReg-TransMorph better.
 
 \begin{table}[H]
-\caption{Significant paired Wilcoxon contrasts (BH-FDR, $q<0.05$) for HER-TransMorph vs baselines on 19 OASIS test pairs.\label{tab:s5_oasis_wilcoxon}}
+\caption{Significant paired Wilcoxon contrasts (BH-FDR, $q<0.05$) for HypEReg-TransMorph vs baselines on 19 OASIS test pairs.\label{tab:s5_oasis_wilcoxon}}
 \centering
 \scriptsize
 \setlength{\tabcolsep}{4pt}
 \begin{tabularx}{\textwidth}{llXXX}
 \toprule
-\textbf{Baseline} & \textbf{Metric} & \textbf{HER mean} & \textbf{Baseline mean} & \textbf{$p$ / $q$} \\
+\textbf{Baseline} & \textbf{Metric} & \textbf{HypEReg mean} & \textbf{Baseline mean} & \textbf{$p$ / $q$} \\
 \midrule
 \multirow{5}{*}{CycleMorph} & dice\_mean\(\uparrow\) & 0.7966 & 0.7243 & $3.8\times10^{-6}$ / $3.8\times10^{-6}$ \\
  & non\_jec\(\downarrow\) & $1.0\times10^{-5}$ & $8.2\times10^{-3}$ & $3.8\times10^{-6}$ / $3.8\times10^{-6}$ \\
@@ -256,16 +239,16 @@ Length variant & --- & --- & --- & --- & --- \\
  & ASSD\_mean\(\downarrow\) & 0.680 & 0.949 & $3.8\times10^{-6}$ / $3.8\times10^{-6}$ \\
 \midrule
 \multirow{5}{*}{MIDIR} & dice\_mean\(\uparrow\) & 0.7966 & 0.7254 & $3.8\times10^{-6}$ / $3.8\times10^{-6}$ \\
- & non\_jec\(\downarrow\) & $1.0\times10^{-5}$ & 0.0000 & $1.3\times10^{-4}$ / $1.3\times10^{-4}$ (\emph{HER worse}) \\
- & SDlogJ\(\downarrow\) & 0.2786 & 0.2551 & $3.8\times10^{-6}$ / $3.8\times10^{-6}$ (\emph{HER worse}) \\
+ & non\_jec\(\downarrow\) & $1.0\times10^{-5}$ & 0.0000 & $1.3\times10^{-4}$ / $1.3\times10^{-4}$ (\emph{HypEReg worse}) \\
+ & SDlogJ\(\downarrow\) & 0.2786 & 0.2551 & $3.8\times10^{-6}$ / $3.8\times10^{-6}$ (\emph{HypEReg worse}) \\
  & HD95\_mean\(\downarrow\) & 2.294 & 2.893 & $3.8\times10^{-6}$ / $3.8\times10^{-6}$ \\
  & ASSD\_mean\(\downarrow\) & 0.680 & 0.931 & $3.8\times10^{-6}$ / $3.8\times10^{-6}$ \\
 \midrule
-\multirow{5}{*}{TransMorph (dsc0.857)} & dice\_mean\(\uparrow\) & 0.7966 & 0.8610 & $3.8\times10^{-6}$ / $3.8\times10^{-6}$ (\emph{HER worse}) \\
+\multirow{5}{*}{TransMorph (dsc0.857)} & dice\_mean\(\uparrow\) & 0.7966 & 0.8610 & $3.8\times10^{-6}$ / $3.8\times10^{-6}$ (\emph{HypEReg worse}) \\
  & non\_jec\(\downarrow\) & $1.0\times10^{-5}$ & $8.1\times10^{-3}$ & $3.8\times10^{-6}$ / $3.8\times10^{-6}$ \\
  & SDlogJ\(\downarrow\) & 0.2786 & 0.4211 & $3.8\times10^{-6}$ / $3.8\times10^{-6}$ \\
- & HD95\_mean\(\downarrow\) & 2.294 & 1.598 & $3.8\times10^{-6}$ / $3.8\times10^{-6}$ (\emph{HER worse}) \\
- & ASSD\_mean\(\downarrow\) & 0.680 & 0.483 & $3.8\times10^{-6}$ / $3.8\times10^{-6}$ (\emph{HER worse}) \\
+ & HD95\_mean\(\downarrow\) & 2.294 & 1.598 & $3.8\times10^{-6}$ / $3.8\times10^{-6}$ (\emph{HypEReg worse}) \\
+ & ASSD\_mean\(\downarrow\) & 0.680 & 0.483 & $3.8\times10^{-6}$ / $3.8\times10^{-6}$ (\emph{HypEReg worse}) \\
 \midrule
 \multirow{5}{*}{VoxelMorph-1} & dice\_mean\(\uparrow\) & 0.7966 & 0.7159 & $3.8\times10^{-6}$ / $3.8\times10^{-6}$ \\
  & non\_jec\(\downarrow\) & $1.0\times10^{-5}$ & $8.1\times10^{-3}$ & $3.8\times10^{-6}$ / $3.8\times10^{-6}$ \\
@@ -274,7 +257,33 @@ Length variant & --- & --- & --- & --- & --- \\
  & ASSD\_mean\(\downarrow\) & 0.680 & 0.963 & $3.8\times10^{-6}$ / $3.8\times10^{-6}$ \\
 \bottomrule
 \end{tabularx}
-\parbox{\textwidth}{\footnotesize $p$: two-sided Wilcoxon signed-rank; $q$: Benjamini--Hochberg FDR. ``HER worse'' indicates the signed direction favours the baseline on that metric; these contrasts remain significant indicating MIDIR/dsc0.857 significantly outperform HER-TransMorph on those regularity/overlap dimensions. Full output in \texttt{OASIS/Eval\_Results/\_stats/oasis\_pairwise\_wilcoxon.csv}.}
+\parbox{\textwidth}{\footnotesize $p$: two-sided Wilcoxon signed-rank; $q$: Benjamini--Hochberg FDR. ``HypEReg worse'' indicates the signed direction favours the baseline on that metric; these contrasts remain significant, indicating MIDIR/dsc0.857 significantly outperform HypEReg-TransMorph on those regularity/overlap dimensions. Full output in \texttt{OASIS/Eval\_Results/\_stats/oasis\_pairwise\_wilcoxon.csv}.}
 \end{table}
+
+\section{Table S6: Bootstrap 95\% Confidence Intervals (IXI)}
+\begin{table}[H]
+\caption{Bootstrap 95\% confidence intervals for IXI subject-level metric means (\(B=10{,}000\), sampling with replacement, seed \(=0\), \(n=115\) per model).\label{tab:s6_bootstrap_ci}}
+\centering
+\scriptsize
+\setlength{\tabcolsep}{3pt}
+\begin{tabularx}{\textwidth}{lXXXXX}
+\toprule
+\textbf{Model} & \textbf{Dice mean [95\% CI]} & \(\boldsymbol{\det(J_\phi)\le 0}\) \textbf{ratio mean [95\% CI]} & \textbf{SDlogJ mean [95\% CI]} & \textbf{HD95 mean [95\% CI]} & \textbf{ASSD mean [95\% CI]} \\
+\midrule
+HypEReg-TransMorph & 0.7537 [0.7486, 0.7587] & \(1.461\times10^{-5}\) [\(1.332\times10^{-5}\), \(1.604\times10^{-5}\)] & 0.3280 [0.3240, 0.3322] & 5.3234 [5.1952, 5.4511] & 1.3570 [1.3247, 1.3897] \\
+TransMorph & 0.7527 [0.7470, 0.7581] & \(1.502\times10^{-2}\) [\(1.441\times10^{-2}\), \(1.566\times10^{-2}\)] & 0.5008 [0.4943, 0.5076] & 5.6872 [5.5391, 5.8376] & 1.4073 [1.3735, 1.4429] \\
+TransMorphBayes & 0.7530 [0.7474, 0.7584] & \(1.510\times10^{-2}\) [\(1.451\times10^{-2}\), \(1.571\times10^{-2}\)] & 0.4934 [0.4874, 0.4996] & 5.7246 [5.5847, 5.8646] & 1.4160 [1.3831, 1.4501] \\
+MIDIR & 0.7423 [0.7380, 0.7465] & 0 [0, 0] & 0.3148 [0.3105, 0.3194] & 5.3028 [5.1898, 5.4172] & 1.4100 [1.3815, 1.4395] \\
+SyN (ANTs) & 0.6445 [0.6372, 0.6518] & \(5.874\times10^{-6}\) [\(1.235\times10^{-6}\), \(1.243\times10^{-5}\)] & 0.2996 [0.2866, 0.3130] & 6.4457 [6.1174, 6.7784] & 1.5233 [1.3838, 1.6675] \\
+\bottomrule
+\end{tabularx}
+\parbox{\textwidth}{\footnotesize Dice follows the grouped 17-structure protocol in \texttt{IXI/analysis\_trans.py}; non-positive Jacobian ratio, SDlogJ, HD95, and ASSD are computed from per-case exports in \texttt{IXI/Eval\_Results}. Source file: \texttt{IXI/Results/comprehensive/bootstrap\_ci\_table\_s6.csv}, generated by \texttt{scripts/bootstrap\_ci.py}.}
+\end{table}
+
+\section{Table S7: OASIS Jacobian ROI Cleanliness Analysis}
+\noindent Placeholder for ROI-level Jacobian cleanliness statistics (hippocampus, lateral ventricles, cortical ribbon) and paired Wilcoxon/BH-FDR comparisons in the IXI\(\to\)OASIS zero-shot setting. The analysis script is tracked in \texttt{scripts/oasis\_roi\_analysis.py}; results table will include fold ratio, median \(\log\det J_\phi\), ROI SDlogJ, and adjusted \(q\)-values versus TransMorph.
+
+\section{Table S8: LPBA40 Zero-Shot Evaluation}
+\noindent Placeholder for LPBA40 zero-shot cross-cohort evaluation. Planned columns: Dice, non-positive Jacobian ratio, SDlogJ, HD95, and ASSD for HypEReg-TransMorph, TransMorph, TransMorphBayes, and MIDIR under identical IXI-trained checkpoints.
 
 \end{document}
