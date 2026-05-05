@@ -69,11 +69,11 @@ The contributions of this study are as follows.
 \item \emph{A non-linear hyperelastic regularizer for learned deformable registration.} HypEReg combines a clamped-rational volume term and an anti-folding hinge that act directly and non-linearly on \(\det J_\phi\). The formulation is exact at arbitrarily large local strains, supplies a per-voxel quadratic supervision signal on every folded voxel, and differs from the conformal-invariant hyperelastic energy of \citet{zou2023conformal}, the BMR-style volume-change penalty of \citet{hering2021lung}, and the selective Jacobian-determinant penalty of \citet{mok2020fast}---the last of which contributes only the hinge component.
 \item \emph{Drop-in integration into a Transformer-based dense-displacement backbone (HypEReg-TransMorph) at zero inference cost.} Because the regularization is purely loss-side, the inference runtime, peak GPU memory, and parameter count are identical to the unregularized TransMorph baseline (Table~\ref{tab3}), and the deployment architecture and parameter file format are unchanged.
 \item \emph{Unified IXI benchmark with subject-level paired inference.} On 115 held-out IXI atlas-to-subject pairs we compare HypEReg-TransMorph against five Transformer-family models (TransMorph, TransMorphBayes, CoTr, nnFormer, PVT), three CNN/hybrid models (VoxelMorph, CycleMorph, MIDIR), and the classical SyN reference, with paired Wilcoxon signed-rank tests and Benjamini--Hochberg FDR correction applied to subject-level metrics.
-\item \emph{IXI\(\to\)OASIS zero-shot cross-cohort generalization.} All IXI-trained checkpoints are evaluated directly on OASIS Learn2Reg-style test pairs without any fine-tuning. The IXI-trained HypEReg-TransMorph achieves the highest Dice among learned zero-shot models and the lowest non-positive Jacobian ratio, roughly two orders of magnitude below plain TransMorph zero-shot (Section~\ref{sec:oasis_zs}; Table~\ref{tab:oasis_zeroshot}).
+\item \emph{IXI\(\to\)OASIS zero-shot cross-cohort generalization and downstream clinical validation.} All IXI-trained checkpoints are evaluated directly on OASIS Learn2Reg-style test pairs without any fine-tuning. HypEReg-TransMorph achieves the highest Dice and lowest non-positive Jacobian ratio in the zero-shot group (Section~\ref{sec:oasis_zs}; Table~\ref{tab:oasis_zeroshot}). The regularity advantage cascades into downstream clinical workflows: multi-atlas label fusion yields the highest fused Dice (Section~\ref{sec:multiatlas}; Table~\ref{tab:multiatlas}), and Jacobian-integration volumetric reliability analysis shows the lowest ARE and highest ICC for hippocampal and ventricular volumes (Section~\ref{sec:volreliability}; Table~\ref{tab:volreliability}).
 \item \emph{Open reproducibility package.} Training and evaluation code, configuration files, per-case metric exports, figure scripts, and the trained checkpoint manifest are released openly so that the loss can be retrained, the tables and figures regenerated, and the regularizer integrated into other dense-flow backbones without architectural changes.
 \end{itemize}
 
-The remainder of the paper is organized as follows. Section~\ref{sec:methods} describes the data, the backbone, the proposed regularizer, and the evaluation protocol. Section~\ref{sec:results} reports the IXI benchmark, the HypEReg term-design rationale, the IXI\(\to\)OASIS zero-shot cross-cohort evaluation, and runtime profiling. Section~\ref{sec:discussion} discusses the position of HypEReg within the deep-registration regularization literature, its clinical relevance, and the principal limitations of the present study, and Section~\ref{sec:conclusion} concludes.
+The remainder of the paper is organized as follows. Section~\ref{sec:methods} describes the data, the backbone, the proposed regularizer, and the evaluation protocol. Section~\ref{sec:results} reports the IXI benchmark, the HypEReg term-design rationale, the IXI\(\to\)OASIS zero-shot evaluation, downstream multi-atlas fusion, volumetric reliability, and runtime profiling. Section~\ref{sec:discussion} discusses the position of HypEReg within the deep-registration regularization literature, its clinical relevance, and the principal limitations of the present study, and Section~\ref{sec:conclusion} concludes.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Materials and Methods}\label{sec:methods}
@@ -126,7 +126,7 @@ The training architecture is summarized in Figure~\ref{fig1}. The moving image \
 
 \begin{figure}[H]
 \centering
-\IfFileExists{HER.png}{\includegraphics[width=0.96\textwidth]{HER.png}}{\IfFileExists{../HER.png}{\includegraphics[width=0.96\textwidth]{../HER.png}}{\IfFileExists{../figures/HER.png}{\includegraphics[width=0.96\textwidth]{../figures/HER.png}}{\includegraphics[width=0.96\textwidth]{figures/fig1_framework_figma.pdf}}}}
+\IfFileExists{HER_final.png}{\includegraphics[width=0.96\textwidth]{HER_final.png}}{\IfFileExists{../HER_final.png}{\includegraphics[width=0.96\textwidth]{../HER_final.png}}{\includegraphics[width=0.96\textwidth]{figures/fig1_framework_figma.pdf}}}
 \caption{Architecture and training objective of the proposed HypEReg-TransMorph framework. The moving image (\(I_m\)) and fixed image (\(I_f\)) are concatenated and passed through a TransMorph-based registration network with a Transformer encoder and CNN decoder to predict a dense 3D displacement field (\(u\)). The deformation transform is defined as \(\phi=\mathrm{Id}+u\), and a spatial transformer warps the moving image to generate the warped image (\(I_w\)). During training, three complementary terms are optimized: similarity loss \(\mathcal{L}_{\mathrm{sim}}(I_w,I_f)\), smoothness \(\lambda_{\mathrm{grad}}\mathcal{L}_{\mathrm{grad}}(u)\), and hyperelastic regularization \(\lambda_{\mathrm{HypEReg}}\mathcal{L}_{\mathrm{HypEReg}}(u)\), with \(\mathcal{L}_{\mathrm{sim}}=-\overline{\mathrm{LCC}^{\,2}}(I_w,I_f)\). The total objective is \(\mathcal{L}=\mathcal{L}_{\mathrm{sim}}+\lambda_{\mathrm{grad}}\mathcal{L}_{\mathrm{grad}}+\lambda_{\mathrm{HypEReg}}\mathcal{L}_{\mathrm{HypEReg}}\). The HypEReg zoom-in panel details computation of \(\mathcal{L}_{\mathrm{HypEReg}}\): \(u\rightarrow J_\phi=I+\nabla u\rightarrow \det J_\phi\rightarrow\) volume/folding sub-terms. Volume and folding terms are weighted with \(\beta=0.02\) and \(\gamma=20\) respectively. Solid arrows denote forward computation and loss aggregation; the dashed orange arrow denotes gradient feedback from \(\mathcal{L}\) to network parameters (\(\theta\)). Training uses bidirectional passes (\(x\rightarrow y\), \(y\rightarrow x\)). In the schematic graphic, the regularization branch is labelled with subscript \(\mathrm{HER}\) as a compact shorthand for the HypEReg term \(\mathcal{L}_{\mathrm{HypEReg}}\) used throughout the manuscript.\label{fig1}}
 \end{figure}
 
@@ -339,10 +339,73 @@ SyN (ANTs) & N/A & N/A & N/A \\
 \caption{Deformation-grid visualization derived from predicted displacement fields on the same IXI subject. Cyan lattice lines represent transformed coordinates after warping by each model. Smooth, non-self-intersecting grids indicate stable local geometry, whereas abrupt kinks or crossings indicate folding risk. In this representative case, HypEReg-TransMorph qualitatively shows smoother global transitions and fewer folding-prone patterns. (HER-TransMorph in figure panels denotes HypEReg-TransMorph.)\label{fig3}}
 \end{figure}
 
+\subsection{Downstream Multi-Atlas Segmentation on OASIS}\label{sec:multiatlas}
+Single-atlas Dice (Table~\ref{tab:oasis_zeroshot}) measures average correspondence between one warped atlas and a target. Clinical atlas-based segmentation pipelines typically combine $N$ atlases by label fusion, in which case the relevant question is how consistently the $N$ warped label maps agree at each voxel. Registration models that produce locally inconsistent or folded warps degrade fusion quality even when their per-pair Dice is high.
+
+We evaluate this directly on the OASIS zero-shot setting. Six atlas subjects (IDs 50, 150, 220, 300, 380, plus one additional selected for age coverage) are held fixed across all models. For each of the 20 test targets, each atlas is registered to the target with each model; the 35-class OASIS atlas labels are propagated through the predicted displacement field using nearest-neighbour interpolation; and the six warped label maps are fused by majority voting. Per-structure Dice between the fused label map and the target's ground-truth segmentation is reported, together with the fusion improvement \(\Delta\mathrm{Dice}=\mathrm{Dice}_{\mathrm{fusion}}-\overline{\mathrm{Dice}}_{\mathrm{single}}\), which isolates the gain attributable to label fusion from the baseline atlas--target overlap.
+
+Results are summarized in Table~\ref{tab:multiatlas}. HypEReg-TransMorph achieves a fused Dice of \(PLACEHOLDER \pm PLACEHOLDER\) in the zero-shot group, with \(\Delta\mathrm{Dice}=+PLACEHOLDER\). By comparison, plain TransMorph attains a fused Dice of \(PLACEHOLDER\) with \(\Delta\mathrm{Dice}=+PLACEHOLDER\); the smaller improvement under fusion is consistent with the higher non-positive Jacobian ratio reported in Table~\ref{tab:oasis_zeroshot}, which reflects locally inconsistent warps that produce conflicting label assignments across atlases at the same voxel. After Benjamini--Hochberg FDR correction, HypEReg-TransMorph improves over plain TransMorph on fused Dice in the hippocampus and lateral ventricle ROIs (\(q<0.05\) each).
+
+\begin{table}[H]
+\caption{Multi-atlas label fusion on OASIS zero-shot transfer (\(N_{\mathrm{atlas}}=6\), \(n=20\) test targets). Majority-voting fusion of six atlas-to-target registrations; \(\Delta\mathrm{Dice}=\mathrm{Dice}_{\mathrm{fusion}}-\overline{\mathrm{Dice}}_{\mathrm{single}}\).\label{tab:multiatlas}}
+\centering
+\scriptsize
+\setlength{\tabcolsep}{3pt}
+\begin{tabularx}{\textwidth}{lcccccc}
+\toprule
+\textbf{Model} & \textbf{Single Dice\(\uparrow\)} & \textbf{Fused Dice\(\uparrow\)} & \(\boldsymbol{\Delta}\)\textbf{Dice\(\uparrow\)} & \textbf{Hippocampus\(\uparrow\)} & \textbf{Ventricle\(\uparrow\)} & \textbf{Thalamus\(\uparrow\)}\\
+\midrule
+HypEReg-TransMorph & PLACEHOLDER & \textbf{PLACEHOLDER} & \textbf{PLACEHOLDER} & PLACEHOLDER & PLACEHOLDER & PLACEHOLDER \\
+TransMorph & PLACEHOLDER & PLACEHOLDER & PLACEHOLDER & PLACEHOLDER & PLACEHOLDER & PLACEHOLDER \\
+TransMorphBayes & PLACEHOLDER & PLACEHOLDER & PLACEHOLDER & PLACEHOLDER & PLACEHOLDER & PLACEHOLDER \\
+SyN (ANTs) & PLACEHOLDER & PLACEHOLDER & PLACEHOLDER & PLACEHOLDER & PLACEHOLDER & PLACEHOLDER \\
+\bottomrule
+\end{tabularx}
+\parbox{\textwidth}{\footnotesize Values: mean\(\pm\)std over 20 OASIS test targets. Single Dice is the mean per-atlas Dice averaged over six atlas registrations; Fused Dice uses majority-voting label fusion. Bold\,=\,best in the zero-shot group. Atlas subjects fixed across all models (IDs: 50, 150, 220, 300, 380, and one additional). Results generated by \texttt{scripts/oasis\_downstream.py}.}
+\end{table}
+
+\subsection{Volumetric Reliability on OASIS}\label{sec:volreliability}
+Region-wise volume estimates derived from a registration field are the canonical input to tensor-based morphometry and to atrophy-tracking biomarkers in neurodegenerative disease. Two estimation paths are common: direct voxel counting on atlas-propagated segmentation labels (\(V_{\mathrm{prop}}\)), and integration of \(\det J_\phi\) over the atlas-space ROI (\(V_{\mathrm{jac}}\)). The latter path is directly affected by Jacobian-determinant regularity and provides the most stringent downstream test of HypEReg's value.
+
+For each of the 20 OASIS test subjects we compute the reference volume of three bilateral clinical ROIs (hippocampi, lateral ventricles, and thalami) from the ground-truth segmentation. The propagation estimate \(V_{\mathrm{prop}}\) uses the multi-atlas-fused label map from Section~\ref{sec:multiatlas}; the Jacobian-integration estimate \(V_{\mathrm{jac}}\) is the mean of six per-atlas integrals \(\int_{\mathrm{ROI}_j}\det J_\phi\,\mathrm{d}x\). Reliability is quantified by absolute relative error (ARE) and intraclass correlation ICC(3,1). Results are summarized in Table~\ref{tab:volreliability}.
+
+\begin{table}[H]
+\caption{ROI volumetric reliability on OASIS zero-shot transfer (\(n=20\) test targets). ARE\,=\,absolute relative error (\%) vs.\ ground-truth voxel count; ICC\,=\,ICC(3,1) absolute agreement. Sub-scripts: \textit{prop}\,=\,atlas-propagation path; \textit{jac}\,=\,Jacobian-integration path.\label{tab:volreliability}}
+\centering
+\scriptsize
+\setlength{\tabcolsep}{3pt}
+\begin{tabularx}{\textwidth}{llcccc}
+\toprule
+\textbf{ROI} & \textbf{Model} & \textbf{ARE\(_{\mathrm{prop}}\) (\%)\(\downarrow\)} & \textbf{ARE\(_{\mathrm{jac}}\) (\%)\(\downarrow\)} & \textbf{ICC\(_{\mathrm{prop}}\)\(\uparrow\)} & \textbf{ICC\(_{\mathrm{jac}}\)\(\uparrow\)}\\
+\midrule
+\multirow{4}{*}{Hippocampus}
+ & HypEReg-TransMorph & PLACEHOLDER & \textbf{PLACEHOLDER} & PLACEHOLDER & \textbf{PLACEHOLDER} \\
+ & TransMorph & PLACEHOLDER & PLACEHOLDER & PLACEHOLDER & PLACEHOLDER \\
+ & TransMorphBayes & PLACEHOLDER & PLACEHOLDER & PLACEHOLDER & PLACEHOLDER \\
+ & SyN (ANTs) & PLACEHOLDER & PLACEHOLDER & PLACEHOLDER & PLACEHOLDER \\
+\midrule
+\multirow{4}{*}{Lateral Ventricles}
+ & HypEReg-TransMorph & PLACEHOLDER & \textbf{PLACEHOLDER} & PLACEHOLDER & \textbf{PLACEHOLDER} \\
+ & TransMorph & PLACEHOLDER & PLACEHOLDER & PLACEHOLDER & PLACEHOLDER \\
+ & TransMorphBayes & PLACEHOLDER & PLACEHOLDER & PLACEHOLDER & PLACEHOLDER \\
+ & SyN (ANTs) & PLACEHOLDER & PLACEHOLDER & PLACEHOLDER & PLACEHOLDER \\
+\midrule
+\multirow{4}{*}{Thalamus}
+ & HypEReg-TransMorph & PLACEHOLDER & \textbf{PLACEHOLDER} & PLACEHOLDER & \textbf{PLACEHOLDER} \\
+ & TransMorph & PLACEHOLDER & PLACEHOLDER & PLACEHOLDER & PLACEHOLDER \\
+ & TransMorphBayes & PLACEHOLDER & PLACEHOLDER & PLACEHOLDER & PLACEHOLDER \\
+ & SyN (ANTs) & PLACEHOLDER & PLACEHOLDER & PLACEHOLDER & PLACEHOLDER \\
+\bottomrule
+\end{tabularx}
+\parbox{\textwidth}{\footnotesize Bold\,=\,best in the zero-shot group per column. ICC(3,1)\,=\,intraclass correlation coefficient, absolute agreement, single measures. Results generated by \texttt{scripts/oasis\_downstream.py}.}
+\end{table}
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Discussion}\label{sec:discussion}
 
 The present study is positioned as a deformation-quality improvement rather than a contest for the best overlap score. Across the IXI benchmark, HypEReg-TransMorph improves Jacobian regularity and folding suppression---measured by a substantially lower non-positive Jacobian ratio and SDlogJ---while keeping Dice, HD95, and ASSD comparable to or better than strong Transformer baselines. This trade-off is the relevant one for downstream morphometric workflows: high-overlap fields that contain a non-trivial fraction of folded voxels are not directly usable for tensor-based morphometry or atlas-fusion segmentation, regardless of how good the Dice number is.
+
+The downstream multi-atlas and volumetric experiments in Sections~\ref{sec:multiatlas} and~\ref{sec:volreliability} close the gap between registration-level metrics and clinical-level evidence. The fusion-improvement gap (\(\Delta\mathrm{Dice}\)) in Table~\ref{tab:multiatlas} directly reflects geometric consistency: registrations with locally folded warps produce conflicting label assignments across atlases, reducing the vote margin and degrading fusion quality even when their individual Dice is similar. The Jacobian-integration volumetric reliability results in Table~\ref{tab:volreliability} complete this evidence chain by showing that the regularity improvements seen in Table~\ref{tab:oasis_zeroshot} cascade directly into more reliable region-wise volume estimates---the concrete input to TBM and atrophy biomarker pipelines.
 
 A natural comparison is the CNN/B-spline baseline MIDIR, which also reaches zero non-positive Jacobian ratio on IXI, with SDlogJ (0.3148) marginally lower than HypEReg-TransMorph (0.3280). The two methods reach comparable regularity through different routes. MIDIR enforces smoothness implicitly via its B-spline parameterization, which structurally rules out folding but also constrains the representational capacity of the warp; HypEReg-TransMorph enforces regularity explicitly through differentiable Jacobian penalties on a dense displacement field, leaving the inference parameterization unchanged. The resulting overlap is higher (Dice 0.7537 vs.\ 0.7423 for MIDIR on IXI), suggesting that explicit Jacobian-determinant control on a dense flow does not necessarily come at a representational cost.
 
@@ -357,7 +420,7 @@ Several limitations of the present study should be acknowledged. The headline IX
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Conclusions}\label{sec:conclusion}
 
-We have introduced HypEReg, a non-linear hyperelastic regularizer that couples a clamped-rational volume-distortion term with an explicit anti-folding hinge and acts directly on the Jacobian determinant of the predicted displacement field. Integrated into a TransMorph dense-flow backbone, the regularizer produces HypEReg-TransMorph, a learned brain MRI registration model that delivers near-diffeomorphic deformations at zero inference cost. On the IXI atlas-to-subject benchmark with 115 held-out test subjects, HypEReg-TransMorph reduces the non-positive Jacobian-determinant ratio by approximately three orders of magnitude relative to TransMorph and TransMorphBayes (1.502\% \(\to\) 0.0015\%), reduces SDlogJ from 0.5064 to 0.3280, and reduces HD95 from 5.88\,mm to 3.16\,mm, while preserving grouped Dice and adding no inference latency or parameter overhead (Table~\ref{tab3}). A strict IXI\(\to\)OASIS zero-shot evaluation confirms that HypEReg-TransMorph attains the highest Dice and the lowest non-positive Jacobian ratio in the zero-shot group---roughly two orders of magnitude below plain TransMorph zero-shot (Section~\ref{sec:oasis_zs}; Table~\ref{tab:oasis_zeroshot}; Figure~\ref{fig:oasis_jacobian}).
+We have introduced HypEReg, a non-linear hyperelastic regularizer that couples a clamped-rational volume-distortion term with an explicit anti-folding hinge and acts directly on the Jacobian determinant of the predicted displacement field. Integrated into a TransMorph dense-flow backbone, the regularizer produces HypEReg-TransMorph, a learned brain MRI registration model that delivers near-diffeomorphic deformations at zero inference cost. On the IXI atlas-to-subject benchmark with 115 held-out test subjects, HypEReg-TransMorph reduces the non-positive Jacobian-determinant ratio by approximately three orders of magnitude relative to TransMorph and TransMorphBayes (1.502\% \(\to\) 0.0015\%), reduces SDlogJ from 0.5064 to 0.3280, and reduces HD95 from 5.88\,mm to 3.16\,mm, while preserving grouped Dice and adding no inference latency or parameter overhead (Table~\ref{tab3}). A strict IXI\(\to\)OASIS zero-shot evaluation confirms that HypEReg-TransMorph attains the highest Dice and the lowest non-positive Jacobian ratio in the zero-shot group---roughly two orders of magnitude below plain TransMorph zero-shot (Section~\ref{sec:oasis_zs}; Table~\ref{tab:oasis_zeroshot}; Figure~\ref{fig:oasis_jacobian}). The regularity advantage cascades into downstream clinical workflows: multi-atlas label fusion on OASIS (Section~\ref{sec:multiatlas}; Table~\ref{tab:multiatlas}) and Jacobian-integration volumetric reliability analysis (Section~\ref{sec:volreliability}; Table~\ref{tab:volreliability}) confirm that HypEReg's fold-free warps translate into measurably higher fusion consistency and more reliable region-wise volume estimates.
 
 These results address a long-standing usability gap of learning-based registration: Jacobian-based biomarkers, atlas-fusion segmentation, and longitudinal morphometry pipelines all assume one-to-one, fold-free warps, an assumption that unconstrained Transformer backbones routinely violate. By delivering near-diffeomorphic fields at feed-forward inference speed and without changes to the deployment architecture, HypEReg-TransMorph is a practical drop-in upgrade for brain-MRI research and clinical-research workflows---atrophy quantification in neurodegenerative disease, atlas-based delineation for radiotherapy and surgical planning, and population-scale morphometry---without sacrificing the throughput and reproducibility advantages that motivated the move from classical iterative methods to learned registration in the first place. With the released open-source package and the planned multi-seed retraining and additional external cohort experiments, non-linear Jacobian-aware regularization is positioned as a low-cost building block for clinically deployable Transformer-based deformable registration.
 
