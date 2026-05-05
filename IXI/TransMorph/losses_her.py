@@ -72,7 +72,15 @@ def fold_loss(J: torch.Tensor, eps: float = 1e-3, power: int = 2) -> torch.Tenso
 
 
 class HyperelasticLoss(nn.Module):
-    """L_HypEReg = alpha*length + beta*volume + gamma*fold."""
+    """Two-term HypEReg loss: L_HypEReg = beta*volume + gamma*fold.
+
+    The BMR length surrogate (alpha_length) is retained as a code-level
+    parameter fixed to 0.0 in the published operating point. Its role is
+    filled by the standard smoothness penalty L_grad, which acts on the same
+    spatial scale. Setting alpha_length=0.0 is not a disabled feature but a
+    design choice: HypEReg is a two-term construction (volume + fold).
+    See Section 2.4 of the manuscript for the full design rationale.
+    """
 
     VALID_ABLATIONS = (
         "full",
