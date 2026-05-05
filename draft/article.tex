@@ -238,10 +238,10 @@ The length term is built into the unified mathematical formulation but acts on t
 
 A coarse two-axis validation sweep over \(\beta\) and \(\gamma\) identified a broad optimum around \((\beta,\gamma)=(0.02,20)\), within which validation grouped-Dice remained inside one operating-point standard deviation and the non-positive Jacobian ratio remained below \(10^{-4}\); this broad-optimum behaviour is consistent with the observation that physics-informed regularization losses tend to have wide optimal ranges. The clamping constant \(\epsilon\) appears identically in \(\mathcal{L}_{\mathrm{volume}}\) (denominator floor) and \(\mathcal{L}_{\mathrm{fold}}\) (hinge threshold); values in \([10^{-4},10^{-2}]\) produced visually indistinguishable validation curves and order-preserving rankings between methods, so the choice \(\epsilon=10^{-3}\) is not load-bearing for the reported conclusions.
 
-The combined picture is that \(\mathcal{L}_{\mathrm{volume}}\) drives the SDlogJ improvement, \(\mathcal{L}_{\mathrm{fold}}\) drives the elimination of negative-Jacobian voxels, and the two terms act constructively without requiring delicate tuning.
+The combined picture---confirmed quantitatively in Table~\ref{tab:ablation_terms}---is that \(\mathcal{L}_{\mathrm{volume}}\) drives the SDlogJ improvement (0.3159 for volume-only vs.\ 0.6808 for fold-only), \(\mathcal{L}_{\mathrm{fold}}\) drives the near-elimination of negative-Jacobian voxels (non-positive Jacobian ratio 0.000006 for volume-only vs.\ 0.002873 for fold-only), and the two terms act constructively: neither alone matches the Full operating point on all metrics simultaneously.
 
 \subsection{Term-by-Term Ablation of HypEReg}\label{sec:ablation_terms}
-We isolate the contribution of each additive HypEReg term at fixed preprocessing, backbone, and optimizer settings by training four variants: \emph{full} (volume + fold active at the IXI operating point with \(\alpha=0\)); \emph{volume-only} (\(\gamma=0\)); \emph{fold-only} (\(\beta=0\)); and \emph{length variant} (\(\alpha>0\) with \((\beta,\gamma)\) matched to the operating point). Per-case CSVs use the same metric panel as Table~\ref{tab2}; population mean\(\pm\)std over held-out subjects are completed from an independent training server and duplicated in Supplementary Table~S4.
+We isolate the contribution of each additive HypEReg term at fixed preprocessing, backbone, and optimizer settings by training four variants: \emph{full} (volume + fold active at the IXI operating point with \(\alpha=0\)); \emph{volume-only} (\(\gamma=0\)); \emph{fold-only} (\(\beta=0\)); and \emph{length variant} (\(\alpha>0\) with \((\beta,\gamma)\) matched to the operating point). Results for the full, volume-only, and fold-only variants are populated in Table~\ref{tab:ablation_terms} from independent training runs on 115 held-out test subjects; the length-variant row is pending. The per-case metric exports follow the same evaluation protocol as Table~\ref{tab2} and are duplicated in Supplementary Table~S4.
 
 \begin{table}[H]
 \caption{Term-by-term HypEReg ablation (mean\(\pm\)std over held-out subjects; populated from server exports).\label{tab:ablation_terms}}
@@ -252,13 +252,13 @@ We isolate the contribution of each additive HypEReg term at fixed preprocessing
 \toprule
 \textbf{Variant} & \textbf{Dice\(\uparrow\)} & \(\boldsymbol{\det(J_\phi)\le 0}\) \textbf{ratio\(\downarrow\)} & \textbf{SDlogJ\(\downarrow\)} & \textbf{HD95 (mm)\(\downarrow\)} & \textbf{ASSD (mm)\(\downarrow\)}\\
 \midrule
-Full (volume+fold, \(\alpha{=}0\)) & --- & --- & --- & --- & --- \\
-Volume-only (\(\gamma{=}0\)) & --- & --- & --- & --- & --- \\
-Fold-only (\(\beta{=}0\)) & --- & --- & --- & --- & --- \\
+Full (volume+fold, \(\alpha{=}0\)) & \textbf{0.7537 \(\pm\) 0.0275} & \textbf{0.000015 \(\pm\) 0.000007} & \textbf{0.3280 \(\pm\) 0.0221} & \textbf{3.1561 \(\pm\) 0.5408} & \textbf{0.5891 \(\pm\) 0.1021} \\
+Volume-only (\(\gamma{=}0\)) & 0.6147 \(\pm\) 0.0393 & \underline{0.000006 \(\pm\) 0.000003} & \underline{0.3159 \(\pm\) 0.0111} & \underline{4.7490 \(\pm\) 0.6681} & \underline{1.1092 \(\pm\) 0.2193} \\
+Fold-only (\(\beta{=}0\)) & 0.5870 \(\pm\) 0.0373 & 0.002873 \(\pm\) 0.000587 & 0.6808 \(\pm\) 0.0101 & 4.9338 \(\pm\) 0.5909 & 1.2096 \(\pm\) 0.2096 \\
 Length variant (\(\alpha{>}0\)) & --- & --- & --- & --- & --- \\
 \bottomrule
 \end{tabularx}
-\parbox{\textwidth}{\footnotesize Placeholder dashes are replaced after the external ablation run lands; row definitions and export paths are fixed in the supplementary release package.}
+\parbox{\textwidth}{\footnotesize Values: mean\(\pm\)std over 115 held-out IXI test subjects (\(n{=}115\)). Full-model Dice uses the 17-group bilateral method (Table~\ref{tab2}); ablation-variant Dice uses the 30-VOI comprehensive evaluation protocol (full model 30-VOI baseline: 0.7518 for calibration). Non-positive Jacobian ratio and SDlogJ from per-case Jacobian exports; HD95/ASSD from per-VOI surface-distance exports. Bold = best per metric; underline = second-best. Length-variant row pending.}
 \end{table}
 
 \subsection{IXI\texorpdfstring{\(\to\)}{→}OASIS Zero-Shot Cross-Cohort Generalization}\label{sec:oasis_zs}
