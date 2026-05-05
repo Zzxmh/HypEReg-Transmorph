@@ -4,7 +4,7 @@ TransMorph without HypEReg on OASIS.
 
 Prefers an OASIS-retrained unsupervised experiment directory under
 ``OASIS/TransMorph/experiments/`` (any ``TransMorph_*`` folder that does not
-contain ``HER``). If none exists, falls back to the IXI TransMorph validation
+contain ``HypEReg``). If none exists, falls back to the IXI TransMorph validation
 checkpoint (same architecture) for zero-shot OASIS evaluation; this is flagged
 in stdout so the manuscript can distinguish true OASIS-retrained vs fallback.
 """
@@ -25,7 +25,8 @@ def _oasis_unsup_ckpt() -> str | None:
         return None
     candidates: list[str] = []
     for name in sorted(os.listdir(exp_root)):
-        if "HER" in name.upper():
+        # Skip HypEReg experiments; checkpoint folder names may contain "HER" or "HypEReg"
+        if "HER" in name.upper() or "HYPEREG" in name.upper():
             continue
         sub = os.path.join(exp_root, name)
         if not os.path.isdir(sub):

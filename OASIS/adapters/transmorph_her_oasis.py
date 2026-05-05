@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""HypEReg-TransMorph trained on OASIS (same loss weights as IXI HER run)."""
+"""HypEReg-TransMorph trained on OASIS (same loss weights as IXI HypEReg run)."""
 from __future__ import annotations
 
 import os
@@ -16,7 +16,7 @@ HER_DIR = "TransMorph_OASIS_HER_ncc_1.0_grad_1.0_her_1.0_a0_b0.02_g20"
 def _ckpt_path() -> str:
     d = os.path.join(oasis_transmorph_dir(), "experiments", HER_DIR)
     if not os.path.isdir(d):
-        raise FileNotFoundError(f"Missing HER experiment dir: {d}")
+        raise FileNotFoundError(f"Missing HypEReg experiment dir: {d}")
     return latest_ckpt_in_dir(d)
 
 

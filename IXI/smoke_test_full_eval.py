@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-Smoke test: 1 Test case TransMorph+HER — dice_* and non_jec must match IXI/Results/TransMorph_HER_IXI.csv p_0 row.
+Smoke test: 1 Test case HypEReg-TransMorph — dice_* and non_jec must match IXI/Results/TransMorph_HER_IXI.csv p_0 row.
 Run from repo root: python IXI/smoke_test_full_eval.py
 Requires GPU + IXI_data Test + checkpoint.
 """

@@ -54,7 +54,7 @@ RESULTS_CSV_BY_MODEL = {
 def _display_name(model_id: str) -> str:
     mid = model_id.strip().lower()
     if mid == "transmorph_her":
-        return "HER-TransMorph"
+        return "HypEReg-TransMorph"
     if mid == "transmorph_original":
         return "TransMorph"
     if mid == "midir":
@@ -159,7 +159,7 @@ def render_fig2(out_pdf: Path, moving: np.ndarray, fixed: np.ndarray, model_outs
                 img = _slice_2d(_to_float01(fixed), plane)
             else:
                 key = {
-                    "HER-TransMorph": "transmorph_her",
+                    "HypEReg-TransMorph": "transmorph_her",
                     "TransMorph": "transmorph_original",
                 }.get(name, name.replace("-", "_").lower())
                 img = _slice_2d(_to_float01(model_outs[key]["warped"]), plane)

@@ -3,7 +3,7 @@ Paired significance testing for comprehensive IXI evaluations.
 
 Reads IXI/Eval_Results/*/per_case.csv and writes:
   - model_summary.csv
-  - sig_matrix.csv   (HER vs each baseline, Wilcoxon + BH-FDR)
+  - sig_matrix.csv   (HypEReg vs each baseline, Wilcoxon + BH-FDR)
 """
 from __future__ import annotations
 

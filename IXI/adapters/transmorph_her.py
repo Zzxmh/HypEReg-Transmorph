@@ -23,10 +23,10 @@ def build_model(device: str = "cuda"):
 
     p = os.path.join(tdir, "experiments", HER_EXPERIMENT, CKPT_NAME)
     if not os.path.isfile(p):
-        raise FileNotFoundError(f"HER checkpoint missing: {p}")
+        raise FileNotFoundError(f"HypEReg checkpoint missing: {p}")
     config = CONFIGS_TM["TransMorph"]
     model = TransMorph.TransMorph(config)
-    print(f"TransMorph+HER: loading {p}", flush=True)
+    print(f"HypEReg-TransMorph: loading {p}", flush=True)
     sd = torch.load(p, map_location="cpu", weights_only=False)["state_dict"]
     model.load_state_dict(sd)
     return model.to(device), config

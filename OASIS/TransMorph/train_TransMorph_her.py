@@ -44,7 +44,7 @@ def _resolve_oasis_paths():
 def main():
     batch_size = 2
     train_dir, val_dir = _resolve_oasis_paths()
-    weights = [1.0, 1.0, 1.0]  # [NCC, Grad3d, HER]
+    weights = [1.0, 1.0, 1.0]  # [NCC, Grad3d, HypEReg]
     save_dir = "TransMorph_OASIS_HER_ncc_{}_grad_{}_her_{}_a0_b0.02_g20/".format(
         weights[0], weights[1], weights[2]
     )
@@ -100,7 +100,7 @@ def main():
         raise FileNotFoundError(f"No training .pkl found in {train_dir}")
     if len(val_paths) == 0:
         raise FileNotFoundError(f"No validation .pkl found in {val_dir}")
-    print(f"OASIS TransMorph-HER: train={len(train_paths)} val={len(val_paths)}")
+    print(f"OASIS TransMorph-HypEReg: train={len(train_paths)} val={len(val_paths)}")
 
     train_set = datasets.OASISBrainDataset(train_paths, transforms=train_composed)
     val_set = datasets.OASISBrainInferDataset(val_paths, transforms=val_composed)
@@ -157,7 +157,7 @@ def main():
             optimizer.step()
 
             print(
-                "Iter {} of {} loss {:.4f}, Img Sim: {:.6f}, Reg: {:.6f}, HER: {:.6f}".format(
+                "Iter {} of {} loss {:.4f}, Img Sim: {:.6f}, Reg: {:.6f}, HypEReg: {:.6f}".format(
                     idx,
                     len(train_loader),
                     loss_b.item(),

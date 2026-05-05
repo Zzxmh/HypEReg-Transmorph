@@ -82,7 +82,7 @@ res={}
 x2 = torch.randn(1,2,*SZ,device=DEV)
 x1 = torch.randn(1,1,*SZ,device=DEV)
 
-# TransMorph + HER
+# HypEReg-TransMorph
 purge('models'); add(TM)
 from models.TransMorph import CONFIGS as C_TM
 import models.TransMorph as TMm

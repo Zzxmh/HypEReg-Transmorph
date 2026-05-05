@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 """
-Merge IXI/Results/comprehensive/baseline table with the current HER experiment row.
-- Drops all baseline rows whose model name is HER-related (substring 'HER', case-insensitive).
-- Appends one row from HER_dsc0743/summary.json (same formatting as build_table).
+Merge IXI/Results/comprehensive/baseline table with the current HypEReg experiment row.
+- Drops all baseline rows whose model name is HypEReg-related (detected via _is_her_related_model, case-insensitive).
+- Appends one row from HER_dsc0743/summary.json (same formatting as build_table; folder name kept for filesystem compatibility).
 Writes: IXI/Results/comprehensive/table_model_x_metric.{csv,md,tex}
 Run: python -m IXI.analysis_comprehensive.merge_baseline_table
 """
@@ -114,7 +114,7 @@ def merge(
         raise FileNotFoundError(f"Missing baseline table: {base_csv}")
     her_sum = os.path.join(out_root, her_model, "summary.json")
     if not os.path.isfile(her_sum):
-        raise FileNotFoundError(f"Missing HER summary: {her_sum}")
+        raise FileNotFoundError(f"Missing HypEReg summary: {her_sum}")
 
     header = _header()
     kept: List[List[str]] = []
@@ -139,7 +139,7 @@ def merge(
         w.writerows(merged)
 
     md_lines = [
-        "# Model × metric (baseline non-HER + current HER experiment)\n",
+        "# Model × metric (baseline non-HypEReg + current HypEReg experiment)\n",
         "",
         "| " + " | ".join(header) + " |",
         "| " + " | ".join(["---"] * len(header)) + " |",

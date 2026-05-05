@@ -1,5 +1,5 @@
 """
-Legacy HER OASIS submission exporter (same half-res ``disp_*.npz`` as ``export_displacements.py``).
+Legacy HypEReg OASIS submission exporter (same half-res ``disp_*.npz`` as ``export_displacements.py``).
 
 Writes under ``OASIS/data/Submit/submission/{model_id}/task_03/`` so ``eval_oasis.py`` can find predictions.
 
@@ -21,7 +21,7 @@ from scipy.ndimage import zoom
 
 
 def main() -> None:
-    ap = argparse.ArgumentParser(description="Export OASIS HER TransMorph disp npz files.")
+    ap = argparse.ArgumentParser(description="Export OASIS HypEReg-TransMorph disp npz files.")
     ap.add_argument(
         "--model-id",
         default="transmorph_her_oasis",

@@ -47,7 +47,7 @@ def main():
     val_dir = os.path.join(ixi_root, "Val")
     batch_size = 2
     # Weights are independent per term (no shared reg_weight):
-    # NCC : Grad3d(l2) : HER(alpha=0, beta=0.02, gamma=20)
+    # NCC : Grad3d(l2) : HypEReg(alpha=0, beta=0.02, gamma=20)
     weights = [1.0, 1.0, 1.0]
     save_dir = "TransMorph_IXI_HER_ncc_{}_grad_{}_her_{}_a0_b0.02_g20/".format(
         weights[0], weights[1], weights[2]
@@ -106,7 +106,7 @@ def main():
     if len(val_paths) == 0:
         raise FileNotFoundError(f"No validation .pkl in {val_dir}")
     print(
-        f"IXI TransMorph-HER: train={len(train_paths)} val={len(val_paths)} atlas={atlas_dir}"
+        f"IXI TransMorph-HypEReg: train={len(train_paths)} val={len(val_paths)} atlas={atlas_dir}"
     )
     train_set = datasets.IXIBrainDataset(train_paths, atlas_dir, transforms=train_composed)
     val_set = datasets.IXIBrainInferDataset(val_paths, atlas_dir, transforms=val_composed)
@@ -117,7 +117,7 @@ def main():
     criterion = losses.NCC_vxm()
     criterions = [criterion]
     criterions += [losses.Grad3d(penalty='l2')]
-    # HER + Grad3d 职责分离：Grad3d 做 Frobenius 平滑，HER 关闭 length，
+    # HypEReg + Grad3d 职责分离：Grad3d 做 Frobenius 平滑，HypEReg 关闭 length，
     # 只保留 volume+fold 的 Jacobian 几何约束。
     criterion_her = HyperelasticLoss(
         alpha_length=0.0,
@@ -174,7 +174,7 @@ def main():
             optimizer.step()
 
             print(
-                "Iter {} of {} loss {:.4f}, Img Sim: {:.6f}, Reg: {:.6f}, HER: {:.6f}".format(
+                "Iter {} of {} loss {:.4f}, Img Sim: {:.6f}, Reg: {:.6f}, HypEReg: {:.6f}".format(
                     idx,
                     len(train_loader),
                     loss.item(),

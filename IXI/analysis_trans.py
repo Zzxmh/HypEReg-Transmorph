@@ -69,7 +69,7 @@ for exp_name in file_name:
     my_list = np.array([float(i) for i in my_list])*100
     print('jec_det: {:.3f} +- {:.3f}'.format(my_list.mean(), my_list.std()))
 
-# 与 8 模型版本一致：参考序列为 TransMorphBspline (file_name[5])。加入 HER 后勿用 all_dsc[-3]。
+# 与 8 模型版本一致：参考序列为 TransMorphBspline (file_name[5])。加入 HypEReg 后勿用 all_dsc[-3]。
 vec1 = all_dsc[5]
 idx = 0
 for i in file_name:
@@ -111,7 +111,7 @@ plt.plot([], c='wheat', label='TransMorph-diff')
 plt.plot([], c='olive', label='TransMorph-bspl')
 plt.plot([], c='sandybrown', label='TransMorph-Bayes')
 plt.plot([], c='skyblue', label='TransMorph')
-plt.plot([], c='teal', label='TransMorph+HER')
+plt.plot([], c='teal', label='HypEReg-TransMorph')
 font = font_manager.FontProperties(family='Cambria',
                                    style='normal', size=16)
 leg = ax.legend(prop=font)

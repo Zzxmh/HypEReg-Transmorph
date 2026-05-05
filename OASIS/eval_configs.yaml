@@ -15,7 +15,7 @@ results_dir: OASIS/Eval_Results
 
 models:
   - id: transmorph_her_oasis
-    name: HER-TransMorph
+    name: HypEReg-TransMorph
     adapter: transmorph_her_oasis
     supervision: unsup.
   - id: transmorph_unsup_oasis

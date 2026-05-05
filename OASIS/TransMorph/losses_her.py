@@ -1,7 +1,7 @@
-"""Hyperelastic regularization (HER) loss and diagnostics for 3D displacement fields.
+"""Hyperelastic regularization (HypEReg) loss and diagnostics for 3D displacement fields.
 
 Reference: Burger, Modersitzki, Ruthotto (2013), A Hyperelastic Regularization
-Energy for Image Registration, SIAM J. Sci. Comput. See HER_Loss tech doc.
+Energy for Image Registration, SIAM J. Sci. Comput.
 """
 from __future__ import annotations
 
@@ -72,7 +72,7 @@ def fold_loss(J: torch.Tensor, eps: float = 1e-3, power: int = 2) -> torch.Tenso
 
 
 class HyperelasticLoss(nn.Module):
-    """L_HER = alpha*length + beta*volume + gamma*fold."""
+    """L_HypEReg = alpha*length + beta*volume + gamma*fold."""
 
     VALID_ABLATIONS = (
         "full",

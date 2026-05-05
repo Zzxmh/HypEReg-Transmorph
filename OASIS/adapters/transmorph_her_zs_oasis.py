@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """HypEReg-TransMorph (IXI-trained) — zero-shot transfer to OASIS.
 
-Loads the IXI HER checkpoint (dsc0.743) trained with HypEReg loss
+Loads the IXI HypEReg checkpoint (dsc0.743) trained with HypEReg loss
 (alpha=0, beta=0.02, gamma=20) without any OASIS fine-tuning.
 This is the cross-cohort generalisation condition for the HypEReg paper.
 """
@@ -31,7 +31,7 @@ def _ckpt_path() -> str:
     if os.path.isdir(exp_dir):
         return latest_ckpt_in_dir(exp_dir)
     raise FileNotFoundError(
-        f"transmorph_her_zs_oasis: IXI HER experiment dir missing: {exp_dir}"
+        f"transmorph_her_zs_oasis: IXI HypEReg experiment dir missing: {exp_dir}"
     )
 
 
@@ -45,7 +45,7 @@ def build_model(device: str = "cuda"):
     config = CONFIGS_TM["TransMorph"]
     model = TransMorph.TransMorph(config)
     ck = _ckpt_path()
-    print(f"transmorph_her_zs_oasis: loading IXI HER ckpt {ck}", flush=True)
+    print(f"transmorph_her_zs_oasis: loading IXI HypEReg ckpt {ck}", flush=True)
     model.load_state_dict(load_state_dict_any(ck))
     return model.to(device), config
 

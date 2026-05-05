@@ -62,7 +62,7 @@ def make_fig1_framework(fig_dir: str) -> None:
     box(0.52, 0.37, 0.2, 0.26, "CNN Decoder")
     box(0.76, 0.37, 0.2, 0.26, "Registration Head\n(Displacement u)")
     box(0.52, 0.05, 0.2, 0.2, "Warping Layer")
-    box(0.76, 0.05, 0.2, 0.2, "Loss: NCC + Grad + HER")
+    box(0.76, 0.05, 0.2, 0.2, "Loss: NCC + Grad + HypEReg")
 
     ax.annotate("", xy=(0.27, 0.5), xytext=(0.21, 0.7), arrowprops=dict(arrowstyle="->", lw=1.5))
     ax.annotate("", xy=(0.27, 0.5), xytext=(0.21, 0.28), arrowprops=dict(arrowstyle="->", lw=1.5))
@@ -74,7 +74,7 @@ def make_fig1_framework(fig_dir: str) -> None:
     ax.text(
         0.76,
         0.0,
-        "HER terms: length + volume + fold penalties",
+        "HypEReg terms: length + volume + fold penalties",
         fontsize=9,
         ha="left",
         va="bottom",
@@ -91,7 +91,7 @@ def make_fig2_qualitative(fig_dir: str) -> None:
     warped_her = _warp_image(base, smooth=True)
 
     fig, axes = plt.subplots(2, 4, figsize=(12, 6), dpi=200)
-    titles = ["Moving", "Fixed", "Warped-Baseline", "Warped-HER"]
+    titles = ["Moving", "Fixed", "Warped-Baseline", "Warped-HypEReg"]
     row_imgs = [[base, fixed, warped_base, warped_her], [np.flipud(base), np.flipud(fixed), np.flipud(warped_base), np.flipud(warped_her)]]
     for r in range(2):
         for c in range(4):
@@ -116,7 +116,7 @@ def make_fig3_gridwarp(fig_dir: str) -> None:
         if smooth:
             dx = 0.06 * np.sin(np.pi * yy) * np.cos(np.pi * xx)
             dy = 0.04 * np.sin(1.2 * np.pi * xx)
-            axes[i].set_title("HER-TransMorph (smooth diffeomorphic-like)")
+            axes[i].set_title("HypEReg-TransMorph (smooth diffeomorphic-like)")
         else:
             dx = 0.13 * np.sin(2.6 * np.pi * yy) * np.cos(2.3 * np.pi * xx)
             dy = 0.10 * np.sin(2.7 * np.pi * xx)
@@ -153,7 +153,7 @@ def make_fig4_jacobian(fig_dir: str) -> None:
     ax1.set_title("Baseline Jacobian determinant")
     ax1.axis("off")
     ax2.imshow(her, cmap="coolwarm", vmin=0.2, vmax=1.8)
-    ax2.set_title("HER Jacobian determinant")
+    ax2.set_title("HypEReg Jacobian determinant")
     ax2.axis("off")
     plt.colorbar(im1, ax=ax3, fraction=0.8)
     ax3.axis("off")
@@ -161,7 +161,7 @@ def make_fig4_jacobian(fig_dir: str) -> None:
 
     ax4 = fig.add_subplot(gs[1, :])
     ax4.hist(base_log.flatten(), bins=70, density=True, alpha=0.55, label="Baseline")
-    ax4.hist(her_log.flatten(), bins=70, density=True, alpha=0.55, label="HER")
+    ax4.hist(her_log.flatten(), bins=70, density=True, alpha=0.55, label="HypEReg")
     ax4.set_title("log|J| histogram")
     ax4.set_xlabel("log|J|")
     ax4.set_ylabel("Density")
@@ -173,7 +173,7 @@ def make_fig4_jacobian(fig_dir: str) -> None:
 
 def make_fig5_metrics(fig_dir: str) -> None:
     models: List[str] = [
-        "HER",
+        "HypEReg",
         "TransMorphBayes",
         "TransMorph",
         "VoxelMorph-1",

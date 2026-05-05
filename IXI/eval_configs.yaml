@@ -65,7 +65,7 @@ models:
     name: "PVT"
     adapter: pvt
   - id: transmorph_her
-    name: "TransMorph+HER"
+    name: "HypEReg-TransMorph"
     adapter: transmorph_her
   - id: syn
     name: "SyN"

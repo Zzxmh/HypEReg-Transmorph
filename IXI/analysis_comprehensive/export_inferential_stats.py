@@ -83,9 +83,9 @@ def run(eval_root: str, out_csv: str, ref_model: str, metrics: Iterable[str], mo
                 continue
             a = a[mask]
             b = b[mask]
-            # Raw paired difference: HER - baseline.
+            # Raw paired difference: HypEReg - baseline.
             d_raw = a - b
-            # Aligned positive means "HER better".
+            # Aligned positive means "HypEReg better".
             if metric in HIGHER_IS_BETTER:
                 d_aligned = d_raw
             else:

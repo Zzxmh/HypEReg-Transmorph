@@ -21,10 +21,10 @@ def make_ixi_only(tex: str) -> str:
     # Abstract: keep IXI-focused summary only.
     abstract_ixi = (
         r"\abstract{Background: Deformable brain MRI registration requires preserving deformation topology in addition to overlap accuracy. "
-        r"Methods: HER-TransMorph augments a TransMorph backbone with hyperelastic regularization terms targeting volume-change moderation and anti-folding control. "
+        r"Methods: HypEReg-TransMorph augments a TransMorph backbone with hyperelastic regularization terms targeting volume-change moderation and anti-folding control. "
         r"We evaluate the method on the IXI atlas-to-subject protocol against learning-based and classical baselines, and report paired Wilcoxon signed-rank tests with Benjamini--Hochberg FDR correction where available. "
-        r"Results: HER-TransMorph maintains competitive overlap (Dice: 0.7537 \(\pm\) 0.0275) while reducing topology violations (non-positive Jacobian ratio: 0.0000 vs.\ 0.0153 for TransMorph) and improving Jacobian regularity (SDlogJ: 0.3280 vs.\ 0.4920). "
-        r"Conclusions: HER-TransMorph yields topology-preserving deformations on IXI, supporting downstream Jacobian-based morphometric analysis.}"
+        r"Results: HypEReg-TransMorph maintains competitive overlap (Dice: 0.7537 \(\pm\) 0.0275) while reducing topology violations (non-positive Jacobian ratio: 0.0000 vs.\ 0.0153 for TransMorph) and improving Jacobian regularity (SDlogJ: 0.3280 vs.\ 0.4920). "
+        r"Conclusions: HypEReg-TransMorph yields topology-preserving deformations on IXI, supporting downstream Jacobian-based morphometric analysis.}"
     )
     tex = re.sub(
         r"\\abstract\{Background:.*?analysis\.\}",
@@ -53,8 +53,8 @@ def make_ixi_only(tex: str) -> str:
     # Results text: remove OASIS table reference.
     tex = _replace_once(
         tex,
-        r"Table~\ref{tab2} reports the compact IXI model comparison, now expanded to include overlap and regularity metrics in one place. HER-TransMorph maintains competitive overlap while improving deformation regularity relative to unconstrained Transformer baselines. Table~\ref{tab_oasis} mirrors the same panel for OASIS and is currently presented with explicit placeholders pending Stage-B OASIS training/inference completion.",
-        r"Table~\ref{tab2} reports the compact IXI model comparison, expanded to include overlap and regularity metrics in one place. HER-TransMorph maintains competitive overlap while improving deformation regularity relative to unconstrained Transformer baselines.",
+        r"Table~\ref{tab2} reports the compact IXI model comparison, now expanded to include overlap and regularity metrics in one place. HypEReg-TransMorph maintains competitive overlap while improving deformation regularity relative to unconstrained Transformer baselines. Table~\ref{tab_oasis} mirrors the same panel for OASIS and is currently presented with explicit placeholders pending Stage-B OASIS training/inference completion.",
+        r"Table~\ref{tab2} reports the compact IXI model comparison, expanded to include overlap and regularity metrics in one place. HypEReg-TransMorph maintains competitive overlap while improving deformation regularity relative to unconstrained Transformer baselines.",
     )
 
     # Remove full OASIS table block.
@@ -86,8 +86,8 @@ def make_ixi_only(tex: str) -> str:
     # Discussion / limitations: remove OASIS-specific paragraphs and wording.
     tex = _replace_once(
         tex,
-        r"The CNN/B-spline baseline MIDIR also achieves zero non-positive Jacobian ratio on IXI, with SDlogJ (0.3148) marginally lower than HER-TransMorph (0.3280). The two methods reach comparable regularity through different routes: MIDIR enforces smoothness implicitly via B-spline parameterization, while HER-TransMorph enforces regularity explicitly through differentiable hyperelastic penalties on dense flow. HER is plug-in to dense-flow backbones without changing parameterization, and preserves overlap expressivity (Dice 0.7537 vs.\ 0.7423 for MIDIR on IXI). Cross-dataset evidence on OASIS is summarized as \PH{OASIS MIDIR-vs-HER discussion pending Stage B}.",
-        r"The CNN/B-spline baseline MIDIR also achieves zero non-positive Jacobian ratio on IXI, with SDlogJ (0.3148) marginally lower than HER-TransMorph (0.3280). The two methods reach comparable regularity through different routes: MIDIR enforces smoothness implicitly via B-spline parameterization, while HER-TransMorph enforces regularity explicitly through differentiable hyperelastic penalties on dense flow. HER is plug-in to dense-flow backbones without changing parameterization, and preserves overlap expressivity (Dice 0.7537 vs.\ 0.7423 for MIDIR on IXI).",
+        r"The CNN/B-spline baseline MIDIR also achieves zero non-positive Jacobian ratio on IXI, with SDlogJ (0.3148) marginally lower than HypEReg-TransMorph (0.3280). The two methods reach comparable regularity through different routes: MIDIR enforces smoothness implicitly via B-spline parameterization, while HypEReg-TransMorph enforces regularity explicitly through differentiable hyperelastic penalties on dense flow. HypEReg is plug-in to dense-flow backbones without changing parameterization, and preserves overlap expressivity (Dice 0.7537 vs.\ 0.7423 for MIDIR on IXI). Cross-dataset evidence on OASIS is summarized as \PH{OASIS MIDIR-vs-HypEReg discussion pending Stage B}.",
+        r"The CNN/B-spline baseline MIDIR also achieves zero non-positive Jacobian ratio on IXI, with SDlogJ (0.3148) marginally lower than HypEReg-TransMorph (0.3280). The two methods reach comparable regularity through different routes: MIDIR enforces smoothness implicitly via B-spline parameterization, while HypEReg-TransMorph enforces regularity explicitly through differentiable hyperelastic penalties on dense flow. HypEReg is plug-in to dense-flow backbones without changing parameterization, and preserves overlap expressivity (Dice 0.7537 vs.\ 0.7423 for MIDIR on IXI).",
     )
     tex = re.sub(
         r"\nThe OASIS inter-subject regime produces larger anatomical displacements.*?hyperelastic-regularization mechanism\.\n",
