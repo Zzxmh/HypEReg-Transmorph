@@ -118,15 +118,59 @@ The run uses \texttt{config = CONFIGS\_TM['TransMorph']} from \texttt{configs\_T
 \item Pure-forward runtime / peak GPU memory on the reported NVIDIA RTX PRO 6000 Blackwell hardware: HypEReg-TransMorph \(0.0822\) s / \(5.685\) GB; TransMorph \(0.0822\) s / \(5.685\) GB; TransMorphBayes \(0.0852\) s / \(6.042\) GB. Values are averages of \(20\) repeated calls on synthetic inputs of size \(1\times2\times160\times192\times224\) following 5 warm-up iterations. The two TransMorph variants share the same forward graph and therefore yield identical timings (parameter count is \(46.771\)\,M and \(46.773\)\,M, respectively).
 \end{itemize}
 
+\begin{table}[H]
+\caption{Baseline checkpoint provenance (IXI). Checkpoint paths are resolved by the evaluation adapters under \texttt{IXI/adapters/}.\label{tab:s2b_provenance}}
+\scriptsize
+\setlength{\tabcolsep}{4pt}
+\renewcommand{\arraystretch}{1.1}
+\begin{tabularx}{\textwidth}{lXX}
+\toprule
+\textbf{Model} & \textbf{Adapter module} & \textbf{Checkpoint path / source} \\
+\midrule
+HypEReg-TransMorph & \texttt{IXI/adapters/transmorph\_her.py} & \texttt{IXI/TransMorph/experiments/TransMorph\_IXI\_HER\_ncc\_1.0\_grad\_1.0\_her\_1.0\_a0\_b0.02\_g20/dsc0.743.pth.tar} \\
+TransMorph & \texttt{IXI/adapters/transmorph\_original.py} & Prefer uploaded \texttt{IXI/TransMorph/experiments/TransMorph\_Validation\_dsc0.744.pth.tar}; fallback to latest under \texttt{IXI/TransMorph/experiments/TransMorph\_IXI\_ncc\_1.0\_grad\_1.0/} \\
+TransMorphBayes & \texttt{IXI/adapters/transmorphbayes.py} & Prefer uploaded \texttt{IXI/TransMorph/experiments/TransMorph\_Bayes\_Validation\_dsc0.743.pth.tar}; fallback to latest under \texttt{IXI/TransMorph/experiments/TransMorphBayes\_ncc\_1\_diffusion\_1/} \\
+MIDIR & \texttt{IXI/adapters/midir.py} & \texttt{IXI/Baseline\_registration\_methods/MIDIR/MIDIR\_Validation\_dsc0.733.pth.tar} \\
+CycleMorph & \texttt{IXI/adapters/cyclemorph.py} & \texttt{IXI/Baseline\_registration\_methods/CycleMorph/CycleMorph\_Validation\_dsc0.729.pth.tar} \\
+VoxelMorph-1 & \texttt{IXI/adapters/voxelmorph\_1.py} & \texttt{IXI/Baseline\_registration\_methods/VoxelMorph/VoxelMorph\_1\_Validation\_dsc0.720.pth.tar} \\
+CoTr & \texttt{IXI/adapters/cotr.py} & \texttt{IXI/Baseline\_Transformers/models/CoTr/CoTr\_Validation\_dsc0.730.pth.tar} \\
+nnFormer & \texttt{IXI/adapters/nnformer.py} & \texttt{IXI/Baseline\_Transformers/models/nnFormer/nnFormer\_Validation\_dsc0.739.pth.tar} \\
+PVT & \texttt{IXI/adapters/pvt.py} & \texttt{IXI/Baseline\_Transformers/PVT\_Validation\_dsc0.720.pth.tar} \\
+SyN (ANTs) & \texttt{IXI/adapters/syn\_legacy\_to\_per\_case.py} & Legacy outputs converted from \texttt{IXI/Eval\_Results/comprehensive\_syn\_lddmm/SyN\_IXI/} (no learned checkpoint) \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
 \section{Figure S1: Descriptive IXI Overview}
 
 \begin{figure}[H]
 \centering
 \includegraphics[width=0.99\textwidth]{figures/fig5_metrics.pdf}
-\caption{Descriptive IXI quantitative overview (Dice, non-positive Jacobian determinant ratio, SDlogJ, and HD95). Bars include standard-error error bars for visual uncertainty context.}
+\caption{Descriptive IXI quantitative overview (Dice, non-positive Jacobian determinant ratio, SDlogJ, and HD95). Bars include standard-error error bars for visual uncertainty context. (HER-TransMorph in the panel labels denotes HypEReg-TransMorph.)}
 \end{figure}
 
 \section{Inferential Statistics (HypEReg-TransMorph vs.\ Baselines)}
+
+\noindent\textbf{Metric definitions (to avoid naming ambiguity).} In this Supplementary section, \texttt{dice\_mean} denotes the per-subject mean Dice computed over the full 46-label FreeSurfer-compatible label set (columns \texttt{dice\_0}--\texttt{dice\_45} in \texttt{per\_case.csv}), whereas the main paper reports \emph{grouped Dice} averaged over 17 grouped VOIs (Table~\ref{tab2} in the main text). The two numbers therefore have different scales and are not directly comparable.
+
+\begin{table}[H]
+\caption{Auxiliary deformation and surface metrics on IXI (mean\(\pm\)std over subjects). This table reports NSD@1\,mm and additional deformation-regularity descriptors that are referenced in the main text but not included in Table~2.\label{tab:s0_aux_metrics}}
+\scriptsize
+\setlength{\tabcolsep}{3pt}
+\renewcommand{\arraystretch}{1.1}
+\begin{tabularx}{\textwidth}{lXXXXXXXX}
+\toprule
+\textbf{Model} & \textbf{NSD@1\,mm\(\uparrow\)} & \textbf{Bending\(\downarrow\)} & \textbf{MADiv\(\downarrow\)} & \(\boldsymbol{J_{\min}}\) & \(\boldsymbol{J_{p01}}\) & \(\boldsymbol{J_{p99}}\) & \(\boldsymbol{J_{\max}}\)\\
+\midrule
+HypEReg-TransMorph (HER\_dsc0743) & 0.8480 \(\pm\) 0.0317 & 0.0031 \(\pm\) 0.0001 & 0.1772 \(\pm\) 0.0114 & -0.2700 \(\pm\) 0.1496 & 0.2754 \(\pm\) 0.0268 & 2.1284 \(\pm\) 0.0669 & 18.6155 \(\pm\) 2.9607\\
+TransMorphBayes & 0.8462 \(\pm\) 0.0347 & 0.0050 \(\pm\) 0.0003 & 0.2341 \(\pm\) 0.0114 & -6.6766 \(\pm\) 2.2896 & -0.0871 \(\pm\) 0.0555 & 2.5926 \(\pm\) 0.0764 & 46.0976 \(\pm\) 9.2892\\
+HER\_active & 0.7715 \(\pm\) 0.0398 & 0.0036 \(\pm\) 0.0001 & 0.1719 \(\pm\) 0.0077 & -0.1754 \(\pm\) 0.0993 & 0.3433 \(\pm\) 0.0196 & 2.1054 \(\pm\) 0.0979 & 12.3397 \(\pm\) 2.2249\\
+HERGRAD\_active & 0.7612 \(\pm\) 0.0403 & 0.0019 \(\pm\) 0.0001 & 0.1549 \(\pm\) 0.0065 & -0.1014 \(\pm\) 0.0928 & 0.3729 \(\pm\) 0.0187 & 2.0257 \(\pm\) 0.0840 & 8.4640 \(\pm\) 1.1222\\
+HERGRAD\_foldonly & 0.7242 \(\pm\) 0.0424 & 0.0041 \(\pm\) 0.0001 & 0.2367 \(\pm\) 0.0064 & -1.2721 \(\pm\) 0.3317 & 0.0776 \(\pm\) 0.0232 & 2.5189 \(\pm\) 0.0782 & 19.8379 \(\pm\) 2.8103\\
+\bottomrule
+\end{tabularx}
+\parbox{\textwidth}{\footnotesize Bending = voxel-averaged bending energy; MADiv = mean absolute divergence of the displacement field; NSD@1\,mm computed with \(\tau=1\) mm. Values are taken from the consolidated comprehensive-evaluation tables generated by \texttt{IXI/analysis\_comprehensive}.}
+\end{table}
 
 \begin{table}[H]
 \caption{Inferential summary for TransMorphBayes and MIDIR (mean\(\pm\)std, aligned median difference, Wilcoxon \(p\), Benjamini--Hochberg \(q\), and matched-pairs rank-biserial effect). HypEReg-TransMorph denotes the proposed model.}
@@ -137,11 +181,11 @@ The run uses \texttt{config = CONFIGS\_TM['TransMorph']} from \texttt{configs\_T
 \toprule
 \textbf{Metric} & \textbf{Baseline} & \textbf{HypEReg mean\(\pm\)std} & \textbf{Baseline mean\(\pm\)std} & \textbf{Median diff (aligned)} & \textbf{\(p\)/\(q\)/effect}\\
 \midrule
-dice\_mean & TransMorphBayes & 0.5776\(\pm\)0.0303 & 0.5743\(\pm\)0.0315 & 0.00249 & \(6.57\times10^{-8}\) / \(7.58\times10^{-8}\) / 0.6522\\
-non\_jec & TransMorphBayes & \(1.39\times10^{-5}\)\(\pm\)\(7.55\times10^{-6}\) & 0.01484\(\pm\)0.00322 & 0.01449 & \(1.19\times10^{-16}\) / \(1.99\times10^{-16}\) / 1.0000\\
-SDlogJ & TransMorphBayes & 0.3268\(\pm\)0.0216 & 0.4908\(\pm\)0.0313 & 0.16264 & \(1.19\times10^{-16}\) / \(1.99\times10^{-16}\) / 1.0000\\
-HD95\_mean & TransMorphBayes & 5.3032\(\pm\)0.7228 & 5.6881\(\pm\)0.7697 & 0.33877 & \(1.34\times10^{-14}\) / \(1.88\times10^{-14}\) / 0.9298\\
-ASSD\_mean & TransMorphBayes & 1.3559\(\pm\)0.1809 & 1.4110\(\pm\)0.1839 & 0.05799 & \(4.12\times10^{-8}\) / \(4.88\times10^{-8}\) / 0.6622\\
+dice\_mean & TransMorphBayes (uploaded ckpt) & 0.5765\(\pm\)0.0301 & 0.5731\(\pm\)0.0313 & 0.00280 & \(6.58\times10^{-10}\) / \(6.58\times10^{-10}\) / 0.6636\\
+non\_jec & TransMorphBayes (uploaded ckpt) & \(1.46\times10^{-5}\)\(\pm\)\(7.37\times10^{-6}\) & 0.01510\(\pm\)0.00329 & 0.01489 & \(1.31\times10^{-20}\) / \(3.28\times10^{-20}\) / 1.0000\\
+SDlogJ & TransMorphBayes (uploaded ckpt) & 0.3280\(\pm\)0.0221 & 0.4934\(\pm\)0.0334 & 0.16325 & \(1.31\times10^{-20}\) / \(3.28\times10^{-20}\) / 1.0000\\
+HD95\_mean & TransMorphBayes (uploaded ckpt) & 5.3234\(\pm\)0.6936 & 5.7246\(\pm\)0.7604 & 0.33877 & \(1.77\times10^{-18}\) / \(2.94\times10^{-18}\) / 0.9424\\
+ASSD\_mean & TransMorphBayes (uploaded ckpt) & 1.3570\(\pm\)0.1770 & 1.4160\(\pm\)0.1832 & 0.06143 & \(2.98\times10^{-11}\) / \(3.72\times10^{-11}\) / 0.7142\\
 \midrule
 dice\_mean & MIDIR & 0.5765\(\pm\)0.0301 & 0.5643\(\pm\)0.0244 & 0.01166 & \(3.79\times10^{-18}\) / \(7.76\times10^{-18}\) / 0.9331\\
 non\_jec & MIDIR & \(1.46\times10^{-5}\)\(\pm\)\(7.37\times10^{-6}\) & 0.0000\(\pm\)0.0000 & \(-1.31\times10^{-5}\) & \(1.31\times10^{-20}\) / \(3.69\times10^{-20}\) / -1.0000\\
@@ -150,7 +194,7 @@ HD95\_mean & MIDIR & 5.3234\(\pm\)0.6936 & 5.3028\(\pm\)0.6139 & -0.00855 & 0.57
 ASSD\_mean & MIDIR & 1.3570\(\pm\)0.1770 & 1.4100\(\pm\)0.1585 & 0.06514 & \(3.58\times10^{-9}\) / \(4.36\times10^{-9}\) / 0.6342\\
 \bottomrule
 \end{tabularx}
-\parbox{\textwidth}{\footnotesize Aligned median difference is oriented so positive values indicate HypEReg-TransMorph improvement for the given metric direction. The effect is matched-pairs rank-biserial correlation. Pair counts differ by baseline (TransMorphBayes: \(n=91\); MIDIR: \(n=115\)).}
+\parbox{\textwidth}{\footnotesize Aligned median difference is oriented so positive values indicate HypEReg-TransMorph improvement for the given metric direction. The effect is matched-pairs rank-biserial correlation. Pair counts: \(n=115\) for both baselines in this table.}
 \end{table}
 
 \begin{table}[H]

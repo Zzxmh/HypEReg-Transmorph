@@ -8,11 +8,11 @@ import torch
 from torchvision import transforms
 from torch import optim
 import torch.nn as nn
-import matplotlib.pyplot as plt
 from natsort import natsorted
 from models.TransMorph import CONFIGS as CONFIGS_TM
 import models.TransMorph as TransMorph
 from losses_her import HyperelasticLoss
+import argparse
 
 class Logger(object):
     def __init__(self, save_dir):
@@ -38,6 +38,13 @@ def _resolve_ixi_atlas(ixi_root):
 
 
 def main():
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--beta", type=float, default=0.02, help="HypEReg beta_volume")
+    ap.add_argument("--gamma", type=float, default=20.0, help="HypEReg gamma_fold")
+    ap.add_argument("--max-epoch", type=int, default=500, help="Max training epochs")
+    ap.add_argument("--no-fig", action="store_true", help="Disable matplotlib figure logging")
+    args = ap.parse_args()
+
     repo_root = os.path.normpath(
         os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..")
     )
@@ -49,8 +56,9 @@ def main():
     # Weights are independent per term (no shared reg_weight):
     # NCC : Grad3d(l2) : HypEReg(alpha=0, beta=0.02, gamma=20)
     weights = [1.0, 1.0, 1.0]
-    save_dir = "TransMorph_IXI_HER_ncc_{}_grad_{}_her_{}_a0_b0.02_g20/".format(
+    save_dir = "TransMorph_IXI_HER_ncc_{}_grad_{}_her_{}_a0_b{}_g{}/".format(
         weights[0], weights[1], weights[2]
+        , args.beta, args.gamma
     )
     if not os.path.exists('experiments/'+save_dir):
         os.makedirs('experiments/'+save_dir)
@@ -59,7 +67,7 @@ def main():
     sys.stdout = Logger('logs/'+save_dir)
     lr = 0.0001 # learning rate
     epoch_start = 0
-    max_epoch = 500 #max traning epoch
+    max_epoch = int(args.max_epoch) #max traning epoch
     cont_training = False #if continue training
 
     '''
@@ -121,8 +129,8 @@ def main():
     # 只保留 volume+fold 的 Jacobian 几何约束。
     criterion_her = HyperelasticLoss(
         alpha_length=0.0,
-        beta_volume=0.02,
-        gamma_fold=20.0,
+        beta_volume=float(args.beta),
+        gamma_fold=float(args.gamma),
     )
     best_dsc = 0
     writer = SummaryWriter(log_dir='logs/'+save_dir)
@@ -214,23 +222,26 @@ def main():
             'optimizer': optimizer.state_dict(),
         }, save_dir='experiments/'+save_dir, filename='dsc{:.3f}.pth.tar'.format(eval_dsc.avg))
         writer.add_scalar('DSC/validate', eval_dsc.avg, epoch)
-        plt.switch_backend('agg')
-        pred_fig = comput_fig(def_out)
-        grid_fig = comput_fig(def_grid)
-        x_fig = comput_fig(x_seg)
-        tar_fig = comput_fig(y_seg)
-        writer.add_figure('Grid', grid_fig, epoch)
-        plt.close(grid_fig)
-        writer.add_figure('input', x_fig, epoch)
-        plt.close(x_fig)
-        writer.add_figure('ground truth', tar_fig, epoch)
-        plt.close(tar_fig)
-        writer.add_figure('prediction', pred_fig, epoch)
-        plt.close(pred_fig)
+        if not args.no_fig:
+            import matplotlib.pyplot as plt  # noqa: WPS433
+            plt.switch_backend('agg')
+            pred_fig = comput_fig(def_out)
+            grid_fig = comput_fig(def_grid)
+            x_fig = comput_fig(x_seg)
+            tar_fig = comput_fig(y_seg)
+            writer.add_figure('Grid', grid_fig, epoch)
+            plt.close(grid_fig)
+            writer.add_figure('input', x_fig, epoch)
+            plt.close(x_fig)
+            writer.add_figure('ground truth', tar_fig, epoch)
+            plt.close(tar_fig)
+            writer.add_figure('prediction', pred_fig, epoch)
+            plt.close(pred_fig)
         loss_all.reset()
     writer.close()
 
 def comput_fig(img):
+    import matplotlib.pyplot as plt  # noqa: WPS433
     img = img.detach().cpu().numpy()[0, 0, 48:64, :, :]
     fig = plt.figure(figsize=(12,12), dpi=180)
     for i in range(img.shape[0]):

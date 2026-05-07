@@ -88,6 +88,8 @@ IXI/TransMorph/logs/
 OASIS/TransMorph/logs/
 IXI/Baseline_registration_methods/**/logs/
 IXI/Baseline_registration_methods/runner_logs/
+logs/
+events.out.tfevents.*
 
 # Draft backup folders
 draft/submission_draft_backup_*/

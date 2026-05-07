@@ -1,0 +1,30 @@
+# Ablation evaluation config for eval_any.py (IXI Test)
+# Paths are relative to repository root unless absolute.
+spacing: [1.0, 1.0, 1.0]
+num_labels: 46
+ssim_win: 11
+nmi_bins: 64
+jacobian_hist_bins: 100
+compute_ice: false
+ice_bwd_ckpt: null
+jac_impl: vxm_grad
+lncc_win: 9
+seed: 0
+
+ixi_root: IXI_data
+test_subdir: Test
+atlas: null
+results_dir: IXI/Eval_Results
+legacy_results_dir: IXI/Results
+
+models:
+  - id: transmorph_her
+    name: "HypEReg-TransMorph (full)"
+    adapter: transmorph_her
+  - id: transmorph_her_volonly
+    name: "HypEReg-TransMorph (volume-only)"
+    adapter: transmorph_her_volonly
+  - id: transmorph_her_foldonly
+    name: "HypEReg-TransMorph (fold-only)"
+    adapter: transmorph_her_foldonly
+

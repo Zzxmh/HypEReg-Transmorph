@@ -158,6 +158,7 @@ def run_one_model(
     targets: Dict[int, Tuple[np.ndarray, np.ndarray]],
     device: str,
 ) -> Tuple[List[dict], List[dict]]:
+    """Stream over targets; only 1 flow in memory at a time to avoid OOM."""
     import importlib
     import torch
 
@@ -172,70 +173,73 @@ def run_one_model(
 
     atlas_ids = sorted(atlases.keys())
     target_ids = sorted(targets.keys())
-
-    # Inference: all (atlas, target) pairs
-    flows: Dict[Tuple[int,int], np.ndarray] = {}
-    for aid in atlas_ids:
-        aim, _ = atlases[aid]
-        for tid in target_ids:
-            tim, _ = targets[tid]
-            t0 = time.time()
-            try:
-                f = get_flow(adapter, model, aim, tim, device)
-                flows[(aid, tid)] = f
-                print(f"  {aid}->{tid} done in {time.time()-t0:.2f}s", flush=True)
-            except Exception as e:
-                print(f"  [error {aid}->{tid}]: {e}", flush=True)
-
-    # Free GPU memory immediately
-    del model
-    gc.collect()
-    torch.cuda.empty_cache()
-
-    # D-1: fusion Dice + D-2: volumetric reliability
-    print(f"  Computing D-1/D-2 for {model_name}...", flush=True)
     d1_rows, d2_rows = [], []
+
     for tid in target_ids:
-        _, tgt_seg = targets[tid]
-        warped_segs, single_dices_mean, jac_vols = [], [], {r:[] for r in ROI_LABELS}
+        tim, tgt_seg = targets[tid]
+        warped_segs:    List[np.ndarray] = []
+        single_dices:   List[float]      = []
+        jac_vols:       Dict[str, List[float]] = {r: [] for r in ROI_LABELS}
 
         for aid in atlas_ids:
-            if (aid, tid) not in flows: continue
-            _, atl_seg = atlases[aid]
-            flow = flows[(aid, tid)]
+            aim, atl_seg = atlases[aid]
+            t0 = time.time()
+            try:
+                flow = get_flow(adapter, model, aim, tim, device)
+            except Exception as e:
+                print(f"  [error {aid}->{tid}]: {e}", flush=True)
+                continue
+            print(f"  {aid}->{tid} done in {time.time()-t0:.2f}s", flush=True)
+
+            # Warp label + single-atlas Dice
             ws = warp_seg(atl_seg, flow)
             warped_segs.append(ws)
             d = label_dice(ws, tgt_seg, n=36)
-            single_dices_mean.append(float(np.nanmean(d[1:])))
+            single_dices.append(float(np.nanmean(d[1:])))
 
+            # Jacobian integration (D-2)
             det = jac_det(flow)
             for roi, lids in ROI_LABELS.items():
                 jac_vols[roi].append(roi_jac_vol(det, atl_seg, lids))
 
-        if not warped_segs: continue
+            del flow, det   # free flow immediately
+            gc.collect()
 
-        fused = majority_vote(warped_segs, n=36)
-        fd = label_dice(fused, tgt_seg, n=36)
+        if not warped_segs:
+            continue
+
+        # D-1: majority-vote fusion
+        fused  = majority_vote(warped_segs, n=36)
+        fd     = label_dice(fused, tgt_seg, n=36)
         fd_mean = float(np.nanmean(fd[1:]))
-        sd_mean = float(np.nanmean(single_dices_mean))
+        sd_mean = float(np.nanmean(single_dices))
 
-        row = {"model":model_name,"target_id":tid,"n_atlases":len(warped_segs),
-               "single_dice_mean":sd_mean,"fused_dice_mean":fd_mean,
-               "delta_dice":fd_mean-sd_mean}
+        row = {"model": model_name, "target_id": tid, "n_atlases": len(warped_segs),
+               "single_dice_mean": sd_mean, "fused_dice_mean": fd_mean,
+               "delta_dice": fd_mean - sd_mean}
         for roi, lids in ROI_LABELS.items():
-            row[f"fused_dice_{roi}"] = float(np.nanmean([fd[l] for l in lids if l<36]))
+            row[f"fused_dice_{roi}"] = float(np.nanmean([fd[l] for l in lids if l < 36]))
         d1_rows.append(row)
 
+        # D-2: volumetric reliability per ROI
         for roi, lids in ROI_LABELS.items():
             rv = ref_vol(tgt_seg, lids)
             pv = ref_vol(fused, lids)
             jv = float(np.nanmean(jac_vols[roi])) if jac_vols[roi] else np.nan
             d2_rows.append({
-                "model":model_name, "target_id":tid, "roi":roi,
-                "ref_vol_vox":rv, "prop_vol_vox":pv, "jac_vol_vox":jv,
-                "are_prop_pct": abs(pv-rv)/rv*100 if rv>0 else np.nan,
-                "are_jac_pct":  abs(jv-rv)/rv*100 if (rv>0 and np.isfinite(jv)) else np.nan,
+                "model": model_name, "target_id": tid, "roi": roi,
+                "ref_vol_vox": rv, "prop_vol_vox": pv, "jac_vol_vox": jv,
+                "are_prop_pct": abs(pv - rv) / rv * 100 if rv > 0 else np.nan,
+                "are_jac_pct":  abs(jv - rv) / rv * 100 if (rv > 0 and np.isfinite(jv)) else np.nan,
             })
+
+        del warped_segs
+        gc.collect()
+
+    # Free GPU memory before returning
+    del model
+    gc.collect()
+    torch.cuda.empty_cache()
 
     return d1_rows, d2_rows
 

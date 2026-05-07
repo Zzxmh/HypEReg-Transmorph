@@ -1,0 +1,39 @@
+1. Dice Abstract、Table 3、Supplementary Table S1。
+
+2. 补充 hyperparameter sensitivity / ablation
+
+a b r
+0 1 2
+0.10.2
+
+3. 处理 NSD@1mm 
+
+4. bending energy 
+
+5. 解释 n=91 vs n=115 差异
+
+6. baseline provenance table
+
+7. mathematically valid at arbitrary local strain 太绝对了
+
+8. clinically deployable 小节
+
+9. HypEReg 是 BMR-inspired / hyperelastic-subset位置：
+
+10. surface/cofactor term is mathematically inactive
+
+11. 加一个 Ablation and sensitivity summary
+
+12. 要提到 bending energy、mean absolute divergence、Jacobian quantiles 等。
+
+13. Supplementary Table S1/S2 metric definitions，dice_mean、HD95_mean、ASSD_mean 
+
+14. Supplementary Figure S1 HER-TransMorph 
+
+15. Section 2.3
+
+16. Related Work 2.4/2.5 与 Methods 3.4 的重复
+
+17. Discussion 和 Conclusion clinical motivation、ElasticMorph comparison、BMR comparison 重复。
+
+18. Abstract 中 46.77M parameters
