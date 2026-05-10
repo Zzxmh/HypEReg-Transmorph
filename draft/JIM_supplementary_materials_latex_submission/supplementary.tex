@@ -17,14 +17,14 @@
 \renewcommand{\thetable}{S\arabic{table}}
 \renewcommand{\thefigure}{S\arabic{figure}}
 
-\title{Supplementary Materials\\HypEReg: Hyperelastic Regularization for Reducing Folding in Transformer-Based Brain MRI Registration}
+\title{Supplementary Materials\\Hyperelastic Regularization for Reducing Folding in Transformer-Based Brain MRI Registration}
 \author{}
 \date{}
 
 \begin{document}
 \maketitle
 
-\noindent This document accompanies the manuscript \emph{HypEReg: Hyperelastic Regularization for Reducing Folding in Transformer-Based Brain MRI Registration}. Contents include training hyperparameters and evaluation notes, IXI baseline checkpoint summary (Table~S1), auxiliary IXI deformation/surface metrics omitted from the main comparison table (Table~S2), paired inferential exports on IXI (Tables~S3--S4 under \emph{Inferential Statistics}), grouped-VOI mapping (Table~S5), Figure~S1 (descriptive IXI bar-chart overview), Figure~S2 (qualitative registration comparison across three orthogonal views), OASIS training notes, OASIS-retrained contrasts versus selected baselines (Table~S6), bootstrap 95\% confidence intervals on IXI means (Table~S7), and brief notes on optional OASIS Jacobian-ROI and per-class multi-atlas analyses.
+\noindent This document accompanies the manuscript \emph{Hyperelastic Regularization for Reducing Folding in Transformer-Based Brain MRI Registration}. Contents include training hyperparameters and evaluation notes, IXI baseline checkpoint summary (Table~S1), auxiliary IXI deformation/surface metrics omitted from the main comparison table (Table~S2), paired inferential exports on IXI (Tables~S3--S4 under \emph{Inferential Statistics}), grouped-VOI mapping (Table~S5), Figure~S1 (descriptive IXI bar-chart overview), Figure~S2 (qualitative registration comparison across three orthogonal views), OASIS training notes, OASIS-retrained contrasts versus selected baselines (Table~S6), and bootstrap 95\% confidence intervals on IXI means (Table~S7).
 
 \section{Supplementary Experimental Details}
 \subsection{Model and Environment Configuration}
@@ -279,11 +279,5 @@ SyN (ANTs) & 0.6445 [0.6372, 0.6518] & \(5.874\times10^{-6}\) [\(1.235\times10^{
 \end{tabularx}
 \parbox{\textwidth}{\footnotesize Dice follows the grouped 17-structure protocol used in the main paper; non-positive Jacobian ratio, SDlogJ, HD95, and ASSD come from the same per-case evaluation pipeline. Bootstrap: $B=10{,}000$, sampling with replacement, seed~0.}
 \end{table}
-
-\section{OASIS Jacobian ROI Cleanliness Analysis}
-\noindent ROI-level Jacobian cleanliness statistics (hippocampus, lateral ventricles, thalamus) for the IXI$\to$OASIS zero-shot setting can be recomputed from exported displacement fields using the same Jacobian pipeline as the main benchmark (interior finite differences on \(J_\phi=I+\nabla u\), then \(\det J_\phi\)-based summary). For each ROI mask, we report (i) non-positive Jacobian ratio, (ii) SDlogJ, and (iii) upper-tail quantiles (\(J_{p99},J_{\max}\)), then aggregate over targets as mean\(\pm\)std. This ROI slice complements global full-volume metrics by checking whether near-critical anatomical regions keep the same fold-suppression pattern observed in Table~2 and Figure~4.
-
-\section{Multi-Atlas Fusion CSV Export}
-\noindent Full per-class fused Dice spreadsheets for the OASIS majority-voting experiment ($N_{\mathrm{atlas}}=6$, $n=20$) can be regenerated with the downstream evaluation workflow referenced in the main text. The export contains one row per target and per structure, including single-atlas Dice, fused Dice, and \(\Delta\)Dice columns, and is intended for reproducibility checks and secondary ROI-level analysis beyond the summary values reported in the manuscript table. We recommend reporting both macro-averaged per-structure Dice and per-target aggregate Dice from this CSV so that gains are not dominated by a small subset of easy structures.
 
 \end{document}
