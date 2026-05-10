@@ -23,53 +23,46 @@
 
 \vspace{0.5em}
 
-We respectfully submit our manuscript, \textbf{``HypEReg-TransMorph: A Hyperelastic-Regularized Transformer Framework for Folding-Suppressed Deformable Brain MRI Registration''}, for consideration as an original research article in the \textit{Journal of Imaging}.
+We are pleased to submit our manuscript, \textbf{``HypEReg: Hyperelastic Regularization for Reducing Folding in Transformer-Based Brain MRI Registration''}, for consideration as an original research article in the \textit{Journal of Imaging}.
 
 \vspace{0.5em}
-\noindent\textbf{Clinical motivation and significance.}
-Accurate deformable brain MRI registration underpins a wide range of clinical neuroimaging workflows---from atlas-based segmentation and radiotherapy organ-at-risk delineation, to tensor-based morphometry (TBM) endpoints used in Alzheimer's disease progression monitoring, multiple sclerosis lesion analysis, and pre-surgical planning for deep brain stimulation and epilepsy resection. A fundamental but often overlooked requirement of all these applications is that the estimated deformation field must be \emph{diffeomorphic}: local foldings (voxels where the Jacobian determinant $\det J_\phi \le 0$) corrupt Jacobian-based biomarkers, produce anatomically inconsistent label boundaries, and force time-consuming manual post-correction. Contemporary Transformer-based registration methods have achieved state-of-the-art overlap accuracy, yet they routinely produce folded deformation fields that violate the assumptions of downstream clinical analysis pipelines. This practical gap---high overlap accuracy at the cost of physically implausible deformations---is the precise problem our work addresses.
+\noindent\textbf{Why this work matters to the medical image registration community.}
+Transformer-based registration has advanced overlap accuracy, but many models still output deformation fields with non-positive Jacobian regions, limiting reliability for morphometry and atlas-based downstream pipelines. Our work addresses this core bottleneck by introducing \textbf{HypEReg}, a determinant-level hyperelastic regularizer that can be added to dense-flow Transformer training as a loss-side plug-in (no architectural change at inference).
 
 \vspace{0.5em}
-\noindent\textbf{Technical contribution and key results.}
-We introduce \textbf{HypEReg}, a compact, differentiable, plug-in regularizer derived from hyperelastic energy principles (a volume-distortion penalty combined with an explicit anti-folding hinge) and integrate it as a training-time loss term into the TransMorph backbone. Because HypEReg modifies only the loss function and leaves the inference architecture unchanged, it incurs \emph{zero additional inference overhead}: pure forward-pass profiling on $160\times192\times224$ volumes confirms \textbf{identical} runtime (0.0822\,s/volume) and peak memory (5.685\,GB) to the unregularized TransMorph baseline, and is in fact \textbf{slightly faster and less memory-intensive} than TransMorphBayes (0.0852\,s, 6.042\,GB), which shares the same parameter count.
+\noindent\textbf{Main technical contributions.}
+\begin{itemize}
+\item We propose a compact Jacobian-aware objective that combines a non-linear volume-distortion term and an explicit anti-folding hinge, directly supervising \(\det J_\phi\).
+\item We show that this regularization strategy is practical for community adoption: it is plug-and-play for Transformer dense-flow backbones and introduces \emph{zero inference overhead}.
+\item We provide full subject-level inferential analysis (paired Wilcoxon + BH-FDR), bootstrap confidence intervals, and open reproducibility artifacts.
+\end{itemize}
 
-On the IXI atlas-to-subject benchmark evaluated over \textbf{115 held-out test subjects} with full paired Wilcoxon/BH-FDR inferential statistics, HypEReg-TransMorph achieves the following improvements over strong Transformer baselines:
+\vspace{0.2em}
+\noindent\textbf{Key verified results (IXI, 115 held-out subjects).}
+Compared with plain TransMorph, HypEReg-TransMorph improves grouped Dice (0.7537 vs.\ 0.7527), lowers HD95 (5.3234 vs.\ 5.6872\,mm), and lowers ASSD (1.3570 vs.\ 1.4073\,mm), while dramatically improving deformation validity: the non-positive Jacobian ratio drops from \(1.502\times10^{-2}\) to \(1.5\times10^{-5}\) (approximately three orders of magnitude; \(>1000\times\) reduction), and SDlogJ drops from 0.5064 to 0.3280. Runtime and memory remain identical to TransMorph (0.0822\,s/case, 5.685\,GB).
 
-\begin{center}
-\renewcommand{\arraystretch}{1.25}
-\begin{tabular}{lccc}
-\hline
-\textbf{Metric} & \textbf{HypEReg-TransMorph} & \textbf{TransMorph} & \textbf{TransMorphBayes}\\
-\hline
-Dice ($\uparrow$) & \textbf{0.7537} & 0.7527 & 0.7530\\
-Non-pos.\ $\det J_\phi$ ratio ($\downarrow$) & \textbf{1.5\,$\times$\,10$^{-5}$} & 0.0150 & 0.0156\\
-SDlogJ ($\downarrow$) & \textbf{0.328} & 0.506 & 0.492\\
-HD95 mm ($\downarrow$) & \textbf{3.16} & 5.88 & 3.37\\
-ASSD mm ($\downarrow$) & \textbf{0.589} & 1.559 & 0.622\\
-\hline
-\end{tabular}
-\end{center}
-
-\noindent The non-positive Jacobian determinant ratio---the direct measure of deformation field validity for clinical use---is reduced by a factor of \textbf{$>$1,000$\times$} relative to the unregularized TransMorph baseline ($p < 10^{-19}$, $q < 10^{-19}$, rank-biserial effect $= 1.00$), while grouped-VOI Dice is simultaneously improved. These results demonstrate, for the first time on this benchmark, that Jacobian-aware regularization can deliver near-diffeomorphic Transformer-based registration without any sacrifice in alignment fidelity or inference speed---directly addressing the clinical usability barrier noted above.
+\vspace{0.2em}
+\noindent\textbf{Downstream relevance and practical impact.}
+Beyond registration-level metrics, we evaluate a downstream OASIS zero-shot multi-atlas fusion task (\(N_{\mathrm{atlas}}=6\), \(n=20\) targets). HypEReg-TransMorph attains the highest fused Dice (0.8271), outperforming TransMorph (0.8201), TransMorphBayes (0.8058), and MIDIR (0.7696). This demonstrates that large-scale reduction of fold-prone deformation behavior translates into more consistent label propagation and better fusion quality in a clinically relevant downstream setting.
 
 \vspace{0.5em}
-\noindent\textbf{Suitability for \textit{Journal of Imaging}.}
-We believe this work fits squarely within the journal's scope: it presents a principled, reproducible methodological contribution to medical image analysis with direct translational relevance to clinical neuroimaging. A complete reproducibility package (training code, evaluation scripts, per-case metric tables, figure pipelines, and model checkpoints available upon request) is released openly at \url{https://github.com/Zzxmh/HypEReg-TransMorph} and archived at Zenodo (DOI: 10.5281/zenodo.19888526).
+\noindent\textbf{Fit for \textit{Journal of Imaging}.}
+We believe the manuscript aligns strongly with the journal's aims: it contributes a rigorous, reproducible methodological advance with immediate value for medical image analysis workflows that depend on physically plausible deformations. Code and reproducibility assets are openly available at \url{https://github.com/Zzxmh/HypEReg-TransMorph} and archived at Zenodo (DOI: 10.5281/zenodo.19888526).
 
 \vspace{0.5em}
-\noindent\textbf{Declarations.}
-This manuscript has not been published or submitted elsewhere; all authors have approved this submission; the authors declare no conflicts of interest; no external funding was received for this work.
+\noindent\textbf{Submission declarations.}
+This manuscript is original, has not been published, and is not under consideration elsewhere. All authors have approved the submission. The authors declare no conflict of interest, and no external funding was received.
 
 \vspace{1em}
 
 \noindent Sincerely,\\[0.5em]
-\noindent Shiyi Xu (first author)\\
+\noindent Shiyi Xu (on behalf of all authors)\\
 Capital Medical University, Beijing 100069, China\\
 \texttt{xsy4831@mail.ccmu.edu.cn}
 
 \vspace{0.5em}
-\noindent Mohan Xu (corresponding author)\\
-School of Physics, Peking University, Beijing 100871, China\\
-\texttt{2200011601@stu.pku.edu.cn}
+\noindent Erjin Zhou (corresponding author)\\
+Dexmal, Beijing, China\\
+\texttt{zhouerjin@gmail.com}
 
 \end{document}

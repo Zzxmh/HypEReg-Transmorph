@@ -83,7 +83,7 @@
 
 %=================================================================
 % Full title of the paper (Capitalized)
-\Title{HypEReg-TransMorph: Cross-Cohort Generalization, Term-by-Term Ablations,\\ and Folding-Suppressed Deformable Brain MRI Registration}
+\Title{HypEReg: Hyperelastic Regularization for Reducing Folding in Transformer-Based Brain MRI Registration}
 
 % Author Orchid ID: enter ID or remove command
 \newcommand{\orcidauthorA}{0000-0000-0000-000X} % TODO: replace with Mohan Xu's ORCID; add \orcidA{} behind the author's name
@@ -267,7 +267,7 @@ Figure~\ref{fig1} summarizes the training architecture. The moving image \(I_m\)
 
 \begin{figure}[t]
 \centering
-\IfFileExists{HER.png}{\includegraphics[width=0.96\textwidth]{HER.png}}{\IfFileExists{../HER.png}{\includegraphics[width=0.96\textwidth]{../HER.png}}{\IfFileExists{../figures/HER.png}{\includegraphics[width=0.96\textwidth]{../figures/HER.png}}{\includegraphics[width=0.96\textwidth]{figures/fig1_framework_figma.pdf}}}}
+\IfFileExists{HER.png}{\includegraphics[width=0.96\textwidth]{HER.png}}{\IfFileExists{../HER.png}{\includegraphics[width=0.96\textwidth]{../HER.png}}{\IfFileExists{../figures/HER.png}{\includegraphics[width=0.96\textwidth]{../figures/HER.png}}{\includegraphics[width=0.96\textwidth]{figures/fig1_framework_figma.png}}}}
 \caption{Architecture and training objective of the proposed HypEReg-TransMorph framework. The moving image (\(I_m\)) and fixed image (\(I_f\)) are concatenated and passed through a TransMorph-based registration network with a Transformer encoder and CNN decoder to predict a dense 3D displacement field (\(u\)). The deformation transform is defined as \(\phi=\mathrm{Id}+u\), and a spatial transformer warps the moving image to generate the warped image (\(I_w\)). During training, three complementary terms are optimized: similarity loss \(\mathcal{L}_{\mathrm{sim}}(I_w,I_f)\), smoothness \(\lambda_{\mathrm{grad}}\mathcal{L}_{\mathrm{grad}}(u)\), and hyperelastic regularization \(\lambda_{\mathrm{HypEReg}}\mathcal{L}_{\mathrm{HypEReg}}(u)\), with \(\mathcal{L}_{\mathrm{sim}}=-\overline{\mathrm{LCC}^{\,2}}(I_w,I_f)\). The total objective is \(\mathcal{L}=\mathcal{L}_{\mathrm{sim}}+\lambda_{\mathrm{grad}}\mathcal{L}_{\mathrm{grad}}+\lambda_{\mathrm{HypEReg}}\mathcal{L}_{\mathrm{HypEReg}}\). The HypEReg zoom-in panel details computation of \(\mathcal{L}_{\mathrm{HypEReg}}\): \(u\rightarrow J_\phi=I+\nabla u\rightarrow \det J_\phi\rightarrow\) length/volume/folding sub-terms. In the final operating point, the length term is disabled (\(\alpha=0\)), while volume and folding terms remain active (\(\beta=0.02\), \(\gamma=20\)). Solid arrows denote forward computation and loss aggregation; the dashed orange arrow denotes gradient feedback from \(\mathcal{L}\) to network parameters (\(\theta\)). Training uses bidirectional passes (\(x\rightarrow y\), \(y\rightarrow x\)). In the schematic graphic, the regularization branch is labeled with subscript \(\mathrm{HER}\) as a compact shorthand for the HypEReg term \(\mathcal{L}_{\mathrm{HypEReg}}\) used throughout the manuscript.\label{fig1}}
 \end{figure}
 
@@ -368,7 +368,7 @@ The central findings are in deformation regularity metrics. HypEReg-TransMorph y
 
 \begin{figure}[t]
 \centering
-\includegraphics[width=0.96\textwidth]{figures/fig4_jacobian.pdf}
+\includegraphics[width=0.96\textwidth]{figures/fig4_jacobian.png}
 \caption{Jacobian-determinant analysis for deformation plausibility. Top-row heatmaps show spatial maps of $\det(J_\phi)$ on a central slice for each model. The colour bar is fixed to the range $[0.5,1.5]$ \emph{across all panels} so that all methods are rendered on a common, comparable scale; values near $1$ indicate near-volume-preserving local transforms, values below $0.5$ indicate strong local compression, and values above $1.5$ indicate strong local expansion (saturated for visualization). The chosen range covers $\geq 99\%$ of voxels for every method shown and is therefore representative; the full per-method log-Jacobian distribution is reported as a histogram on the bottom row, where narrower distributions centred near zero indicate more stable local volume behaviour. The unsaturated extreme-tail statistics ($J_{\min}, J_{p01}, J_{p99}, J_{\max}$) are reported numerically in the supplementary metric tables and form the basis of the SDlogJ values in Table~\ref{tab2}, so the visualization range is presentational rather than load-bearing for any quantitative claim. (HER-TransMorph in figure panels denotes HypEReg-TransMorph.)\label{fig4}}
 \end{figure}
 
@@ -513,13 +513,13 @@ SyN (ANTs) & N/A & N/A & N/A \\
 
 \begin{figure}[t]
 \centering
-\includegraphics[width=0.96\textwidth]{figures/fig2_qualitative.pdf}
+\includegraphics[width=0.96\textwidth]{figures/fig2_qualitative.png}
 \caption{Qualitative registration comparison on a representative IXI test subject across three orthogonal views (axial/coronal/sagittal). Columns show moving atlas, fixed target, and warped outputs from HypEReg-TransMorph, TransMorph, and MIDIR. Figure~\ref{fig2} qualitatively highlights boundary-alignment behavior in ventricles, cortex, and deep gray structures, complementing the quantitative trends reported in the Results section. (HER-TransMorph in figure panels denotes HypEReg-TransMorph.) \label{fig2}}
 \end{figure}
 
 \begin{figure}[t]
 \centering
-\includegraphics[width=0.96\textwidth]{figures/fig3_gridwarp.pdf}
+\includegraphics[width=0.96\textwidth]{figures/fig3_gridwarp.png}
 \caption{Deformation-grid visualization derived from predicted displacement fields on the same IXI subject. Cyan lattice lines represent transformed coordinates after warping by each model. Smooth, non-self-intersecting grids indicate stable local geometry, whereas abrupt kinks or crossings indicate folding risk. In this representative case, HypEReg-TransMorph qualitatively suggests smoother global transitions and fewer folding-prone patterns. (HER-TransMorph in figure panels denotes HypEReg-TransMorph.)\label{fig3}}
 \end{figure}
 

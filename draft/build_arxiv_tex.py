@@ -32,7 +32,7 @@ PREAMBLE = r"""% arXiv-oriented preprint (standard article class).
 
 \graphicspath{{../}{../figures/}}
 
-\title{HypEReg-TransMorph: A Hyperelastic-Regularized Transformer\\ Framework for Folding-Suppressed Deformable Brain MRI Registration}
+\title{HypEReg: Hyperelastic Regularization for Reducing Folding in Transformer-Based Brain MRI Registration}
 
 \author{%
 Author One$^{1}$,
